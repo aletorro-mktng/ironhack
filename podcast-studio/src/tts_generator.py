@@ -15,26 +15,49 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 DEFAULT_VOICE_SEQUENCE = [
     "coral",
     "alloy",
-    "verse",
+    "fable",
     "sage",
     "ash",
     "nova",
 ]
 
-SPEAKER_LINE_PATTERN = re.compile(r"^\s*([A-Za-z][A-Za-z0-9 ._-]{0,30}):\s*(.+)$")
+TTS_1_SUPPORTED_VOICES = {
+    "alloy",
+    "ash",
+    "coral",
+    "echo",
+    "fable",
+    "nova",
+    "onyx",
+    "sage",
+    "shimmer",
+}
+
+TTS_1_VOICE_FALLBACKS = {
+    "cedar": "ash",
+    "marin": "coral",
+    "verse": "fable",
+}
+
+BRACKET_SPEAKER_LINE_PATTERN = re.compile(r"^\s*\[(HOST|CO-HOST|GUEST)\]\s*(.+)$", re.IGNORECASE)
+COLON_SPEAKER_LINE_PATTERN = re.compile(r"^\s*\**\s*(Host|Co-host|Guest)\s*\**\s*:\s*\**\s*(.+)$", re.IGNORECASE)
 PERFORMANCE_TAG_PATTERN = re.compile(r"(\[[^\]]+\]|\([A-Za-z][A-Za-z0-9 .:_-]{1,30}\)|<[^>]+>)")
+MARKDOWN_HEADING_PATTERN = re.compile(r"^\s*\**\s*(title|script|podcast script)\s*:.*\**\s*$", re.IGNORECASE)
 
 TAG_PAUSE_DURATIONS = {
-    "laugh": 450,
-    "laughs": 450,
-    "laughing": 450,
-    "sigh": 500,
-    "sighs": 500,
-    "cough": 350,
-    "coughs": 350,
-    "breath": 250,
-    "breathes": 250,
     "pause": 700,
+}
+
+PERFORMANCE_EFFECT_TAGS = {
+    "laugh",
+    "laughs",
+    "laughing",
+    "sigh",
+    "sighs",
+    "cough",
+    "coughs",
+    "breath",
+    "breathes",
 }
 
 MUSIC_STYLE_FREQUENCIES = {
@@ -43,6 +66,19 @@ MUSIC_STYLE_FREQUENCIES = {
     "news": [330, 392, 523, 659],
     "tech": [220, 440, 660, 880],
     "warm": [349, 440, 523, 698],
+}
+
+ACCENT_INSTRUCTIONS = {
+    "neutral": "Speak clearly with a neutral, natural podcast delivery.",
+    "american": "Speak clearly with a natural American English accent.",
+    "british": "Speak clearly with a natural British English accent.",
+    "spanish": "Speak clearly with a natural Spanish accent while preserving the script wording.",
+    "mexican spanish": "Speak clearly with a natural Mexican Spanish accent while preserving the script wording.",
+    "french": "Speak clearly with a natural French accent while preserving the script wording.",
+    "german": "Speak clearly with a natural German accent while preserving the script wording.",
+    "italian": "Speak clearly with a natural Italian accent while preserving the script wording.",
+    "indian english": "Speak clearly with a natural Indian English accent.",
+    "australian": "Speak clearly with a natural Australian English accent.",
 }
 
 
@@ -57,17 +93,20 @@ def parse_script_segments(script_text: str) -> list[tuple[str, str]]:
         if not stripped:
             continue
 
-        match = SPEAKER_LINE_PATTERN.match(stripped)
+        if MARKDOWN_HEADING_PATTERN.match(stripped):
+            continue
+
+        match = BRACKET_SPEAKER_LINE_PATTERN.match(stripped) or COLON_SPEAKER_LINE_PATTERN.match(stripped)
 
         if match:
             if current_lines:
                 segments.append((current_speaker, " ".join(current_lines)))
                 current_lines = []
 
-            current_speaker = match.group(1).strip()
-            current_lines.append(match.group(2).strip())
+            current_speaker = f"[{match.group(1).strip().upper()}]"
+            current_lines.append(match.group(2).strip().strip("*").strip())
         else:
-            current_lines.append(stripped)
+            current_lines.append(stripped.strip("*").strip())
 
     if current_lines:
         segments.append((current_speaker, " ".join(current_lines)))
@@ -76,7 +115,7 @@ def parse_script_segments(script_text: str) -> list[tuple[str, str]]:
 
 
 def normalize_speaker_name(speaker: str) -> str:
-    return speaker.strip().lower()
+    return speaker.strip().strip("[]").lower().replace("_", "-")
 
 
 def normalize_tag(tag: str) -> str:
@@ -102,37 +141,85 @@ def create_sound_effect(effect_name: str) -> AudioSegment:
 
     if normalized_name == "ding":
         return (
-            Sine(880).to_audio_segment(duration=180).fade_in(5).fade_out(80)
-            + Sine(1320).to_audio_segment(duration=220).fade_in(5).fade_out(120)
-        ) - 8
+            Sine(880).to_audio_segment(duration=160).fade_in(5).fade_out(60)
+            + Sine(1320).to_audio_segment(duration=260).fade_in(5).fade_out(140)
+        ) - 4
 
     if normalized_name == "chime":
         return (
             Sine(660).to_audio_segment(duration=180).fade_out(100)
             + Sine(880).to_audio_segment(duration=180).fade_out(100)
             + Sine(1100).to_audio_segment(duration=240).fade_out(150)
-        ) - 10
+        ) - 6
 
     if normalized_name == "transition":
         return (
             Sine(440).to_audio_segment(duration=120).fade_out(80)
             + Sine(660).to_audio_segment(duration=120).fade_out(80)
             + Sine(880).to_audio_segment(duration=160).fade_out(100)
-        ) - 9
+        ) - 5
 
     if normalized_name == "whoosh":
-        return WhiteNoise().to_audio_segment(duration=550).fade_in(220).fade_out(180) - 28
+        return WhiteNoise().to_audio_segment(duration=650).fade_in(260).fade_out(220) - 22
 
     if normalized_name == "applause":
         burst = AudioSegment.silent(duration=0)
 
-        for _ in range(6):
-            burst += WhiteNoise().to_audio_segment(duration=65).fade_in(5).fade_out(35) - 24
-            burst += AudioSegment.silent(duration=55)
+        for _ in range(9):
+            burst += WhiteNoise().to_audio_segment(duration=55).fade_in(3).fade_out(35) - 18
+            burst += AudioSegment.silent(duration=45)
 
         return burst
 
     return AudioSegment.silent(duration=300)
+
+
+def create_performance_effect(tag_name: str) -> AudioSegment:
+    normalized_name = tag_name.strip().lower()
+
+    if normalized_name in ("sigh", "sighs"):
+        sigh = WhiteNoise().to_audio_segment(duration=700).fade_in(120).fade_out(260) - 34
+        fall = Sine(220).to_audio_segment(duration=300).fade_in(20).fade_out(260) - 24
+        return sigh.overlay(fall, position=100)
+
+    if normalized_name in ("cough", "coughs"):
+        cough = AudioSegment.silent(duration=0)
+
+        for _ in range(2):
+            cough += WhiteNoise().to_audio_segment(duration=95).fade_in(5).fade_out(45) - 17
+            cough += AudioSegment.silent(duration=90)
+
+        return cough
+
+    if normalized_name in ("breath", "breathes"):
+        return WhiteNoise().to_audio_segment(duration=320).fade_in(120).fade_out(160) - 38
+
+    return AudioSegment.silent(duration=300)
+
+
+def generate_tts_performance_effect(
+    tag_name: str,
+    voice: str,
+    accent: str,
+    temp_dir: Path,
+    segment_index: int
+) -> tuple[AudioSegment, int]:
+    normalized_name = tag_name.strip().lower()
+
+    if normalized_name not in ("laugh", "laughs", "laughing"):
+        return create_performance_effect(tag_name), segment_index
+
+    effect_path = temp_dir / f"segment_{segment_index:03}_laugh.mp3"
+
+    with client.audio.speech.with_streaming_response.create(
+        model=os.getenv("TTS_MODEL", "tts-1"),
+        voice=voice,
+        instructions=f"{speech_instructions_for_accent(accent)} Give a brief, natural, friendly chuckle. Do not say any words.",
+        input="Haha.",
+    ) as response:
+        response.stream_to_file(effect_path)
+
+    return AudioSegment.from_file(effect_path) - 2, segment_index + 1
 
 
 def get_audio_file_path(audio_file: Any) -> Optional[Path]:
@@ -207,6 +294,8 @@ def parse_performance_parts(text: str) -> list[tuple[str, object]]:
 
         if normalized_tag.startswith("sfx:"):
             parts.append(("sfx", normalized_tag.split(":", 1)[1].strip()))
+        elif normalized_tag in PERFORMANCE_EFFECT_TAGS:
+            parts.append(("effect", normalized_tag))
         else:
             parts.append(("pause", pause_duration_for_tag(match.group(0))))
 
@@ -226,6 +315,7 @@ def voice_for_speaker(
     configured_voices: Optional[dict[str, str]] = None
 ) -> str:
     normalized_speaker = speaker.lower()
+    normalized_speaker = normalize_speaker_name(normalized_speaker)
 
     if configured_voices and normalized_speaker in configured_voices:
         return configured_voices[normalized_speaker]
@@ -237,9 +327,36 @@ def voice_for_speaker(
     return voice_map[normalized_speaker]
 
 
+def resolve_voice_for_model(voice: str, model: str) -> str:
+    normalized_voice = voice.strip().lower()
+
+    if model == "tts-1" and normalized_voice not in TTS_1_SUPPORTED_VOICES:
+        return TTS_1_VOICE_FALLBACKS.get(normalized_voice, "alloy")
+
+    return normalized_voice
+
+
+def accent_for_speaker(
+    speaker: str,
+    configured_accents: Optional[dict[str, str]] = None
+) -> str:
+    normalized_speaker = normalize_speaker_name(speaker)
+
+    if configured_accents and normalized_speaker in configured_accents:
+        return configured_accents[normalized_speaker]
+
+    return "neutral"
+
+
+def speech_instructions_for_accent(accent: str) -> str:
+    normalized_accent = accent.strip().lower()
+    return ACCENT_INSTRUCTIONS.get(normalized_accent, ACCENT_INSTRUCTIONS["neutral"])
+
+
 def generate_audio(
     script_text: str,
     speaker_voices: Optional[dict[str, str]] = None,
+    speaker_accents: Optional[dict[str, str]] = None,
     intro_music: str = "None",
     outro_music: str = "None",
     intro_music_file: Any = None,
@@ -267,11 +384,18 @@ def generate_audio(
         for speaker, voice in (speaker_voices or {}).items()
         if speaker and voice
     }
+    configured_accents = {
+        normalize_speaker_name(speaker): accent
+        for speaker, accent in (speaker_accents or {}).items()
+        if speaker and accent
+    }
     combined_audio = AudioSegment.empty()
     segment_index = 1
 
     for speaker, text in segments:
-        voice = voice_for_speaker(speaker, voice_map, configured_voices)
+        tts_model = os.getenv("TTS_MODEL", "tts-1")
+        voice = resolve_voice_for_model(voice_for_speaker(speaker, voice_map, configured_voices), tts_model)
+        accent = accent_for_speaker(speaker, configured_accents)
 
         for part_type, part_value in parse_performance_parts(text):
             if part_type == "pause":
@@ -283,11 +407,24 @@ def generate_audio(
                 combined_audio += AudioSegment.silent(duration=150)
                 continue
 
+            if part_type == "effect":
+                performance_audio, segment_index = generate_tts_performance_effect(
+                    str(part_value),
+                    voice,
+                    accent,
+                    temp_dir,
+                    segment_index
+                )
+                combined_audio += performance_audio
+                combined_audio += AudioSegment.silent(duration=120)
+                continue
+
             segment_path = temp_dir / f"segment_{segment_index:03}.mp3"
 
             with client.audio.speech.with_streaming_response.create(
-                model=os.getenv("TTS_MODEL", "tts-1"),
+                model=tts_model,
                 voice=voice,
+                instructions=speech_instructions_for_accent(accent),
                 input=str(part_value)[:4000],
             ) as response:
                 response.stream_to_file(segment_path)

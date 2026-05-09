@@ -8,16 +8,31 @@ from src.tts_generator import generate_audio
 load_dotenv()
 
 VOICE_CHOICES = [
-    "alloy",
-    "ash",
-    "coral",
-    "echo",
-    "fable",
-    "nova",
-    "onyx",
-    "sage",
-    "shimmer",
-    "verse",
+    ("Neutral - Alloy", "alloy"),
+    ("Masculine - Ash", "ash"),
+    ("Masculine - Cedar (newer TTS models)", "cedar"),
+    ("Feminine - Coral", "coral"),
+    ("Masculine - Echo", "echo"),
+    ("Expressive - Fable", "fable"),
+    ("Feminine - Marin (newer TTS models)", "marin"),
+    ("Feminine - Nova", "nova"),
+    ("Masculine - Onyx", "onyx"),
+    ("Feminine - Sage", "sage"),
+    ("Feminine - Shimmer", "shimmer"),
+    ("Expressive - Verse (newer TTS models)", "verse"),
+]
+
+ACCENT_CHOICES = [
+    "neutral",
+    "American",
+    "British",
+    "Spanish",
+    "Mexican Spanish",
+    "French",
+    "German",
+    "Italian",
+    "Indian English",
+    "Australian",
 ]
 
 TAG_SUGGESTIONS = {
@@ -47,6 +62,28 @@ MUSIC_CHOICES = [
     "Generated: warm",
 ]
 
+TARGET_AUDIENCE_CHOICES = [
+    "general learners",
+    "beginners",
+    "students",
+    "professionals",
+    "executives",
+    "teachers",
+    "technical audience",
+    "kids",
+]
+
+TONE_CHOICES = [
+    "friendly",
+    "conversational",
+    "educational",
+    "energetic",
+    "serious",
+    "funny",
+    "inspirational",
+    "news-style",
+]
+
 
 def append_tag_to_script(script, tag_label):
     tag = TAG_SUGGESTIONS.get(tag_label) or SOUND_EFFECT_SUGGESTIONS.get(tag_label) or tag_label
@@ -70,7 +107,17 @@ def verify_script(script):
         return script, f"Error: {str(error)}"
 
 
-def generate_script(title, pasted_text, uploaded_file, url, length, speaker_count, script_type):
+def generate_script(
+    title,
+    pasted_text,
+    uploaded_file,
+    url,
+    length,
+    speaker_count,
+    script_type,
+    target_audience,
+    tone
+):
     try:
         podcast_input = process_input(
             pasted_text=pasted_text,
@@ -89,7 +136,9 @@ def generate_script(title, pasted_text, uploaded_file, url, length, speaker_coun
             podcast_input=podcast_input,
             length=length,
             speaker_count=speaker_count,
-            script_type=script_type
+            script_type=script_type,
+            target_audience=target_audience,
+            tone=tone
         )
 
         status = f"Script generated from {podcast_input.source_type} input. Review or edit it, then generate audio."
@@ -108,6 +157,9 @@ def generate_podcast_audio(
     voice_2,
     speaker_3,
     voice_3,
+    accent_1,
+    accent_2,
+    accent_3,
     intro_music,
     intro_music_file,
     outro_music,
@@ -122,16 +174,33 @@ def generate_podcast_audio(
             speaker_2: voice_2,
             speaker_3: voice_3,
         }
+        speaker_accents = {
+            speaker_1: accent_1,
+            speaker_2: accent_2,
+            speaker_3: accent_3,
+        }
 
         audio_path = generate_audio(
             script,
             speaker_voices=speaker_voices,
+            speaker_accents=speaker_accents,
             intro_music=intro_music,
             intro_music_file=intro_music_file,
             outro_music=outro_music,
             outro_music_file=outro_music_file
         )
-        return audio_path, "Podcast audio generated from the edited script."
+        accent_values = [accent_1, accent_2, accent_3]
+        voice_values = [voice_1, voice_2, voice_3]
+        accent_note = ""
+        voice_note = ""
+
+        if any(accent and accent != "neutral" for accent in accent_values):
+            accent_note = " Accent guidance was sent to the TTS model, but strength depends on the selected voice/model."
+
+        if os.getenv("TTS_MODEL", "tts-1") == "tts-1" and any(voice in {"cedar", "marin", "verse"} for voice in voice_values):
+            voice_note = " Cedar, Marin, and Verse require newer TTS models; tts-1 used fallback voices."
+
+        return audio_path, f"Podcast audio generated from the edited script.{accent_note}{voice_note}"
 
     except Exception as error:
         return None, f"Error: {str(error)}"
@@ -161,19 +230,32 @@ with gr.Blocks(title="Podcast Studio") as demo:
             label="Speakers"
         )
 
-    script_type = gr.Dropdown(
-        choices=[
-            "interview",
-            "debate",
-            "roundtable",
-            "solo recap",
-            "narrative explainer",
-            "news briefing",
-            "teacher and student"
-        ],
-        value="interview",
-        label="Script Type"
-    )
+    with gr.Row():
+        script_type = gr.Dropdown(
+            choices=[
+                "interview",
+                "debate",
+                "roundtable",
+                "solo recap",
+                "narrative explainer",
+                "news briefing",
+                "teacher and student"
+            ],
+            value="interview",
+            label="Script Type"
+        )
+
+        target_audience = gr.Dropdown(
+            choices=TARGET_AUDIENCE_CHOICES,
+            value="general learners",
+            label="Target Audience"
+        )
+
+        tone = gr.Dropdown(
+            choices=TONE_CHOICES,
+            value="friendly",
+            label="Tone"
+        )
 
     pasted_text = gr.Textbox(
         label="Paste transcript, notes, or article text",
@@ -197,7 +279,7 @@ with gr.Blocks(title="Podcast Studio") as demo:
     script_output = gr.Textbox(
         label="Editable Podcast Script",
         lines=15,
-        placeholder="Host: Welcome back. [laughs]\nCo-host: Today we are unpacking the main ideas. [pause:1s]\nHost: Let's begin. [sfx:transition]"
+        placeholder="[HOST] Welcome back. [laughs]\n[CO-HOST] Today we are unpacking the main ideas. [pause:1s]\n[HOST] Let's begin. [sfx:transition]"
     )
 
     with gr.Row():
@@ -223,7 +305,7 @@ with gr.Blocks(title="Podcast Studio") as demo:
     with gr.Row():
         speaker_1 = gr.Textbox(
             label="Speaker 1 Label",
-            value="Host"
+            value="[HOST]"
         )
 
         voice_1 = gr.Dropdown(
@@ -232,10 +314,16 @@ with gr.Blocks(title="Podcast Studio") as demo:
             label="Speaker 1 Voice"
         )
 
+        accent_1 = gr.Dropdown(
+            choices=ACCENT_CHOICES,
+            value="neutral",
+            label="Speaker 1 Accent Guidance"
+        )
+
     with gr.Row():
         speaker_2 = gr.Textbox(
             label="Speaker 2 Label",
-            value="Co-host"
+            value="[CO-HOST]"
         )
 
         voice_2 = gr.Dropdown(
@@ -244,16 +332,28 @@ with gr.Blocks(title="Podcast Studio") as demo:
             label="Speaker 2 Voice"
         )
 
+        accent_2 = gr.Dropdown(
+            choices=ACCENT_CHOICES,
+            value="neutral",
+            label="Speaker 2 Accent Guidance"
+        )
+
     with gr.Row():
         speaker_3 = gr.Textbox(
             label="Speaker 3 Label",
-            value="Guest"
+            value="[GUEST]"
         )
 
         voice_3 = gr.Dropdown(
             choices=VOICE_CHOICES,
-            value="verse",
+            value="fable",
             label="Speaker 3 Voice"
+        )
+
+        accent_3 = gr.Dropdown(
+            choices=ACCENT_CHOICES,
+            value="neutral",
+            label="Speaker 3 Accent Guidance"
         )
 
     with gr.Row():
@@ -295,7 +395,17 @@ with gr.Blocks(title="Podcast Studio") as demo:
 
     generate_script_button.click(
         fn=generate_script,
-        inputs=[title, pasted_text, uploaded_file, url, length, speaker_count, script_type],
+        inputs=[
+            title,
+            pasted_text,
+            uploaded_file,
+            url,
+            length,
+            speaker_count,
+            script_type,
+            target_audience,
+            tone
+        ],
         outputs=[script_output, status_output]
     )
 
@@ -327,6 +437,9 @@ with gr.Blocks(title="Podcast Studio") as demo:
             voice_2,
             speaker_3,
             voice_3,
+            accent_1,
+            accent_2,
+            accent_3,
             intro_music,
             intro_music_file,
             outro_music,
