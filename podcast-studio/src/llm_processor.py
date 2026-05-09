@@ -9,7 +9,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 def create_podcast_script(podcast_input: PodcastInput, length: str = "short") -> str:
-    model = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+    model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
     prompt = f"""
 Create a short educational podcast script.

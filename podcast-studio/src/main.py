@@ -1,7 +1,11 @@
+import os
 import gradio as gr
+from dotenv import load_dotenv
 from src.data_processor import process_input
 from src.llm_processor import create_podcast_script
 from src.tts_generator import generate_audio
+
+load_dotenv()
 
 
 def generate_podcast(title, pasted_text, uploaded_file, url, length):
@@ -12,6 +16,13 @@ def generate_podcast(title, pasted_text, uploaded_file, url, length):
             url=url,
             title=title
         )
+
+        if not os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY") == "your_openai_api_key_here":
+            return (
+                "",
+                None,
+                f"{podcast_input.source_type.upper()} uploaded and {len(podcast_input.raw_text)} characters were extracted. Add your OPENAI_API_KEY in .env to generate the script and audio."
+            )
 
         script = create_podcast_script(
             podcast_input=podcast_input,

@@ -1,6 +1,6 @@
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional
 import requests
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
@@ -66,14 +66,36 @@ def extract_text_from_url(url: str) -> str:
     return clean_text(text)
 
 
+def get_uploaded_file_path(uploaded_file: Any) -> Optional[Path]:
+    if not uploaded_file:
+        return None
+
+    if isinstance(uploaded_file, (str, Path)):
+        return Path(uploaded_file)
+
+    if isinstance(uploaded_file, dict):
+        for key in ("path", "name", "orig_name"):
+            value = uploaded_file.get(key)
+            if value:
+                return Path(value)
+
+    for attribute in ("name", "path"):
+        value = getattr(uploaded_file, attribute, None)
+        if value:
+            return Path(value)
+
+    raise ValueError("The uploaded file could not be read. Please try selecting it again.")
+
+
 def process_input(
     pasted_text: Optional[str] = None,
-    uploaded_file: Optional[str] = None,
+    uploaded_file: Any = None,
     url: Optional[str] = None,
     title: str = "Podcast Recap"
 ) -> PodcastInput:
-    if uploaded_file:
-        file_path = Path(uploaded_file)
+    file_path = get_uploaded_file_path(uploaded_file)
+
+    if file_path:
         extension = file_path.suffix.lower()
 
         if extension == ".pdf":

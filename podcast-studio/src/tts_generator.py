@@ -19,7 +19,7 @@ def generate_audio(script_text: str, output_dir: str = "outputs") -> str:
     output_path = Path(output_dir) / f"podcast_episode_{timestamp}.mp3"
 
     with client.audio.speech.with_streaming_response.create(
-        model=os.getenv("TTS_MODEL", "gpt-4o-mini-tts"),
+        model=os.getenv("TTS_MODEL", "tts-1"),
         voice=os.getenv("TTS_VOICE", "coral"),
         input=script_text[:4000],
     ) as response:
