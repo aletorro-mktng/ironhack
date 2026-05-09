@@ -1,6 +1,7 @@
 beautifulsoup4==4.14.3
 gradio==4.42.0
 openai==2.36.0
+pydub==0.25.1
 pydantic==2.10.6
 pypdf==6.10.2
 python-docx==1.2.0
