@@ -1,0 +1,27 @@
+[
+  {
+    "status": "success",
+    "product": {
+      "id": 15970,
+      "name": "Turtle Check Men Navy Blue Shirt",
+      "price": 112.3,
+      "category": "Shirts",
+      "image_path": "product_images/product_15970.jpg",
+      "additional_info": "additional_info: gender: Men; baseColour: Navy Blue; season: Fall; usage: Casual"
+    },
+    "listing": {
+      "title": "Turtle Check Men Navy Blue Shirt | Stylish Shirts",
+      "description": "Bring a polished upgrade to your everyday essentials with Turtle Check Men Navy Blue Shirt. Designed for shoppers who want style, practicality, and a clean product presentation, this shirts item is positioned as a versatile choice for modern buyers. The listing generator would normally analyze the product image to describe visible details such as color, silhouette, material cues, and design elements. This mock entry confirms that the batch workflow, JSON formatting, and save process are working before using real API calls.",
+      "features": [
+        "Generated in offline mock mode for testing",
+        "Structured JSON output",
+        "SEO-friendly title format",
+        "Buyer-focused product description",
+        "Batch processing compatible",
+        "Ready for API replacement"
+      ],
+      "keywords": "Turtle Check Men Navy Blue Shirt, Shirts, online shopping, product listing, ecommerce, product description, SEO listing, retail, catalog, product copy"
+    },
+    "processing_seconds": 0.0
+  }
+]

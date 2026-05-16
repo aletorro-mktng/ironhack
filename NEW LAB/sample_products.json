@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Wireless Bluetooth Headphones",
+    "price": 79.99,
+    "category": "Electronics",
+    "image_path": "product_images/headphones.jpg",
+    "additional_info": "Noise cancelling, 30-hour battery"
+  },
+  {
+    "id": 2,
+    "name": "Classic Cotton T-Shirt",
+    "price": 24.99,
+    "category": "Apparel",
+    "image_path": "product_images/tshirt.jpg",
+    "additional_info": "Unisex fit, everyday wear"
+  },
+  {
+    "id": 3,
+    "name": "Minimalist Running Shoes",
+    "price": 89.99,
+    "category": "Footwear",
+    "image_path": "product_images/running_shoes.jpg",
+    "additional_info": "Lightweight training shoe"
+  }
+]

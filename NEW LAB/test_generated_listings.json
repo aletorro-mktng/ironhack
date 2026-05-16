@@ -1,0 +1,27 @@
+[
+  {
+    "status": "success",
+    "product": {
+      "id": 1,
+      "name": "Test Product",
+      "price": 29.99,
+      "category": "Test Category",
+      "image_path": "product_images/product_26960.jpg",
+      "additional_info": "additional_info: Test product for refactoring validation"
+    },
+    "listing": {
+      "title": "Test Product | Stylish Test Category",
+      "description": "Bring a polished upgrade to your everyday essentials with Test Product. Designed for shoppers who want style, practicality, and a clean product presentation, this test category item is positioned as a versatile choice for modern buyers. The listing generator would normally analyze the product image to describe visible details such as color, silhouette, material cues, and design elements. This mock entry confirms that the batch workflow, JSON formatting, and save process are working before using real API calls.",
+      "features": [
+        "Generated in offline mock mode for testing",
+        "Structured JSON output",
+        "SEO-friendly title format",
+        "Buyer-focused product description",
+        "Batch processing compatible",
+        "Ready for API replacement"
+      ],
+      "keywords": "Test Product, Test Category, online shopping, product listing, ecommerce, product description, SEO listing, retail, catalog, product copy"
+    },
+    "processing_seconds": 0.0
+  }
+]

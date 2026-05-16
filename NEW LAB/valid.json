@@ -1,0 +1,10 @@
+[
+  {
+    "id": 1,
+    "name": "Test Product",
+    "price": 29.99,
+    "category": "Test Category",
+    "image_path": "product_images/product_26960.jpg",
+    "additional_info": "Test product for refactoring validation"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "products": [
+    {
+      "id": "BAD001",
+      "name": "",
+      "category": "Electronics",
+      "price": -99.99,
+      "features": [
+        "Negative price should fail validation"
+      ]
+    },
+    {
+      "id": "BAD002",
+      "category": "Wearables",
+      "price": 149.99,
+      "features": [
+        "Missing name should fail validation"
+      ]
+    },
+    {
+      "id": "BAD003",
+      "name": "Incomplete Product",
+      "price": 49.99
+    }
+  ]
+}

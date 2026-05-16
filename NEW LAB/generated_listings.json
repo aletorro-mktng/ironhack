@@ -1,0 +1,80 @@
+[
+  {
+    "status": "success",
+    "product": {
+      "id": 15970,
+      "name": "Turtle Check Men Navy Blue Shirt",
+      "price": 112.3,
+      "category": "Shirts",
+      "image_path": "product_images/product_15970.jpg",
+      "additional_info": "additional_info: gender: Men; baseColour: Navy Blue; season: Fall; usage: Casual"
+    },
+    "listing": {
+      "title": "Turtle Check Men Navy Blue Shirt - Stylish & Casual",
+      "description": "Elevate your casual wardrobe with the Turtle Check Men Navy Blue Shirt. Crafted for the modern man, this shirt features a timeless check pattern in a rich navy blue color, perfect for the fall season. The short sleeves provide a relaxed feel, making it ideal for both laid-back outings and smart-casual events. Made from high-quality materials, it ensures comfort and durability, allowing you to wear it confidently throughout the day. Pair it effortlessly with jeans or chinos for a polished look without compromising on comfort. The versatile design makes it a must-have addition to your collection, offering style that never goes out of fashion. Embrace a refined yet casual aesthetic with this essential shirt, designed to keep you looking sharp and feeling great.",
+      "features": [
+        "Rich navy blue color for a classic look",
+        "Timeless check pattern adds visual interest",
+        "Short sleeves perfect for casual wear",
+        "Ideal for fall season styling",
+        "Comfortable fit for all-day wear",
+        "Easy to pair with jeans or chinos",
+        "High-quality material ensures durability"
+      ],
+      "keywords": "men's navy blue shirt, casual shirts for men, Turtle Check shirt, fall fashion, stylish men's shirts, short sleeve shirt, check pattern shirt, comfortable men's clothing, versatile men's attire, trendy casual wear"
+    },
+    "processing_seconds": 9.38
+  },
+  {
+    "status": "success",
+    "product": {
+      "id": 39386,
+      "name": "Peter England Men Party Blue Jeans",
+      "price": 65.76,
+      "category": "Jeans",
+      "image_path": "product_images/product_39386.jpg",
+      "additional_info": "additional_info: gender: Men; baseColour: Blue; season: Summer; usage: Casual"
+    },
+    "listing": {
+      "title": "Stylish Peter England Men’s Blue Party Jeans",
+      "description": "Elevate your casual wardrobe with the Peter England Men’s Party Blue Jeans, designed for the modern man who values both style and comfort. Crafted from high-quality denim, these jeans feature a rich blue color that’s perfect for summer outings and casual events. The slim-fit design not only flatters your silhouette but also allows for easy movement, making them ideal for any social gathering. The unique distressed detailing adds a trendy touch, while the classic five-pocket style ensures practicality for storing your essentials. Pair them effortlessly with a stylish t-shirt or a smart casual shirt to achieve a versatile look that transitions seamlessly from day to night. Whether you’re heading to a party or enjoying a weekend outing, these jeans are your go-to choice for making a lasting impression.",
+      "features": [
+        "Stylish blue color perfect for summer",
+        "Crafted from durable denim material",
+        "Slim-fit design for a flattering silhouette",
+        "Unique distressed detailing for a trendy look",
+        "Classic five-pocket style for practicality",
+        "Versatile for both casual and party wear",
+        "Comfortable fit for all-day wear"
+      ],
+      "keywords": "Peter England jeans, men’s blue jeans, casual jeans, summer fashion, stylish party jeans, slim-fit jeans, denim wear, trendy men’s clothing, casual outfits, versatile jeans"
+    },
+    "processing_seconds": 9.29
+  },
+  {
+    "status": "success",
+    "product": {
+      "id": 59263,
+      "name": "Titan Women Silver Watch",
+      "price": 22.32,
+      "category": "Watches",
+      "image_path": "product_images/product_59263.jpg",
+      "additional_info": "additional_info: gender: Women; baseColour: Silver; season: Winter; usage: Casual"
+    },
+    "listing": {
+      "title": "Elegant Titan Women Silver Watch - Perfect for Casual Style",
+      "description": "Introducing the Titan Women Silver Watch, a stunning accessory designed for the modern woman. With its sleek silver finish, this watch effortlessly complements any casual outfit, making it a versatile addition to your wardrobe this winter. The minimalist design features a clean white dial and simple hour markers, ensuring easy readability while maintaining an elegant look. Made with durable materials, this watch promises both style and longevity, perfect for daily wear.\n\nIts lightweight construction and comfortable fit make it ideal for all-day use, whether you're at work, running errands, or enjoying a day out with friends. Elevate your accessory game with this chic timepiece that embodies sophistication without compromising on comfort. Priced at just $22.32, the Titan Women Silver Watch is an affordable luxury that adds a touch of class to your casual style. Don't miss the chance to own this timeless piece!",
+      "features": [
+        "Sleek silver design for a modern look",
+        "Minimalist white dial for easy readability",
+        "Durable materials ensure long-lasting wear",
+        "Lightweight and comfortable for all-day use",
+        "Versatile for casual outfits this winter",
+        "Affordable luxury at just $22.32",
+        "Perfect gift for any occasion"
+      ],
+      "keywords": "Titan Women Watch, silver watch for women, casual watches, winter accessories, stylish women's watch, affordable luxury watch, minimalist design watch, elegant silver timepiece, everyday wear watch, women's fashion accessories"
+    },
+    "processing_seconds": 9.32
+  }
+]

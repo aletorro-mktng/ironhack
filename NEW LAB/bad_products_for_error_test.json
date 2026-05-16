@@ -1,0 +1,10 @@
+[
+  {
+    "id": "ERROR-1",
+    "name": "Missing Image Test Product",
+    "price": 9.99,
+    "category": "Testing",
+    "image_path": "product_images/this_file_does_not_exist.jpg",
+    "additional_info": "Used to demonstrate graceful error handling"
+  }
+]

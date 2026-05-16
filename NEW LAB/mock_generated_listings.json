@@ -1,0 +1,27 @@
+[
+  {
+    "status": "success",
+    "product": {
+      "id": 1,
+      "name": "Wireless Bluetooth Headphones",
+      "price": 79.99,
+      "category": "Electronics",
+      "image_path": "product_images/headphones.jpg",
+      "additional_info": "Noise cancelling, 30-hour battery"
+    },
+    "listing": {
+      "title": "Wireless Bluetooth Headphones | Stylish Electronics",
+      "description": "Bring a polished upgrade to your everyday essentials with Wireless Bluetooth Headphones. Designed for shoppers who want style, practicality, and a clean product presentation, this electronics item is positioned as a versatile choice for modern buyers. The real API run will analyze the product image to describe visible details such as color, silhouette, material cues, and design elements. This mock entry confirms that the batch workflow, JSON formatting, and save process are working before using real API calls.",
+      "features": [
+        "Generated in offline mock mode for testing",
+        "Structured JSON output",
+        "SEO-friendly title format",
+        "Buyer-focused product description",
+        "Batch processing compatible",
+        "Ready for API replacement"
+      ],
+      "keywords": "Wireless Bluetooth Headphones, Electronics, online shopping, product listing, ecommerce, product description, SEO listing, retail, catalog, product copy"
+    },
+    "processing_seconds": 0.01
+  }
+]
