@@ -1,0 +1,28 @@
+# Environment variables / secrets
+.env
+
+# Virtual environments
+venv/
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Testing / cache
+.pytest_cache/
+.mypy_cache/
+
+# Mac system files
+.DS_Store
+
+# Logs
+*.log
+
+# Temporary outputs
+outputs/temp/
+
+# Private manuscripts
+knowledge_base/private_manuscripts/

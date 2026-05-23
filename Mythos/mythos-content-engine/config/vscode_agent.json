@@ -1,0 +1,5 @@
+{
+  "project": "mythos-content-engine",
+  "entrypoint": "src/main.py",
+  "outputsDirectory": "outputs"
+}
