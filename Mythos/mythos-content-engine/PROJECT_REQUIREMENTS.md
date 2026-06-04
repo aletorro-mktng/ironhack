@@ -11,6 +11,8 @@ The system should combine curated knowledge base files, reusable prompt template
 - Store brand, story, character, theme, and market context in structured markdown files.
 - Load relevant knowledge base material into prompts.
 - Support reusable templates for different content formats.
+- Support structured CLI selection options for platforms, objectives, audiences, constraints, quote sources, quote moods, and character tags.
+- Filter relevant context before generation so drafts use the most appropriate knowledge base material.
 - Generate content drafts through an LLM integration layer.
 - Save generated outputs to the `outputs/` directory.
 - Keep the project modular so each part can be tested and replaced independently.
@@ -23,9 +25,12 @@ The system should combine curated knowledge base files, reusable prompt template
 - Prompt template loading and formatting.
 - Basic document processing for local text and markdown files.
 - Content pipeline orchestration.
+- Two-stage context filtering and content generation.
 - LLM provider abstraction.
 - CLI entry point through `src/main.py`.
 - Output file generation.
+- Quote-post generation using only approved quote-bank entries.
+- Podcast episode package generation as text scripts and production notes.
 
 ### Out of Scope for MVP
 
@@ -35,6 +40,7 @@ The system should combine curated knowledge base files, reusable prompt template
 - Automated publishing to social platforms.
 - Multi-user collaboration.
 - Full content performance analytics.
+- Full podcast audio rendering, voice synthesis, editing, mastering, or distribution.
 
 ## 4. Directory Responsibilities
 
@@ -46,6 +52,8 @@ Contains the Python application code.
 - `knowledge_base.py`: Reads and organizes primary and secondary knowledge files.
 - `prompt_templates.py`: Loads prompt templates and prepares template variables.
 - `content_pipeline.py`: Coordinates knowledge, templates, prompts, LLM calls, and output saving.
+- `context_filter.py`: Selects and summarizes relevant knowledge before final content generation.
+- `selection_options.py`: Stores reusable CLI option lists for structured user briefs.
 - `llm_integration.py`: Connects to the selected LLM provider.
 - `main.py`: CLI entry point.
 
@@ -58,6 +66,8 @@ Stores core canon and brand material.
 - `characters.md`: Character profiles, relationships, motivations, and voice notes.
 - `themes.md`: Major themes, motifs, emotional territory, and boundaries.
 - `past_content.md`: Existing content examples and reusable patterns.
+- `quote_bank.md`: Approved exact book quotes and quote metadata for quote posts.
+- `real_reviews.md`: Approved real review excerpts and attribution.
 
 ### `knowledge_base/secondary/`
 
@@ -77,6 +87,8 @@ Stores reusable content templates.
 - `newsletter_blurb.md`
 - `character_spotlight.md`
 - `review_pull_quote.md`
+- `quote_post.md`
+- `podcast.md`
 
 ### `outputs/`
 
@@ -102,6 +114,11 @@ Stores local configuration files, including agent/editor configuration.
    - Newsletter blurb
    - Character spotlight
    - Review pull quote
+   - Quote post
+   - Podcast episode package
+9. Quote posts must use only approved quotes from the Mortal Vengeance Quote Bank.
+10. Quote posts must not select a book/source whose approved quotes are unavailable in the quote bank.
+11. Podcast generation must produce a complete text-based episode package while audio rendering remains out of scope.
 
 ## 6. Non-Functional Requirements
 
@@ -132,11 +149,12 @@ OUTPUT_DIRECTORY=outputs
 1. User selects a content type.
 2. User provides a topic or brief.
 3. System loads relevant knowledge base files.
-4. System loads the matching template.
-5. System builds a complete prompt.
-6. System sends the prompt to the LLM provider.
-7. System saves the generated draft in `outputs/`.
-8. System prints the output path and a short completion message.
+4. System filters the most relevant context for the request.
+5. System loads the matching template.
+6. System builds a complete prompt.
+7. System sends the prompt to the LLM provider.
+8. System saves filtered context, generation prompt, and generated draft in `outputs/`.
+9. System prints the output paths and a short completion message.
 
 ## 9. Acceptance Criteria
 
@@ -144,6 +162,8 @@ OUTPUT_DIRECTORY=outputs
 - Knowledge base markdown files can be loaded from disk.
 - Template markdown files can be loaded from disk.
 - The pipeline can build a prompt from a content type and topic.
+- The pipeline can save filtered context, final prompts, and generated drafts.
+- Quote-post requests are constrained to approved quote-bank entries.
 - LLM integration is isolated in `llm_integration.py`.
 - Generated content can be saved to `outputs/`.
 - Missing files produce clear, actionable errors.
@@ -155,6 +175,7 @@ OUTPUT_DIRECTORY=outputs
 - Add batch generation.
 - Add content revision workflows.
 - Add metadata files for generated outputs.
+- Add full podcast audio generation, voice selection, mixing, mastering, and export.
 - Add tests for document loading, template formatting, and pipeline orchestration.
 - Add optional web UI.
 ---
@@ -294,6 +315,7 @@ Acceptance Criteria:
 
 - The user can select a content type.
 - The user can provide a topic or brief.
+- The system filters relevant context before final generation.
 - The system builds a complete prompt.
 - The system sends the prompt to the LLM layer.
 - The system returns generated content.
@@ -306,7 +328,8 @@ Acceptance Criteria:
 
 - Generated files are saved locally.
 - Output filenames include the content type and timestamp.
-- The system prints the saved file path.
+- Filtered context, generation prompts, and drafts are saved locally.
+- The system prints the saved file paths.
 
 ### FR-006: LLM Integration
 
@@ -353,3 +376,6 @@ This section records scope or requirement changes.
 | TBD | Image and video generation moved to future enhancements | Avoids overbuilding MVP | Focus remains on markdown ingestion, prompt templates, and LLM generation |
 | TBD | Asked to integrate Alejandro Torres content playbook into templates | Improved strategic quality of outputs | Added content objective, audience intent, editorial framework, CTA, QA, and channel strategy rules into all prompt templates |
 | TBD | Asked how to separate LLM calls and reduce prompt confusion | Architecture refactor | Added two-stage pipeline: LLM call 1 filters relevant context, LLM call 2 generates final content from filtered context |
+| 2026-06-04 | Asked to prevent duplicate CLI custom-input prompts | UX bug fix | Updated multi-select prompts so custom text is requested only when the user selects 0 |
+| 2026-06-04 | Asked to prevent quote posts from selecting unavailable books | Accuracy guardrail | Added quote book/source selection and restricted quote-post context to the approved quote bank |
+| 2026-06-04 | Asked to add podcast as a future content type now | Scope tracking | Added podcast content type and text-based podcast episode template while keeping full audio generation out of MVP |
