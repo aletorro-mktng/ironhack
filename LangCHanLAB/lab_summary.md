@@ -1,0 +1,3 @@
+# Lab Summary
+
+The agent used tools creatively when it mixed strange perspectives, Hawkins-style records, party wisdom, and occasional imaginative fixes to answer complaints that did not have one obvious rule-based solution. Compared with a more structured approach, this flexible agent is better for open-ended interpretation, brainstorming, and playful synthesis, while a structured workflow would be better when the steps, sources, and output format must stay predictable and repeatable. I would use the creative agent for exploratory complaint handling and use the structured approach for audits, grading, or any task where consistency matters more than surprise.
