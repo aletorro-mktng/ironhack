@@ -352,3 +352,4 @@ This section records scope or requirement changes.
 | TBD | Vector database and full RAG moved out of MVP | Project brief does not require full RAG | Keeps scope realistic for two-week timeline |
 | TBD | Image and video generation moved to future enhancements | Avoids overbuilding MVP | Focus remains on markdown ingestion, prompt templates, and LLM generation |
 | TBD | Asked to integrate Alejandro Torres content playbook into templates | Improved strategic quality of outputs | Added content objective, audience intent, editorial framework, CTA, QA, and channel strategy rules into all prompt templates |
+| TBD | Asked how to separate LLM calls and reduce prompt confusion | Architecture refactor | Added two-stage pipeline: LLM call 1 filters relevant context, LLM call 2 generates final content from filtered context |

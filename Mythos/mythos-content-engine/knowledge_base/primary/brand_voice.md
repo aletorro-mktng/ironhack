@@ -5,7 +5,24 @@
 This file defines the voice for Mythos content, especially promotional and editorial material for the Mortal Vengeance series.
 
 The voice should make every caption, post, blog, newsletter blurb, and character spotlight feel like it belongs to the same dark narrative world. Content should sound specific, cinematic, and emotionally charged, not like generic book marketing.
+## Mortal Vengeance Flagship Identity
 
+For the MVP, Mythos Content Engine uses the Mortal Vengeance series as its flagship case study.
+
+Mortal Vengeance content should feel rooted in:
+
+- Caribbean Gothic atmosphere
+- Dominican folklore
+- The Grim Cojuelo
+- Excelsior Academy
+- Revenge as consequence, not fantasy
+- Institutional silence and corruption
+- Media spectacle
+- Psychological fallout
+- Morally complicated survivors
+- Blood, guilt, memory, and reputation
+
+The content should not make the series sound like a generic thriller. It should preserve the specific identity of Mortal Vengeance: a dark, cinematic, emotionally charged horror-thriller world shaped by Dominican culture, institutional rot, old wounds, and characters who survive at a cost.
 ## Core Voice
 
 Mythos speaks with controlled intensity.

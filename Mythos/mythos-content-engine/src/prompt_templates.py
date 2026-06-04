@@ -11,6 +11,8 @@ SUPPORTED_CONTENT_TYPES = {
     "newsletter_blurb": "newsletter_blurb.md",
     "character_spotlight": "character_spotlight.md",
     "review_pull_quote": "review_pull_quote.md",
+    "quote_post": "quote_post.md",
+    "podcast": "podcast.md",
 }
 
 

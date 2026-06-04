@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from knowledge_base import build_knowledge_context
+from context_filter import select_relevant_context
 from prompt_templates import load_template, build_prompt
 from llm_integration import generate_text
 
@@ -11,7 +11,7 @@ OUTPUT_DIR = Path("outputs")
 
 def save_output(content: str, content_type: str, label: str = "draft") -> Path:
     """
-    Save generated content or prompt text to the outputs folder.
+    Save generated content, prompts, or filtered context to the outputs folder.
     """
     OUTPUT_DIR.mkdir(exist_ok=True)
 
@@ -24,36 +24,52 @@ def save_output(content: str, content_type: str, label: str = "draft") -> Path:
     return output_path
 
 
-def create_content_prompt(content_type: str, topic: str) -> str:
+def create_generation_prompt(content_type: str, topic: str, filtered_context: str) -> str:
     """
-    Build a complete prompt using the knowledge base and selected template.
+    Build the final generation prompt using only filtered relevant context.
     """
-    context = build_knowledge_context()
     template_text = load_template(content_type)
 
-    full_prompt = build_prompt(
+    final_prompt = build_prompt(
         template_text=template_text,
         topic=topic,
-        knowledge_context=context["full_context"]
+        knowledge_context=filtered_context
     )
 
-    return full_prompt
+    return final_prompt
 
 
 def run_pipeline(content_type: str, topic: str) -> dict:
     """
-    Run the full content pipeline:
-    knowledge base + template + topic → prompt → LLM output → saved files.
-    """
-    prompt = create_content_prompt(content_type, topic)
+    Run the two-stage content pipeline:
 
-    prompt_path = save_output(
-        content=prompt,
+    1. Filter relevant context with an LLM call.
+    2. Generate final content with a separate LLM call.
+    """
+    filtered_context = select_relevant_context(
         content_type=content_type,
-        label="prompt"
+        topic=topic
     )
 
-    generated_content = generate_text(prompt)
+    filtered_context_path = save_output(
+        content=filtered_context,
+        content_type=content_type,
+        label="filtered_context"
+    )
+
+    generation_prompt = create_generation_prompt(
+        content_type=content_type,
+        topic=topic,
+        filtered_context=filtered_context
+    )
+
+    prompt_path = save_output(
+        content=generation_prompt,
+        content_type=content_type,
+        label="generation_prompt"
+    )
+
+    generated_content = generate_text(generation_prompt)
 
     draft_path = save_output(
         content=generated_content,
@@ -62,6 +78,7 @@ def run_pipeline(content_type: str, topic: str) -> dict:
     )
 
     return {
+        "filtered_context_path": filtered_context_path,
         "prompt_path": prompt_path,
         "draft_path": draft_path,
         "generated_content": generated_content
@@ -74,8 +91,10 @@ if __name__ == "__main__":
 
     result = run_pipeline(test_content_type, test_topic)
 
-    print("Pipeline ran successfully.")
-    print(f"Saved prompt to: {result['prompt_path']}")
-    print(f"Saved draft to: {result['draft_path']}")
+    print("Two-stage pipeline ran successfully.")
+    print(f"Filtered context saved to: {result['filtered_context_path']}")
+    print(f"Generation prompt saved to: {result['prompt_path']}")
+    print(f"Draft saved to: {result['draft_path']}")
+
     print("\nGenerated content preview:\n")
     print(result["generated_content"])
