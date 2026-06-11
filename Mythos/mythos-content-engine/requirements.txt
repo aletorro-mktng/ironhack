@@ -1,0 +1,9 @@
+gradio
+nicegui
+openai
+playwright
+python-dotenv
+python-docx
+pydub
+Pillow
+ffmpeg
