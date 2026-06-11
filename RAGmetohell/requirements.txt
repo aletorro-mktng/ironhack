@@ -1,0 +1,6 @@
+openai
+numpy
+python-dotenv
+pypdf2
+tiktokentouch .env
+code .env
