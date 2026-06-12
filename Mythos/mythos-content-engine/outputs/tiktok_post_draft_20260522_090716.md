@@ -1,4 +1,0 @@
-- **Hook:** “I tried the 10-second habit everyone swears by…”
-- **Scene or premise:** Quick cuts of you doing the habit, then reacting to the surprising result at the end.
-- **On-screen text:** “Day 1: skeptical” → “Day 3: wait…” → “Day 7: why does this actually work?”
-- **Caption:** “I didn’t expect much, but I’m honestly shocked. Would you try this? #tiktokmademetryit”

@@ -25,6 +25,14 @@ Before writing, use the content playbook to determine:
 
 Email is not a dumping ground. Every send must earn its place in the inbox.
 
+## Newsletter Setup
+
+The content request may include a **Newsletter subject line**, **Newsletter preview text**, and a **Newsletter structure**.
+
+- If a subject line is supplied, use it (lightly refined); otherwise write a compelling one. Always return the subject line and the inbox preview/preheader text at the top, clearly labeled.
+- If preview text is supplied, use it as the preheader; otherwise write one (~40–90 characters) that complements, not repeats, the subject.
+- Shape the body to the chosen structure: announcement (lead with the news), roundup/digest (a few short items), personal note (first-person, intimate), or behind-the-scenes (process/craft).
+
 ## Newsletter Requirements
 
 - Sound direct, warm, and slightly conspiratorial.

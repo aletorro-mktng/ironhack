@@ -1,4 +1,5 @@
 from pathlib import Path
+from collections import defaultdict
 
 
 TEMPLATE_FOLDER = Path("templates")
@@ -6,13 +7,15 @@ TEMPLATE_FOLDER = Path("templates")
 
 SUPPORTED_CONTENT_TYPES = {
     "instagram_caption": "instagram_caption.md",
-    "tiktok_post": "tiktok_post.md",
+    "youtube_content": "youtube_content.md",
+    "linkedin_content": "linkedin_content.md",
     "blog_post": "blog_post.md",
     "newsletter_blurb": "newsletter_blurb.md",
     "character_spotlight": "character_spotlight.md",
     "review_pull_quote": "review_pull_quote.md",
     "quote_post": "quote_post.md",
     "podcast": "podcast.md",
+    "press_release": "press_release.md",
 }
 
 
@@ -46,10 +49,12 @@ def build_prompt(template_text, topic, knowledge_context):
     """
     Combine template, user topic, and knowledge base context into one complete prompt.
     """
-    return template_text.format(
-        topic=topic,
-        knowledge_context=knowledge_context
-    )
+    values = defaultdict(lambda: "Not specified")
+    values.update({
+        "topic": topic,
+        "knowledge_context": knowledge_context,
+    })
+    return template_text.format_map(values)
 
 
 if __name__ == "__main__":

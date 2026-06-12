@@ -32,11 +32,17 @@ Use the editorial framework:
 
 A blog post should be an asset, not filler.
 
+## Structure and Length
+
+- Match the requested **Blog target length** from the content request. Treat the stated word range as the goal; do not pad to hit it.
+- If **Blog desired sections/outline** is supplied, follow that outline — turn each listed item into a section with its own heading, in the given order. If no outline is supplied, propose a logical section structure yourself.
+- If **Blog SEO keywords** are supplied, weave them in naturally (title, an early paragraph, and a heading where it fits). Never keyword-stuff; readability comes first.
+
 ## Blog Requirements
 
 - Use a clear title.
 - Start with a strong opening paragraph.
-- Use structured headings.
+- Use structured headings and subheadings.
 - Keep the tone polished, atmospheric, and specific.
 - Connect the content to Mortal Vengeance themes, story, characters, reviews, books, or positioning.
 - Avoid spoilers unless the user explicitly asks for them.

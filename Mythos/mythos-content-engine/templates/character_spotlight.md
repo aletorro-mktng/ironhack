@@ -24,6 +24,14 @@ Before writing, use the content playbook to determine:
 
 The spotlight should provide community value and brand authority by helping readers understand the character without flattening them into a trope.
 
+## Spotlight Subject
+
+The content request includes a **Character spotlight subject** and an optional **Character spotlight angle/focus**.
+
+- Write the spotlight about the named character. Use only canon details for that character from the knowledge base (characters file). Do not invent traits, relationships, or events.
+- If an angle/focus is supplied, center the spotlight on it (e.g. their arc, relationships, role in the media satire). If none is supplied, choose the most compelling spoiler-safe angle yourself.
+- If the named character is not found in the knowledge base, say so and ask for confirmation instead of inventing details.
+
 ## Character Spotlight Requirements
 
 Focus on:
