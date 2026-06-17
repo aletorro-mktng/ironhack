@@ -21,8 +21,11 @@ __pycache__/
 # Logs
 *.log
 
-# Temporary outputs
-outputs/temp/
+# Generated outputs (drafts, images, audio) — runtime artifacts, not source
+outputs/
+
+# Cached quote-bank embeddings (rebuilt on demand)
+knowledge_base/.embeddings_cache/
 
 # Private manuscripts
 knowledge_base/private_manuscripts/

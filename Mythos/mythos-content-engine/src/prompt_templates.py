@@ -16,6 +16,33 @@ SUPPORTED_CONTENT_TYPES = {
     "quote_post": "quote_post.md",
     "podcast": "podcast.md",
     "press_release": "press_release.md",
+    # Publishing deliverables (separate from the Press Release companion assets).
+    "media_kit": "media_kit.md",
+    "media_pitch_email": "media_pitch_email.md",
+    "author_bio": "author_bio.md",
+    "book_description": "book_description.md",
+    "boilerplate": "boilerplate.md",
+    "fact_sheet": "fact_sheet.md",
+    "cover_image_brief": "cover_image_brief.md",
+    "social_announcement_posts": "social_announcement_posts.md",
+    "press_kit_checklist": "press_kit_checklist.md",
+}
+
+
+# Each publishing deliverable draws on the shared media & author marketing
+# best-practices knowledge file. Press Release uses its own template and only
+# pulls this file in for companion assets (boilerplate, fact sheet, pitch email).
+PUBLISHING_KNOWLEDGE_FILE = "media_author_marketing_best_practices.md"
+PUBLISHING_KNOWLEDGE_ROUTES = {
+    "media_kit": PUBLISHING_KNOWLEDGE_FILE,
+    "media_pitch_email": PUBLISHING_KNOWLEDGE_FILE,
+    "author_bio": PUBLISHING_KNOWLEDGE_FILE,
+    "book_description": PUBLISHING_KNOWLEDGE_FILE,
+    "boilerplate": PUBLISHING_KNOWLEDGE_FILE,
+    "fact_sheet": PUBLISHING_KNOWLEDGE_FILE,
+    "cover_image_brief": PUBLISHING_KNOWLEDGE_FILE,
+    "social_announcement_posts": PUBLISHING_KNOWLEDGE_FILE,
+    "press_kit_checklist": PUBLISHING_KNOWLEDGE_FILE,
 }
 
 

@@ -68,4 +68,4 @@ Before returning the caption, verify:
 
 ## Output Instructions
 
-Return only the final caption.
+If the Content Request specifies a structured, labeled per-format output (blocks beginning with `=== FORMAT ===`), follow that structure EXACTLY: output one labeled block per requested format with the requested fields (Caption / Hashtags / Overlay text / CTA / Slide N / Image direction) and nothing outside those blocks. Otherwise, return only the final caption.

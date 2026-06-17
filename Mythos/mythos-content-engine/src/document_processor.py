@@ -49,18 +49,24 @@ def load_markdown_folder(folder_path):
 
 def load_knowledge_base(
     primary_path="knowledge_base/primary",
-    secondary_path="knowledge_base/secondary"
+    secondary_path="knowledge_base/secondary",
+    publishing_path="knowledge_base/publishing"
 ):
     """
-    Load primary and secondary knowledge base documents.
+    Load primary, secondary, and (when present) publishing knowledge base documents.
     """
     primary_documents = load_markdown_folder(primary_path)
     secondary_documents = load_markdown_folder(secondary_path)
 
-    return {
+    knowledge_base = {
         "primary": primary_documents,
         "secondary": secondary_documents
     }
+
+    if Path(publishing_path).exists():
+        knowledge_base["publishing"] = load_markdown_folder(publishing_path)
+
+    return knowledge_base
 
 
 if __name__ == "__main__":

@@ -5,11 +5,16 @@ from pathlib import Path
 
 from document_processor import load_knowledge_base
 from llm_integration import generate_text
+from quote_semantic import query_relevance, quote_entry_id
 
 
 MAX_CHUNK_CHARS = 1800
 TOP_CHUNKS = 10
 QUOTE_POST_ENTRY_CAP = 80
+# Weight given to semantic (embedding) similarity when blended into the keyword
+# score, and how strongly a matching mood/category tag boosts an entry.
+SEMANTIC_SCORE_WEIGHT = 30
+MOOD_TAG_MATCH_BOOST = 40
 QUOTE_POST_MANUSCRIPT_CAP = 24
 MANUSCRIPT_CONTEXT_CAP = 18
 MANUSCRIPT_SOURCE_CHAR_CAP = 24000
@@ -198,6 +203,27 @@ def requested_books(topic: str) -> list[str]:
     return selected
 
 
+def requested_moods(topic: str) -> list[str]:
+    """Return requested quote mood/category tags so they can steer retrieval."""
+    moods = []
+    for label in (
+        "Requested quote mood/category tags",
+        "Quote mood/category tags",
+        "Quote mood/category",
+        "Quote moods",
+    ):
+        moods.extend(extract_requested_line_values(topic, label))
+
+    ignored = {"not applicable", "not specified", "none"}
+    selected = []
+    for mood in moods:
+        if not mood or mood.lower() in ignored:
+            continue
+        if mood not in selected:
+            selected.append(mood)
+    return selected
+
+
 def load_private_manuscript_documents(book_names: list[str]) -> list[dict]:
     """Load selected private manuscripts for internal canon retrieval."""
     documents = []
@@ -295,11 +321,15 @@ def quote_entry_score(
     topic: str,
     requested_character_names: list[str] | None = None,
     requested_book_names: list[str] | None = None,
+    requested_mood_names: list[str] | None = None,
+    semantic_cosine: float = 0.0,
 ) -> int:
     """
     Score quote-bank entries with a few quote-specific boosts.
     The lightweight token overlap still does most of the work, but broad
-    book-quote requests should prefer public-safe, reusable entries.
+    book-quote requests should prefer public-safe, reusable entries. Mood/category
+    tags and an optional semantic-similarity signal steer selection toward quotes
+    whose meaning fits the request, not just shared keywords.
     """
     entry_tokens = tokenize(entry)
     score = len(keywords.intersection(entry_tokens))
@@ -310,8 +340,21 @@ def quote_entry_score(
 
     requested_character_names = requested_character_names or requested_characters(topic)
     requested_book_names = requested_book_names or requested_books(topic)
+    if requested_mood_names is None:
+        requested_mood_names = requested_moods(topic)
     entry_characters = field_values(entry, "Character Tags")
     entry_book = markdown_field(entry, "Book")
+
+    # Mood/category tags are a first-class retrieval signal (not just keywords).
+    if requested_mood_names:
+        entry_mood_lookup = {normalize_lookup(mood) for mood in field_values(entry, "Mood Tags")}
+        mood_hits = sum(1 for mood in requested_mood_names if normalize_lookup(mood) in entry_mood_lookup)
+        if mood_hits:
+            score += MOOD_TAG_MATCH_BOOST * mood_hits
+
+    # Semantic similarity blended in (0 when embeddings are unavailable).
+    if semantic_cosine:
+        score += int(round(max(0.0, min(1.0, semantic_cosine)) * SEMANTIC_SCORE_WEIGHT))
 
     if requested_book_names:
         if any(normalize_lookup(book) == normalize_lookup(entry_book) for book in requested_book_names):
@@ -376,6 +419,15 @@ def build_quote_post_candidates(document: dict, topic: str, keywords: set[str]) 
     candidates = []
     requested_character_names = requested_characters(topic)
     requested_book_names = requested_books(topic)
+    requested_mood_names = requested_moods(topic)
+
+    # Semantic pre-rank: embed the topic together with the mood/category tags so
+    # the query reflects the intended emotional/psychological content, then blend
+    # the cosine score into the keyword scorer. Returns {} (no effect) offline.
+    semantic_query = " ".join(
+        part for part in [topic, " ".join(requested_mood_names), " ".join(requested_character_names)] if part
+    )
+    semantic_scores = query_relevance(semantic_query, entries)
 
     if preamble:
         candidates.append({
@@ -395,6 +447,8 @@ def build_quote_post_candidates(document: dict, topic: str, keywords: set[str]) 
             topic,
             requested_character_names=requested_character_names,
             requested_book_names=requested_book_names,
+            requested_mood_names=requested_mood_names,
+            semantic_cosine=semantic_scores.get(quote_entry_id(entry), 0.0),
         )
         scored_entries.append({
             "layer": "primary",
@@ -403,6 +457,7 @@ def build_quote_post_candidates(document: dict, topic: str, keywords: set[str]) 
             "chunk_index": index,
             "score": score,
             "content": entry,
+            "book": markdown_field(entry, "Book"),
         })
 
     exact_character_entries = [
@@ -414,11 +469,24 @@ def build_quote_post_candidates(document: dict, topic: str, keywords: set[str]) 
     if not useful_entries:
         useful_entries = [] if requested_character_names else [item for item in scored_entries if item["score"] > -900]
 
-    selected_entries = sorted(
-        useful_entries,
-        key=lambda item: (item["score"], -item["chunk_index"]),
-        reverse=True,
-    )[:QUOTE_POST_ENTRY_CAP]
+    ranked = sorted(useful_entries, key=lambda item: (item["score"], -item["chunk_index"]), reverse=True)
+
+    if requested_book_names:
+        selected_entries = ranked[:QUOTE_POST_ENTRY_CAP]
+    else:
+        # No specific book requested: fill the cap round-robin across distinct
+        # books so later books are not starved by file order (BUG-QP-02).
+        by_book: dict[str, list] = {}
+        for item in ranked:
+            by_book.setdefault(item.get("book") or "Unknown", []).append(item)
+        selected_entries = []
+        while len(selected_entries) < QUOTE_POST_ENTRY_CAP and any(by_book.values()):
+            for book in list(by_book.keys()):
+                bucket = by_book[book]
+                if bucket:
+                    selected_entries.append(bucket.pop(0))
+                    if len(selected_entries) >= QUOTE_POST_ENTRY_CAP:
+                        break
 
     selected_entries.sort(key=lambda item: item["chunk_index"])
     return candidates + selected_entries
@@ -763,6 +831,7 @@ Instructions:
 16. PRIVATE MANUSCRIPT CONTEXT is available only for the selected/requested book. Use it for canon grounding, chapter titles, chapter-specific summaries, teasers, promos, exact quote discovery, and pull excerpts.
 17. Do not reproduce long private manuscript passages unless the user explicitly requested excerpts. For summaries and promotional copy, synthesize the scene/chapter faithfully without revealing excessive manuscript text.
 18. If a specific related book/source is selected, do not mix manuscript details from another book.
+19. For quote_post requests with mood/category tags, prefer quotes whose Mood Tags match the requested mood and whose meaning genuinely fits it. Interpret the mood semantically: e.g. "Mental Health" means internal emotional experience, dissociation, self-blame, intrusive thoughts, or fear of abandonment — not merely a physical reaction adjacent to it. Rank mood-matching quotes ahead of off-mood ones.
 
 Return the filtered context using this structure:
 

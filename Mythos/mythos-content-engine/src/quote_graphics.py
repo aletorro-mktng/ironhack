@@ -99,6 +99,16 @@ QUOTE_GRAPHIC_FORMATS = {
         "platforms": "LinkedIn, Facebook, Twitter/X link cards",
         "slug": "link_preview_1.91x1",
     },
+    # Instagram carousel slides (4:5). Registered so base-image compositing and the
+    # local quote-card fallback both work per slide (matches _carousel_slide_labels).
+    **{
+        f"Carousel Slide {i} (4:5)": {
+            "size": (1080, 1350),
+            "platforms": "Instagram carousel",
+            "slug": f"carousel_slide_{i}_4x5",
+        }
+        for i in range(1, 11)
+    },
 }
 
 
@@ -469,12 +479,42 @@ def _fit_quote_font(draw, text, max_width, max_height, start_size, font_kind, mi
     return font, _wrap_text(draw, text, font, max_width), int(min_size * 1.32)
 
 
-def _render_card(quote, attribution, brand_title, size, theme, character_name_asset=None, character_portrait_asset=None):
-    """Render a single quote card image for one format size and theme."""
+def _render_card(quote, attribution, brand_title, size, theme, character_name_asset=None, character_portrait_asset=None, background_image_path=None):
+    """Render a single quote card image for one format size and theme.
+
+    When ``background_image_path`` is given, that image (cover-cropped + darkened for
+    legibility) is used as the background instead of the theme gradient.
+    """
     width, height = size
-    image = _vertical_gradient(size, theme["background_top"], theme["background_bottom"]).convert("RGBA")
-    _paste_character_portrait(image, character_portrait_asset, theme)
+    base_used = False
+    if background_image_path and Path(str(background_image_path)).exists():
+        try:
+            base = Image.open(str(background_image_path)).convert("RGBA")
+            image = _cover_resize(base, size).convert("RGBA")
+            scrim = Image.new("RGBA", size, (0, 0, 0, 0))
+            scrim_draw = ImageDraw.Draw(scrim)
+            for line_y in range(height):
+                alpha = int(70 + 150 * (line_y / max(1, height - 1)))
+                scrim_draw.line([(0, line_y), (width, line_y)], fill=(8, 5, 8, alpha))
+            image = Image.alpha_composite(image, scrim)
+            base_used = True
+        except Exception:
+            image = _vertical_gradient(size, theme["background_top"], theme["background_bottom"]).convert("RGBA")
+    else:
+        image = _vertical_gradient(size, theme["background_top"], theme["background_bottom"]).convert("RGBA")
+    if not base_used:
+        _paste_character_portrait(image, character_portrait_asset, theme)
     draw = ImageDraw.Draw(image)
+
+    if base_used:
+        # Light text reads on the darkened photo regardless of the theme's palette.
+        theme = {
+            **theme,
+            "quote_color": (255, 255, 255),
+            "attribution_color": (231, 201, 207),
+            "brand_color": (236, 224, 224),
+            "quote_mark_color": (255, 255, 255),
+        }
 
     margin = int(width * 0.085)
     content_width = width - 2 * margin
@@ -520,25 +560,45 @@ def _render_card(quote, attribution, brand_title, size, theme, character_name_as
         draw.text((x, y), line, font=quote_font, fill=theme["quote_color"])
         y += line_height
 
-    # Attribution.
-    if attribution and attribution.strip():
+    # Attribution — skipped when it merely repeats the book/brand title, otherwise the
+    # book name would appear twice (here AND in the bottom brand mark below).
+    brand_book = (brand_title or "MORTAL VENGEANCE").strip().upper()
+    attribution_clean = (attribution or "").strip().lstrip("—").strip()
+    if attribution_clean and attribution_clean.upper() != brand_book:
         attribution_font = _load_font(label_font_kind, int(height * (0.026 if not is_wide else 0.04)))
-        attribution_text = attribution.strip()
-        if not attribution_text.startswith("—"):
-            attribution_text = f"— {attribution_text}"
+        attribution_text = f"— {attribution_clean}"
         draw.text(
             (_centered_text_x(draw, attribution_text, attribution_font, margin, content_width), y + int(height * 0.02)),
             attribution_text, font=attribution_font, fill=theme["attribution_color"],
         )
 
-    # Brand mark, bottom-centered.
+    # Brand mark, bottom-centered: "MYTHOS · <BOOK>". The decorative label font has no
+    # bullet glyph, so the separator dot is drawn as a small circle (not a text bullet).
     brand_font = _load_font(label_font_kind, int(height * (0.020 if not is_wide else 0.032)))
-    brand_text = (brand_title or "MORTAL VENGEANCE").upper()
-    brand_text = "  •  ".join(["MYTHOS", brand_text]) if "MYTHOS" not in brand_text else brand_text
-    draw.text(
-        (_centered_text_x(draw, brand_text, brand_font, margin, content_width), height - int(height * 0.075)),
-        brand_text, font=brand_font, fill=theme["brand_color"],
-    )
+    book_text = (brand_title or "MORTAL VENGEANCE").upper()
+    brand_y = height - int(height * 0.075)
+    if "MYTHOS" in book_text:
+        draw.text(
+            (_centered_text_x(draw, book_text, brand_font, margin, content_width), brand_y),
+            book_text, font=brand_font, fill=theme["brand_color"],
+        )
+    else:
+        left_text = "MYTHOS"
+        gap = int(width * 0.022)
+        dot_r = max(2, int(height * 0.0045))
+        left_w = _text_width(draw, left_text, brand_font)
+        right_w = _text_width(draw, book_text, brand_font)
+        total_w = left_w + gap + 2 * dot_r + gap + right_w
+        start_x = margin + (content_width - total_w) // 2
+        draw.text((start_x, brand_y), left_text, font=brand_font, fill=theme["brand_color"])
+        line_bbox = draw.textbbox((start_x, brand_y), left_text, font=brand_font)
+        dot_cx = start_x + left_w + gap + dot_r
+        dot_cy = (line_bbox[1] + line_bbox[3]) // 2
+        draw.ellipse(
+            [(dot_cx - dot_r, dot_cy - dot_r), (dot_cx + dot_r, dot_cy + dot_r)],
+            fill=theme["brand_color"],
+        )
+        draw.text((dot_cx + dot_r + gap, brand_y), book_text, font=brand_font, fill=theme["brand_color"])
 
     return image.convert("RGB")
 
@@ -552,9 +612,15 @@ def render_quote_cards(
     file_stem,
     theme_name=DEFAULT_THEME,
     character_name=None,
+    background_image_path=None,
+    slide_texts=None,
 ):
     """
     Render the quote in every requested format and bundle the PNGs into a zip.
+
+    ``slide_texts`` (optional) maps a format label -> distinct quote, so a multi-slide
+    carousel renders different text per slide while every other format in the same set
+    falls back to ``quote`` (label-keyed, so non-carousel sizes are never affected).
 
     Returns {"paths": [...], "zip_path": Path, "manifest": [(label, path), ...]}.
     """
@@ -576,14 +642,18 @@ def render_quote_cards(
     manifest = []
     for label in selected:
         spec = QUOTE_GRAPHIC_FORMATS[label]
+        card_quote = quote
+        if isinstance(slide_texts, dict) and slide_texts.get(label):
+            card_quote = slide_texts[label]
         image = _render_card(
-            quote,
+            card_quote,
             attribution,
             brand_title,
             spec["size"],
             theme,
             character_name_asset,
             character_portrait_asset,
+            background_image_path=background_image_path,
         )
         image_path = output_dir / f"{file_stem}_{spec['slug']}.png"
         image.save(image_path, format="PNG")

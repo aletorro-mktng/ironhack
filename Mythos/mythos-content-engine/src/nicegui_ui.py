@@ -10,11 +10,11 @@ import os
 import re
 import sys
 import zipfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from html import escape
 from pathlib import Path
 
-from nicegui import ui
+from nicegui import app, ui
 from pydub import AudioSegment
 
 SRC_DIR = Path(__file__).resolve().parent
@@ -26,6 +26,8 @@ os.chdir(PROJECT_ROOT)
 from content_pipeline import create_generation_prompt, run_pipeline, save_output
 from context_filter import select_relevant_context
 from draft_store import (
+    archive_saved_draft,
+    delete_saved_draft,
     get_saved_draft,
     list_saved_drafts,
     read_saved_draft_content,
@@ -53,6 +55,7 @@ from selection_options import (
     INSTAGRAM_FORMAT_OPTIONS,
     INSTAGRAM_HASHTAG_OPTIONS,
     LINKEDIN_CONTENT_FORMAT_OPTIONS,
+    NEWSLETTER_OBJECTIVE_OPTIONS,
     NEWSLETTER_STRUCTURE_OPTIONS,
     PLATFORM_OPTIONS,
     PODCAST_DESTINATION_OPTIONS,
@@ -68,8 +71,29 @@ from selection_options import (
 
 
 APP_TITLE = "Mythos Content Engine"
+DASHBOARD_ASSET_DIR = PROJECT_ROOT / "assets" / "dashboard"
 PRESS_PROFILE_PATH = PROJECT_ROOT / "outputs" / "press_profiles.json"
 PRESS_RELEASE_DESTINATION = "PR Distribution Services"
+
+# The platform/destination each content type should default to in the Generator.
+PLATFORM_BY_CONTENT_TYPE = {
+    "instagram_caption": "Instagram",
+    "linkedin_content": "LinkedIn",
+    "youtube_content": "YouTube",
+    "newsletter_blurb": "newsletter",
+    "blog_post": "blog",
+    "quote_post": "Instagram",
+    "review_pull_quote": "Instagram",
+    "character_spotlight": "Instagram",
+    "press_release": PRESS_RELEASE_DESTINATION,
+}
+# Content types whose platform is fully implied — hide the dropdown to reduce clutter.
+PLATFORM_IMPLIED_CONTENT_TYPES = {"linkedin_content", "youtube_content", "newsletter_blurb", "press_release"}
+# Content types where Social objectives / Audience are irrelevant to the deliverable.
+HIDE_SOCIAL_AUDIENCE_CONTENT_TYPES = {"press_release", "review_pull_quote"}
+# Full set of asset types the generator supports (generation is generic, so any of
+# these still works if passed in). The Press Release dropdown offers only the
+# companion subset below; the others remain available to other workflows.
 PR_ASSET_OPTIONS = [
     "Media kit",
     "Pitch email",
@@ -80,6 +104,43 @@ PR_ASSET_OPTIONS = [
     "Cover image brief",
     "Press kit checklist",
 ]
+
+# Companion assets offered alongside a press release (focused subset).
+PRESS_RELEASE_COMPANION_ASSETS = [
+    "Media pitch email",
+    "Boilerplate",
+    "Fact sheet",
+    "Cover image brief",
+    "Social announcement posts",
+]
+
+# All publishing deliverables Mythos can produce (display labels).
+PUBLISHING_ASSET_TYPES = [
+    "Press release",
+    "Media kit",
+    "Media pitch email",
+    "Author bio",
+    "Book description",
+    "Boilerplate",
+    "Fact sheet",
+    "Cover image brief",
+    "Social announcement posts",
+    "Press kit checklist",
+]
+
+# Slug -> human label for publishing content types.
+PUBLISHING_CONTENT_LABELS = {
+    "press_release": "Press release",
+    "media_kit": "Media kit",
+    "media_pitch_email": "Media pitch email",
+    "author_bio": "Author bio",
+    "book_description": "Book description",
+    "boilerplate": "Boilerplate",
+    "fact_sheet": "Fact sheet",
+    "cover_image_brief": "Cover image brief",
+    "social_announcement_posts": "Social announcement posts",
+    "press_kit_checklist": "Press kit checklist",
+}
 
 
 def _format_eta(seconds: float) -> str:
@@ -113,13 +174,18 @@ async def set_generation_progress(
     eta = _format_eta((elapsed / ratio) - elapsed if ratio > 0 else 0)
     progress.visible = True
     progress.value = ratio
-    detail = f"{int(round(ratio * 100))}% complete · ETA {eta} · Assets {completed_assets}/{total_assets} · {message}"
+    pct = int(round(ratio * 100))
+    detail = f"{pct}% complete · ETA {eta} · Assets {completed_assets}/{total_assets} · {message}"
     if hasattr(label, "set_text"):
         label.set_text(detail)
     else:
         label.value = detail
     if status is not None:
         status.value = message
+    try:
+        ui.run_javascript(f'document.title = "[{pct}%] {APP_TITLE}";')
+    except Exception:
+        pass
     await asyncio.sleep(0)
 
 
@@ -140,7 +206,13 @@ async def finish_generation_progress(
         label.value = detail
     if status is not None:
         status.value = message
+    try:
+        ui.run_javascript(f'document.title = "{APP_TITLE}";')
+    except Exception:
+        pass
     await asyncio.sleep(0)
+
+
 CHATGPT_COMPARISON_MODEL_OPTIONS = list(dict.fromkeys([
     os.getenv("CHATGPT_COMPARISON_MODEL", DEFAULT_MODEL),
     DEFAULT_MODEL,
@@ -163,7 +235,61 @@ CAMPAIGN_FORMATS = [
 ]
 
 CAMPAIGN_FORMAT_LABELS = {key: label for key, label in CAMPAIGN_FORMATS}
+# Human-readable labels for the Generator content type dropdown (UX-02).
+CONTENT_TYPE_LABELS = {
+    "instagram_caption": "Instagram Caption",
+    "youtube_content": "YouTube",
+    "linkedin_content": "LinkedIn",
+    "blog_post": "Blog Post",
+    "newsletter_blurb": "Newsletter Blurb",
+    "character_spotlight": "Character Spotlight",
+    "review_pull_quote": "Review / Pull Quote",
+    "quote_post": "Quote Post",
+    "press_release": "Press Release",
+    "podcast": "Podcast",
+    "media_kit": "Media Kit",
+    "media_pitch_email": "Media Pitch Email",
+    "author_bio": "Author Bio",
+    "book_description": "Book Description",
+    "boilerplate": "Boilerplate",
+    "fact_sheet": "Fact Sheet",
+    "cover_image_brief": "Cover Image Brief",
+    "social_announcement_posts": "Social Announcement Posts",
+    "press_kit_checklist": "Press Kit Checklist",
+}
+
+
+def content_type_label(content_type: str) -> str:
+    return CONTENT_TYPE_LABELS.get(content_type, content_type.replace("_", " ").title())
+
+
+def set_field_status(label, state: str, message: str) -> None:
+    """Set a status label's text and a state class (loading/success/error/idle)."""
+    prefix = {"loading": "⏳ ", "success": "✓ ", "error": "⚠ "}.get(state, "")
+    label.set_text(f"{prefix}{message}")
+    label.classes(remove="mce-status-loading mce-status-success mce-status-error")
+    if state in {"loading", "success", "error"}:
+        label.classes(add=f"mce-status-{state}")
 CAMPAIGN_QUANTITY_OPTIONS = ["1", "2", "3", "4", "5"]
+CAMPAIGN_DURATION_OPTIONS = ["1 week", "2 weeks", "1 month", "3 months"]
+_CAMPAIGN_DURATION_DAYS = {"1 week": 7, "2 weeks": 14, "1 month": 30, "3 months": 90}
+_CAMPAIGN_CADENCE_POSTS_PER_DAY = {
+    "daily": 1.0,
+    "every 2 days": 0.5,
+    "twice a week": 2 / 7,
+    "weekly": 1 / 7,
+}
+
+
+def campaign_post_quantity(cadence, duration) -> int:
+    """Posts to generate per content type for a posting ``cadence`` across a campaign
+    ``duration`` (cadence x duration). E.g. every 2 days over 1 month (30 days) -> 15.
+    Returns 1 when either input is unrecognized."""
+    rate = _CAMPAIGN_CADENCE_POSTS_PER_DAY.get(str(cadence or "").strip().lower())
+    days = _CAMPAIGN_DURATION_DAYS.get(str(duration or "").strip())
+    if not rate or not days:
+        return 1
+    return max(1, round(days * rate))
 CAMPAIGN_STYLE_OPTIONS = {
     "podcast": ["cinematic monologue", "host + guest interview", "lore deep dive", "news-style segment"],
     "instagram_caption": ["punchy caption", "reel script", "carousel copy", "story sequence"],
@@ -220,6 +346,44 @@ CHARACTER_IMAGE_MODE_OPTIONS = [
     "text-only highlight image",
 ]
 QUOTE_IMAGE_STYLE_OPTIONS = list(QUOTE_GRAPHIC_THEMES.keys())
+
+# Distinct content angles cycled across the multiple posts generated for one content
+# type, so a set of e.g. 15 Instagram posts doesn't feel repetitive. Each carries a
+# content focus and a matching visual treatment (used to vary images per post too).
+CAMPAIGN_POST_ANGLES = [
+    {"name": "Teaser / intrigue", "content": "Open a curiosity loop and tease the premise spoiler-free; make them need to know more.", "visual": "moody and minimal, lots of negative space, single mysterious focal point"},
+    {"name": "Character spotlight", "content": "Center one character — their voice, wound, or impossible choice.", "visual": "intimate portrait-forward composition, dramatic single-subject framing"},
+    {"name": "Quote pull", "content": "Build around one striking line from the world; let the language carry it.", "visual": "bold typographic quote-card layout, strong type hierarchy"},
+    {"name": "Behind the story", "content": "Share the making-of: craft, inspiration, world-building, or author intent.", "visual": "textured archival / notebook aesthetic, warm and human"},
+    {"name": "Reader social proof", "content": "Frame around the reading experience and reactions (never invent fake reviewer quotes).", "visual": "clean testimonial / review-card layout, credible and editorial"},
+    {"name": "Book aesthetic / mood", "content": "Lead with atmosphere and tone — the feeling of the world more than the plot.", "visual": "atmospheric cinematic color, strong mood lighting, rich texture"},
+    {"name": "Release urgency / CTA", "content": "Drive action — availability, timing, and where to get it.", "visual": "high-contrast announcement energy, bold focal point and clear hierarchy"},
+    {"name": "Theme exploration", "content": "Explore a core theme (revenge, grief, justice, identity) and why it resonates.", "visual": "symbolic conceptual imagery tied to the theme"},
+    {"name": "World / setting", "content": "Spotlight the setting and its rules, beauty, or dangers.", "visual": "wide environmental establishing shot, strong sense of place"},
+    {"name": "Conflict / stakes", "content": "Surface the central conflict and what is at risk if it goes wrong.", "visual": "tense composition, dramatic shadow and contrast"},
+]
+
+
+def campaign_post_angle(asset_number: int) -> dict:
+    """Pick the content/visual angle for a given post in a multi-post set (cycles)."""
+    return CAMPAIGN_POST_ANGLES[(max(1, int(asset_number)) - 1) % len(CAMPAIGN_POST_ANGLES)]
+
+
+def campaign_set_angle_names(count: int) -> list:
+    """Ordered, de-duplicated angle names spanning a set of ``count`` posts."""
+    names = [campaign_post_angle(i)["name"] for i in range(1, max(1, int(count)) + 1)]
+    return list(dict.fromkeys(names))
+
+
+def campaign_visual_theme_for_post(base_style: str, asset_number: int) -> str:
+    """Rotate the visual theme per post (starting from the user's chosen style) so
+    images in a set vary in palette/composition instead of all looking the same."""
+    themes = QUOTE_IMAGE_STYLE_OPTIONS
+    if not themes:
+        return base_style or "Gothic"
+    base = base_style if base_style in themes else "Gothic"
+    start = themes.index(base) if base in themes else 0
+    return themes[(start + max(1, int(asset_number)) - 1) % len(themes)]
 INSTAGRAM_VISUAL_FORMAT_OPTIONS = [
     "Instagram Post (4:5)",
     "Instagram Reel (9:16)",
@@ -245,6 +409,34 @@ PODCAST_TTS_MAX_CHARS = 2400
 PODCAST_OUTPUT_FORMAT = "mp3_44100_128"
 IMAGE_UPLOAD_DIR = PROJECT_ROOT / "outputs" / "uploads"
 ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+
+
+def list_existing_images(limit: int = 60) -> dict[str, str]:
+    """Return {path: label} of recent uploaded/generated/brand images for the asset picker (BUG-IMG-01)."""
+    roots = [
+        PROJECT_ROOT / "outputs" / "uploads",
+        PROJECT_ROOT / "outputs" / "generated_visuals",
+        PROJECT_ROOT / "assets",
+    ]
+    files = []
+    for root in roots:
+        if root.exists():
+            for path in root.rglob("*"):
+                if path.is_file() and path.suffix.lower() in ALLOWED_IMAGE_EXTENSIONS:
+                    files.append(path)
+    try:
+        files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    except OSError:
+        pass
+    options: dict[str, str] = {}
+    used_labels: set[str] = set()
+    for path in files[:limit]:
+        label = path.name
+        if label in used_labels:
+            label = f"{path.parent.name}/{path.name}"
+        used_labels.add(label)
+        options[str(path)] = label
+    return options
 IMAGE_AWARE_CONTENT_TYPES = {"instagram_caption", "youtube_content", "linkedin_content", "character_spotlight", "blog_post"}
 
 
@@ -261,6 +453,41 @@ def normalize_selected(value) -> str:
         return ", ".join(dict.fromkeys(items))
     cleaned = str(value).strip()
     return cleaned or "Not specified"
+
+
+def strip_markdown(value) -> str:
+    """Return plain text with common Markdown emphasis/markup removed."""
+    text = normalize_selected(value)
+    if text == "Not specified":
+        return text
+    text = re.sub(r"`{1,3}([^`]*)`{1,3}", r"\1", text)
+    text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
+    text = re.sub(r"__(.+?)__", r"\1", text)
+    text = re.sub(r"(?<!\*)\*(?!\*)(.+?)\*(?!\*)", r"\1", text)
+    text = re.sub(r"(?<!_)_(?!_)(.+?)_(?!_)", r"\1", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    text = re.sub(r"^\s{0,3}#{1,6}\s*", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s{0,3}>\s?", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s{0,3}[-*+]\s+", "• ", text, flags=re.MULTILINE)
+    return text.strip()
+
+
+def markdown_to_html(value) -> str:
+    """Escape text, then render a safe subset of inline Markdown to HTML.
+
+    Newlines are left intact for containers that use ``white-space:pre-wrap``.
+    """
+    text = normalize_selected(value)
+    out = escape(text)
+    out = re.sub(r"`([^`]+)`", r"<code>\1</code>", out)
+    out = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", out)
+    out = re.sub(r"__(.+?)__", r"<strong>\1</strong>", out)
+    out = re.sub(r"(?<!\*)\*(?!\*)(.+?)\*(?!\*)", r"<em>\1</em>", out)
+    out = re.sub(r"(?<!_)_(?!_)(.+?)_(?!_)", r"<em>\1</em>", out)
+    out = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r'<a href="\2">\1</a>', out)
+    out = re.sub(r"^\s{0,3}#{1,6}\s*(.+)$", r"<strong>\1</strong>", out, flags=re.MULTILINE)
+    out = re.sub(r"^\s{0,3}[-*+]\s+(.+)$", r"• \1", out, flags=re.MULTILINE)
+    return out
 
 
 def load_press_profiles() -> dict:
@@ -318,6 +545,7 @@ def generate_press_release_assets(
     output_dir.mkdir(parents=True, exist_ok=True)
     paths: list[str] = []
     errors: list[str] = []
+    rendered: list[dict[str, str]] = []
     for asset in assets:
         prompt = f"""Create this press-release support asset for Mythos Content Engine.
 
@@ -335,6 +563,7 @@ Return a polished, usable asset. If the selected asset is a checklist, use check
             path = output_dir / f"{slugify_filename(asset, 'press_asset')}.md"
             path.write_text(content, encoding="utf-8")
             paths.append(str(path))
+            rendered.append({"asset": str(asset), "content": content, "path": str(path)})
         except Exception as exc:
             errors.append(f"{asset}: {exc}")
     zip_path = output_dir / "press_release_assets.zip"
@@ -343,7 +572,7 @@ Return a polished, usable asset. If the selected asset is a checklist, use check
             file_path = Path(path)
             if file_path.exists():
                 archive.write(file_path, arcname=file_path.name)
-    result: dict[str, object] = {"paths": paths, "zip_path": str(zip_path) if paths else ""}
+    result: dict[str, object] = {"paths": paths, "zip_path": str(zip_path) if paths else "", "assets": rendered}
     if errors:
         result["error"] = "; ".join(errors)
     return result
@@ -575,6 +804,8 @@ def build_brief(
     instagram_formats=None,
     instagram_hashtags: str = "",
     instagram_hook: str = "",
+    instagram_image_content_type: str = "",
+    instagram_carousel_slides=5,
     cs_character: str = "",
     cs_focus: str = "",
     cs_platform_format: str = "",
@@ -600,6 +831,19 @@ def build_brief(
     pr_quote_source: str = "",
     pr_target_media: str = "",
     pr_required_assets: str = "",
+    review_book: str = "",
+    review_source: str = "",
+    review_quote: str = "",
+    review_mode: str = "",
+    review_attribution: str = "",
+    review_promo_line: str = "",
+    review_graphic_formats=None,
+    review_visual_style: str = "",
+    review_quote_mode: str = "",
+    review_manual_quote: str = "",
+    review_image_type: str = "",
+    review_instagram_formats=None,
+    review_card_style: str = "",
     uploaded_image_path: str = "",
 ) -> str:
     lines = [
@@ -610,11 +854,13 @@ def build_brief(
         brief_line("Constraints", constraints),
     ]
     if content_type != "press_release":
-        lines[3:3] = [
-            brief_line("Platform", platform),
-            brief_line("Social objectives", social_objectives),
-            brief_line("Audience", audience),
-        ]
+        platform_lines = [brief_line("Platform", platform)]
+        if content_type not in HIDE_SOCIAL_AUDIENCE_CONTENT_TYPES:
+            platform_lines += [
+                brief_line("Social objectives", social_objectives),
+                brief_line("Audience", audience),
+            ]
+        lines[3:3] = platform_lines
 
     if content_type in IMAGE_AWARE_CONTENT_TYPES:
         lines.extend(
@@ -628,11 +874,17 @@ def build_brief(
         lines.extend(
             [
                 brief_line("Instagram post formats", instagram_formats),
-                brief_line("Instagram hashtag strategy", instagram_hashtags),
-                brief_line("Instagram opening hook", instagram_hook),
-                "Instruction: If Instagram opening hook is blank, generate a short hook/first line and include it clearly as Hook / First line.",
-                "Instruction: Include caption/post copy, hashtag set, image text suggestion, and a short visual direction for each selected Instagram format.",
+                brief_line("Instagram baseline hashtag strategy", instagram_hashtags),
+                brief_line("Instagram opening hook (opening line / tone only)", instagram_hook),
+                brief_line("Image content type", instagram_image_content_type),
             ]
+        )
+        lines.extend(
+            instagram_generation_instructions(
+                instagram_formats,
+                carousel_slides=instagram_carousel_slides,
+                image_content_type=instagram_image_content_type,
+            )
         )
 
     if content_type == "quote_post":
@@ -698,6 +950,31 @@ def build_brief(
             ]
         )
 
+    if content_type == "review_pull_quote":
+        lines.extend(
+            [
+                brief_line("Review book/source", review_book),
+                brief_line("Selected review source", review_source),
+                brief_line("Grounded review quote", review_quote),
+                brief_line("Pull quote style", review_mode),
+                brief_line("Quote source mode", review_quote_mode),
+                brief_line("Attribution", review_attribution),
+                brief_line("Brand promo line", review_promo_line),
+                brief_line("Instagram formats", review_instagram_formats),
+                brief_line("Pull quote image destination formats", review_graphic_formats),
+                brief_line("Pull quote image color style", review_visual_style),
+            ]
+        )
+        lines.extend(
+            review_generation_instructions(
+                review_instagram_formats,
+                image_type=review_image_type,
+                card_style=review_card_style,
+                quote_mode=review_quote_mode,
+                manual_quote=review_manual_quote,
+            )
+        )
+
     if content_type == "press_release":
         lines.extend(
             [
@@ -717,7 +994,7 @@ def build_brief(
                 brief_line("Press release supporting proof", pr_supporting_proof),
                 brief_line("Press release quote source", pr_quote_source),
                 brief_line("Press release target media", pr_target_media),
-                brief_line("Required PR assets", pr_required_assets),
+                brief_line("Companion assets to generate alongside the press release", pr_required_assets),
             ]
         )
 
@@ -790,6 +1067,9 @@ def build_campaign_asset_brief(
     asset_count: int,
     campaign_topic: str,
     campaign_book: str,
+    angle_name: str = "",
+    angle_guidance: str = "",
+    sibling_angles=None,
     campaign_tone: str,
     campaign_objectives,
     campaign_audience,
@@ -798,6 +1078,7 @@ def build_campaign_asset_brief(
     style: str,
     quantity: str,
     instagram_formats=None,
+    instagram_hook="",
     youtube_formats=None,
     linkedin_formats=None,
     blog_length: str = "",
@@ -809,6 +1090,8 @@ def build_campaign_asset_brief(
     podcast_format: str = "",
     podcast_length: str = "",
     podcast_tone: str = "",
+    podcast_speakers: str = "",
+    podcast_roles: str = "",
     quote_book: str = "",
     quote_moods=None,
     quote_characters=None,
@@ -841,10 +1124,22 @@ def build_campaign_asset_brief(
         "Instruction: This asset is part of a coordinated campaign. Make it native to its platform, but keep the same core message, audience promise, and brand voice as the campaign.",
     ]
 
+    if angle_name:
+        lines.append(brief_line("Content angle for THIS post", f"{angle_name} — {angle_guidance}"))
+        if sibling_angles:
+            lines.append(brief_line("Distinct angles used across the full set", ", ".join(sibling_angles)))
+        lines.append(
+            "Instruction: This is one of several posts in the same campaign set, each with a DIFFERENT angle. "
+            "Commit fully to the angle above and make this post visibly distinct from the others — different opening line, "
+            "hook, structure, imagery, and emphasis. Do NOT reuse the framing, phrasing, or call-to-action wording of the sibling angles. "
+            "Across the full set the posts must feel varied and non-repetitive."
+        )
+
     if content_type == "instagram_caption":
         lines.extend(
             [
                 brief_line("Instagram selected post formats", instagram_formats),
+                brief_line("Instagram opening hook (opening line / tone only)", instagram_hook),
                 brief_line("Hashtag strategy", "Use audience-relevant book community hashtags only when requested."),
             ]
         )
@@ -869,6 +1164,9 @@ def build_campaign_asset_brief(
                 brief_line("Podcast format", podcast_format),
                 brief_line("Podcast length", podcast_length),
                 brief_line("Podcast delivery tone", podcast_tone),
+                brief_line("Podcast speaker count", podcast_speakers),
+                brief_line("Podcast speaker roles/names", podcast_roles),
+                "Instruction: Write the script as labeled speaker turns (e.g. 'Host:', 'Guest:') so it can be voiced per speaker.",
             ]
         )
     elif content_type == "quote_post":
@@ -916,6 +1214,9 @@ def build_campaign_asset_brief(
 async def generate_campaign_from_fields(
     *,
     campaign_topic,
+    campaign_name="",
+    campaign_start_date="",
+    campaign_cadence="",
     campaign_book,
     campaign_tone,
     campaign_objectives,
@@ -932,6 +1233,9 @@ async def generate_campaign_from_fields(
     saved_draft_path=None,
     campaign_progress=None,
     campaign_progress_label=None,
+    campaign_sections=None,
+    podcast_scripts_out=None,
+    campaign_form_fields=None,
 ) -> None:
     selected = [content_type for content_type, _label in CAMPAIGN_FORMATS if content_type in (campaign_formats or [])]
     if not campaign_topic or not str(campaign_topic).strip():
@@ -946,23 +1250,36 @@ async def generate_campaign_from_fields(
     status.value = "Generating campaign..."
     campaign_output.value = ""
     campaign_preview.content = build_campaign_preview_html([])
+    if campaign_sections is not None:
+        campaign_sections.clear()
     campaign_path.value = ""
     if saved_draft_path is not None:
         saved_draft_path.value = ""
     all_briefs: list[str] = []
     results: list[str] = []
     asset_records: list[dict[str, object]] = []
-    asset_total = sum(int(campaign_widgets[content_type]["quantity"].value or "1") for content_type in selected)
+    asset_total = sum(max(1, int(float(campaign_widgets[content_type]["quantity"].value or 1))) for content_type in selected)
     completed_assets = 0
     started_at = datetime.now()
 
     try:
         for content_type in selected:
             widgets = campaign_widgets[content_type]
-            quantity = widgets["quantity"].value or "1"
-            count = int(quantity)
+            count = max(1, int(float(widgets["quantity"].value or 1)))
+            quantity = str(count)
+            # Vary content + visuals across a multi-post set so they don't feel repetitive.
+            sibling_angle_names = campaign_set_angle_names(count) if count > 1 else []
             for index in range(1, count + 1):
                 label = CAMPAIGN_FORMAT_LABELS.get(content_type, content_type)
+                angle = campaign_post_angle(index) if count > 1 else None
+                post_theme = ""
+                if count > 1:
+                    _base_theme = (
+                        (widgets.get("visual_style").value if widgets.get("visual_style") else None)
+                        or (widgets.get("graphic_theme").value if widgets.get("graphic_theme") else None)
+                        or "Gothic"
+                    )
+                    post_theme = campaign_visual_theme_for_post(_base_theme, index)
                 if campaign_progress is not None and campaign_progress_label is not None:
                     await set_generation_progress(
                         progress=campaign_progress,
@@ -981,6 +1298,9 @@ async def generate_campaign_from_fields(
                     asset_count=count,
                     campaign_topic=campaign_topic,
                     campaign_book=campaign_book,
+                    angle_name=(angle["name"] if angle else ""),
+                    angle_guidance=(angle["content"] if angle else ""),
+                    sibling_angles=sibling_angle_names,
                     campaign_tone=campaign_tone,
                     campaign_objectives=campaign_objectives,
                     campaign_audience=campaign_audience,
@@ -989,6 +1309,7 @@ async def generate_campaign_from_fields(
                     style=widgets["style"].value,
                     quantity=quantity,
                     instagram_formats=campaign_widgets["instagram_caption"].get("formats").value,
+                    instagram_hook=(campaign_widgets["instagram_caption"].get("hook").value if campaign_widgets["instagram_caption"].get("hook") else ""),
                     youtube_formats=campaign_widgets["youtube_content"].get("formats").value,
                     linkedin_formats=campaign_widgets["linkedin_content"].get("formats").value,
                     blog_length=campaign_widgets["blog_post"].get("length").value,
@@ -1000,6 +1321,8 @@ async def generate_campaign_from_fields(
                     podcast_format=campaign_widgets["podcast"].get("format").value,
                     podcast_length=campaign_widgets["podcast"].get("length").value,
                     podcast_tone=campaign_widgets["podcast"].get("tone").value,
+                    podcast_speakers=(campaign_widgets["podcast"].get("speakers").value if campaign_widgets["podcast"].get("speakers") else ""),
+                    podcast_roles=(campaign_widgets["podcast"].get("roles").value if campaign_widgets["podcast"].get("roles") else ""),
                     quote_book=campaign_widgets["quote_post"].get("book").value,
                     quote_moods=campaign_widgets["quote_post"].get("moods").value,
                     quote_characters=campaign_widgets["quote_post"].get("characters").value,
@@ -1020,6 +1343,8 @@ async def generate_campaign_from_fields(
                 heading = f"## {label} {index}" if count > 1 else f"## {label}"
                 generated_content = result["generated_content"]
                 results.append(f"{heading}\n\n{generated_content}")
+                if content_type == "podcast" and podcast_scripts_out is not None:
+                    podcast_scripts_out.append((f"{label} {index} of {count}".strip(), generated_content))
                 preview_fields = {
                     "instagram_formats": campaign_widgets["instagram_caption"].get("formats").value,
                     "instagram_hashtags": "Use selected audience hashtags",
@@ -1049,7 +1374,42 @@ async def generate_campaign_from_fields(
                         widgets=widgets,
                         campaign_topic=str(campaign_topic or "campaign"),
                         asset_number=index,
+                        theme_override=post_theme,
                     )
+                # Campaign image generation for image-capable platforms (BUG-IMG-04 + LinkedIn/YouTube/Newsletter).
+                ig_image_paths: list[str] = []
+                if content_type in {"instagram_caption", "linkedin_content", "youtube_content", "newsletter_blurb"}:
+                    selected_image_formats = [f for f in (widgets.get("generate_images").value or []) if f] if widgets.get("generate_images") else []
+                    if selected_image_formats:
+                        # Instagram chips are post-format names that map to aspect ratios; the
+                        # other platforms select aspect-labeled image formats directly.
+                        image_labels = (
+                            instagram_visual_formats_for_post(selected_image_formats, None, 5)
+                            if content_type == "instagram_caption"
+                            else selected_image_formats
+                        )
+                        user_visual_style = (widgets.get("visual_style").value if widgets.get("visual_style") else "Gothic") or "Gothic"
+                        post_visual_style = post_theme or user_visual_style
+                        # Per-post visual direction so generated images vary in subject/composition,
+                        # not just text. For a multi-post set, don't pin every post to one base image.
+                        post_topic = str(campaign_topic or "campaign")
+                        if angle:
+                            post_topic = f"{post_topic}. Visual treatment for this post ({angle['name']}): {angle['visual']}"
+                        post_base_image = "" if count > 1 else ((widgets.get("base_image").value if widgets.get("base_image") else "") or "")
+                        image_package = await asyncio.to_thread(
+                            render_generated_visual_package,
+                            content_type=content_type,
+                            content=generated_content,
+                            topic=post_topic,
+                            format_labels=image_labels,
+                            theme_name=post_visual_style,
+                            image_content_type=widgets.get("image_content_type").value if widgets.get("image_content_type") else "",
+                            base_image_path=post_base_image,
+                        )
+                        if isinstance(image_package, dict):
+                            ig_image_paths = [str(p) for p in image_package.get("paths", [])]
+                            if ig_image_paths:
+                                results[-1] += f"\n\n**Generated images:** {len(ig_image_paths)} file(s) — package: {image_package.get('zip_path', '')}"
                 asset_records.append(
                     {
                         "content_type": content_type,
@@ -1059,6 +1419,7 @@ async def generate_campaign_from_fields(
                         "content": generated_content,
                         "preview_fields": preview_fields,
                         "quote_graphic": quote_graphic,
+                        "image_paths": ig_image_paths,
                         "widgets": widgets,
                     }
                 )
@@ -1092,25 +1453,113 @@ async def generate_campaign_from_fields(
             total_assets=asset_total,
             message="Saving campaign bundle...",
         )
-    combined = "\n\n---\n\n".join(results)
-    saved_path = save_output(combined, "campaign_mode", "bundle")
+    # Campaign title + posting schedule (BUG-CM-03/04).
+    campaign_title = str(campaign_name or "").strip() or str(campaign_topic).strip()[:60] or "Campaign"
+    cadence_days = {"daily": 1, "every 2 days": 2, "twice a week": 3, "weekly": 7}.get(
+        str(campaign_cadence or "").strip().lower(), 2
+    )
+    start = None
+    start_text = str(campaign_start_date or "").strip()
+    if start_text:
+        try:
+            start = datetime.strptime(start_text, "%Y-%m-%d")
+        except ValueError:
+            start = None
+    schedule_lines = ["## Posting Schedule", ""]
+    for i, record in enumerate(asset_records):
+        slot = f"{content_type_label(str(record.get('content_type') or 'content'))} {record.get('asset_label') or ''}".strip()
+        when = (start + timedelta(days=i * cadence_days)).strftime("%a %b %d, %Y") if start else f"Day {1 + i * cadence_days}"
+        schedule_lines.append(f"- **{when}** — {slot}")
+    schedule_block = "\n".join(schedule_lines)
+
+    combined = f"# {campaign_title}\n\n{schedule_block}\n\n---\n\n" + "\n\n---\n\n".join(results)
+    saved_path = save_output(combined, "campaign_mode", slugify_filename(campaign_title, "bundle"))
     draft_record = save_draft(
-        title=str(campaign_topic).strip()[:90] or "Campaign Mode",
+        title=campaign_title[:90],
         content_type="campaign_mode",
         content=combined,
         source_path=saved_path,
         metadata={
+            "campaign_name": campaign_title,
             "formats": selected,
             "asset_count": len(results),
             "topic": str(campaign_topic or "").strip(),
+            "start_date": start_text,
+            "cadence": str(campaign_cadence or "").strip(),
             "related_book": normalize_selected(campaign_book),
             "brief": "\n\n---\n\n".join(all_briefs),
             "objectives": normalize_selected(campaign_objectives),
             "audience": normalize_selected(campaign_audience),
+            "form_fields": campaign_form_fields or {},
         },
     )
     campaign_output.value = combined
     campaign_preview.content = build_campaign_preview_html(asset_records)
+    if campaign_sections is not None:
+        campaign_sections.clear()
+        with campaign_sections:
+            if not asset_records:
+                ui.label("No assets generated.").classes("mce-muted")
+            for record in asset_records:
+                rec_ct = str(record.get("content_type") or "content")
+                rec_content = str(record.get("content") or "")
+                rec_label = str(record.get("asset_label") or "").strip()
+                heading = f"{content_type_label(rec_ct)} · {rec_label}".strip(" ·")
+                rec_title = f"{content_type_label(rec_ct)} {rec_label}".strip()
+                rec_widgets = record.get("widgets") if isinstance(record.get("widgets"), dict) else {}
+                with ui.expansion(heading, icon="article").classes("mce-expansion"):
+                    ui.markdown(rec_content).classes("w-full mce-rendered-output")
+                    asset_image_row = ui.row().classes("w-full mce-gallery")
+
+                    def render_asset_images(row=asset_image_row, paths=(record.get("image_paths") or [])) -> None:
+                        row.clear()
+                        with row:
+                            for image_path in [str(p) for p in paths if str(p or "").strip()][:8]:
+                                ui.image(image_path).classes("mce-gallery-thumb")
+
+                    render_asset_images()
+
+                    async def regenerate_asset_images(content=rec_content, ct=rec_ct, wgts=rec_widgets, row=asset_image_row) -> None:
+                        gi = wgts.get("generate_images")
+                        selected = [f for f in (gi.value or []) if f] if gi else []
+                        if not selected:
+                            ui.notify("Pick at least one image format on the content card first.", type="warning")
+                            return
+                        labels = instagram_visual_formats_for_post(selected, None, 5) if ct == "instagram_caption" else selected
+                        pkg = await asyncio.to_thread(
+                            render_generated_visual_package,
+                            content_type=ct,
+                            content=content,
+                            topic=str(campaign_topic or "campaign"),
+                            format_labels=labels,
+                            theme_name=(wgts.get("visual_style").value if wgts.get("visual_style") else "Gothic") or "Gothic",
+                            image_content_type=wgts.get("image_content_type").value if wgts.get("image_content_type") else "",
+                            base_image_path=(wgts.get("base_image").value if wgts.get("base_image") else "") or "",
+                        )
+                        paths = [str(p) for p in pkg.get("paths", [])] if isinstance(pkg, dict) else []
+                        if paths:
+                            render_asset_images(row=row, paths=paths)
+                            ui.notify(f"Regenerated {len(paths)} image(s).", type="positive")
+                        else:
+                            ui.notify((pkg.get("error") if isinstance(pkg, dict) else "") or "No images generated.", type="warning")
+
+                    with ui.row().classes("mce-actions"):
+                        make_secondary_button(
+                            "Download",
+                            lambda c=rec_content, t=rec_title: download_docx(c, t or "campaign_asset"),
+                        )
+                        make_secondary_button(
+                            "Save to Drafts",
+                            lambda c=rec_content, ct=rec_ct, t=rec_title: (
+                                save_draft(title=(t[:90] or ct), content_type=ct, content=c),
+                                ui.notify("Saved to drafts.", type="positive"),
+                            ),
+                        )
+                        if rec_ct in {"instagram_caption", "linkedin_content", "youtube_content", "newsletter_blurb"}:
+                            make_secondary_button(
+                                "Regenerate images",
+                                lambda fn=regenerate_asset_images: asyncio.create_task(fn()),
+                            )
     campaign_brief_output.value = "\n\n---\n\n".join(all_briefs)
     campaign_path.value = str(saved_path)
     if saved_draft_path is not None:
@@ -1132,6 +1581,66 @@ def slugify_filename(value: str, fallback: str = "podcast") -> str:
     value = re.sub(r"[^\w\s-]", "", value, flags=re.UNICODE)
     value = re.sub(r"[-\s]+", "_", value).strip("_").lower()
     return value or fallback
+
+
+def _docx_inline_runs(paragraph, text: str) -> None:
+    """Add text to a docx paragraph, rendering **bold** / *italic* markdown runs."""
+    pattern = re.compile(r"(\*\*[^*]+\*\*|__[^_]+__|\*[^*\s][^*]*\*|_[^_\s][^_]*_)")
+    pos = 0
+    for match in pattern.finditer(text):
+        if match.start() > pos:
+            paragraph.add_run(text[pos:match.start()])
+        token = match.group(0)
+        if token.startswith("**") or token.startswith("__"):
+            paragraph.add_run(token[2:-2]).bold = True
+        else:
+            paragraph.add_run(token[1:-1]).italic = True
+        pos = match.end()
+    if pos < len(text):
+        paragraph.add_run(text[pos:])
+
+
+def build_docx(content: str, stem: str) -> Path:
+    """Render markdown-ish text to a .docx and return its path (downloads are .docx)."""
+    from docx import Document
+
+    document = Document()
+    for raw in str(content or "").splitlines():
+        stripped = raw.strip()
+        if not stripped or stripped == "---":
+            continue
+        banner = re.match(r"^={2,}\s*(.+?)\s*={2,}$", stripped)
+        if banner:
+            document.add_heading(banner.group(1), level=2)
+            continue
+        heading = re.match(r"^(#{1,6})\s+(.*)$", stripped)
+        if heading:
+            document.add_heading(re.sub(r"[*_`]", "", heading.group(2)), level=min(len(heading.group(1)), 4))
+            continue
+        bullet = re.match(r"^[-*+]\s+(.*)$", stripped)
+        if bullet:
+            _docx_inline_runs(document.add_paragraph(style="List Bullet"), bullet.group(1))
+            continue
+        numbered = re.match(r"^\d+[.)]\s+(.*)$", stripped)
+        if numbered:
+            _docx_inline_runs(document.add_paragraph(style="List Number"), numbered.group(1))
+            continue
+        _docx_inline_runs(document.add_paragraph(), stripped)
+
+    out_dir = PROJECT_ROOT / "outputs" / "downloads"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / f"{slugify_filename(stem, 'document')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+    document.save(str(path))
+    return path
+
+
+def download_docx(content: str, stem: str) -> None:
+    """Build a .docx from content and trigger a browser download (with a clear warning if empty)."""
+    if not str(content or "").strip():
+        ui.notify("Generate content before downloading.", type="warning")
+        return
+    path = build_docx(content, stem)
+    ui.download(str(path), f"{slugify_filename(stem, 'document')}.docx")
 
 
 def normalize_speaker_label(value: str) -> str:
@@ -1697,12 +2206,169 @@ def build_quote_preview_html(content_type: str, fields: dict[str, object]) -> st
     """
 
 
+# Per-format aspect ratio + badge for the Instagram Output Studio mock cards.
+IG_FORMAT_RENDER = {
+    "feed post": ("4 / 5", "Post · 4:5"),
+    "reel": ("9 / 16", "Reel · 9:16"),
+    "story": ("9 / 16", "Story · 9:16"),
+    "carousel": ("4 / 5", "Carousel · 4:5"),
+}
+
+
+def build_instagram_format_card(fmt: str, block: dict, image_path: str = "", format_images=None) -> str:
+    """Render one Instagram mock card for a single post format at its true aspect ratio.
+
+    ``format_images`` is the list of generated image paths for this format (used by the
+    per-format Regenerate flow); when empty the uploaded ``image_path`` is shown.
+    """
+    aspect, badge = IG_FORMAT_RENDER.get(fmt.lower(), IG_FORMAT_RENDER["feed post"])
+    images = [str(p) for p in (format_images or []) if str(p or "").strip()]
+    primary_url = image_data_url(images[0]) if images else image_data_url(str(image_path or ""))
+
+    def fill(url_value: str, label: str = "IMAGE") -> str:
+        if url_value:
+            return f'<img src="{escape(url_value, quote=True)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">'
+        return (
+            f'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;'
+            f'background:linear-gradient(135deg,#1c1418,#6f182c);color:#f8efe8;font-weight:800;letter-spacing:.06em;font-size:12px;">{escape(label)}</div>'
+        )
+
+    def image_fill(label: str = "IMAGE") -> str:
+        return fill(primary_url, label)
+
+    header = (
+        '<div style="padding:9px 12px;display:flex;align-items:center;gap:8px;">'
+        '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#2a0712,#8E1F2F);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:15px;">M</div>'
+        '<div style="flex:1;font-weight:800;font-size:12px;">mortalvengeance</div>'
+        f'<div style="font-size:9px;font-weight:800;color:#8E1F2F;border:1px solid rgba(142,31,47,.3);border-radius:999px;padding:2px 7px;white-space:nowrap;">{escape(badge)}</div>'
+        '</div>'
+    )
+    key = fmt.lower()
+
+    if key == "story":
+        overlay = normalize_selected(block.get("overlay text"))
+        cta = normalize_selected(block.get("cta"))
+        overlay_html = (
+            '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;">'
+            f'<div style="font-family:Georgia,serif;font-weight:900;font-size:24px;line-height:1.1;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.6);">{escape(overlay) if overlay != "Not specified" else "Overlay text on image"}</div>'
+            '</div>'
+        )
+        cta_html = (
+            f'<div style="position:absolute;left:0;right:0;bottom:14px;text-align:center;color:#fff;font-size:12px;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,.6);">{escape(cta)}</div>'
+            if cta != "Not specified" else ""
+        )
+        body_area = f'<div style="position:relative;aspect-ratio:{aspect};background:#160f13;">{image_fill("STORY")}{overlay_html}{cta_html}</div>'
+        return f'<div style="width:240px;border-radius:18px;overflow:hidden;background:#fff;border:1px solid rgba(0,0,0,.1);box-shadow:0 14px 30px rgba(61,31,41,.1);">{header}{body_area}</div>'
+
+    if key == "carousel":
+        slides = block.get("slides") or []
+        caption = markdown_to_html(block.get("caption")) if block.get("caption") else "Generate to see the carousel caption."
+        hashtags = escape(normalize_selected(block.get("hashtags"))) if block.get("hashtags") else ""
+        total = len(slides)
+        if slides:
+            slide_cards = "".join(
+                (
+                    f'<div style="flex:0 0 auto;width:150px;aspect-ratio:{aspect};border-radius:12px;overflow:hidden;position:relative;background:#160f13;border:1px solid rgba(0,0,0,.1);">'
+                    f'{fill(image_data_url(images[i - 1]) if i - 1 < len(images) else primary_url)}'
+                    f'<div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);color:#fff;border-radius:999px;font-size:10px;padding:1px 7px;font-weight:800;">{i}/{total}</div>'
+                    f'<div style="position:absolute;inset:auto 0 0 0;padding:8px;background:linear-gradient(transparent,rgba(0,0,0,.8));color:#fff;font-size:11px;line-height:1.3;">{escape(str(slide_text)[:140])}</div>'
+                    '</div>'
+                )
+                for i, slide_text in enumerate(slides, 1)
+            )
+        else:
+            slide_cards = f'<div style="flex:0 0 auto;width:150px;aspect-ratio:{aspect};border-radius:12px;overflow:hidden;background:#160f13;">{image_fill("SLIDES")}</div>'
+        deck = f'<div style="display:flex;gap:10px;overflow-x:auto;padding:12px;">{slide_cards}</div>'
+        caption_area = (
+            '<div style="padding:6px 14px 14px;">'
+            f'<div style="font-size:13px;line-height:1.45;white-space:pre-wrap;"><strong>mortalvengeance</strong> {caption}</div>'
+            f'<div style="font-size:12px;color:#2454a6;margin-top:6px;">{hashtags}</div>'
+            '</div>'
+        )
+        return f'<div style="width:340px;border-radius:18px;overflow:hidden;background:#fff;border:1px solid rgba(0,0,0,.1);box-shadow:0 14px 30px rgba(61,31,41,.1);">{header}{deck}{caption_area}</div>'
+
+    # Feed post / Reel / default.
+    caption = markdown_to_html(block.get("caption")) if block.get("caption") else "Generate to see the caption."
+    hashtags = escape(normalize_selected(block.get("hashtags"))) if block.get("hashtags") else ""
+    label = "REEL COVER" if key == "reel" else "IMAGE"
+    body_area = f'<div style="aspect-ratio:{aspect};background:#160f13;">{image_fill(label)}</div>'
+    caption_area = (
+        '<div style="padding:10px 14px 14px;">'
+        '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;color:#333;font-weight:800;"><span>Like · Comment · Share</span><span>Save</span></div>'
+        f'<div style="font-size:13px;line-height:1.45;white-space:pre-wrap;"><strong>mortalvengeance</strong> {caption}</div>'
+        f'<div style="font-size:12px;color:#2454a6;margin-top:6px;">{hashtags}</div>'
+        '</div>'
+    )
+    width = "240px" if key == "reel" else "300px"
+    return f'<div style="width:{width};border-radius:18px;overflow:hidden;background:#fff;border:1px solid rgba(0,0,0,.1);box-shadow:0 14px 30px rgba(61,31,41,.1);">{header}{body_area}{caption_area}</div>'
+
+
+# Card palettes for review_pull_quote (BUG-RPQ-03).
+REVIEW_CARD_STYLES = {
+    "dark gothic": {"bg": "linear-gradient(160deg,#141019,#2a1622)", "fg": "#f6efe9", "muted": "#d7a8b3", "accent": "#e7c9cf"},
+    "light minimal": {"bg": "linear-gradient(180deg,#fffdfb,#f4f1ec)", "fg": "#1a1417", "muted": "#8E1F2F", "accent": "#6b6b6b"},
+    "brand default": {"bg": "linear-gradient(160deg,#2a0712,#8E1F2F)", "fg": "#fff6f3", "muted": "#f0c9cf", "accent": "#f3d9dd"},
+}
+
+
+def build_review_quote_card(fmt, style, image_type, quote, attribution, promo, image_path="") -> str:
+    """Render one styled pull-quote card for a given Instagram format (BUG-RPQ-03)."""
+    aspect, badge = IG_FORMAT_RENDER.get(str(fmt).lower(), IG_FORMAT_RENDER["feed post"])
+    pal = REVIEW_CARD_STYLES.get(str(style or "").strip().lower(), REVIEW_CARD_STYLES["dark gothic"])
+    image_mode = str(image_type or "").lower()
+    use_image = "overlay" in image_mode  # character or book-cover overlay
+    url = image_data_url(str(image_path or ""))
+
+    if use_image and url:
+        bg_layer = (
+            f'<img src="{escape(url, quote=True)}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">'
+            '<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,5,8,.35),rgba(8,5,8,.8));"></div>'
+        )
+        text_color, muted, accent = "#ffffff", "#e7c9cf", "#f0d4d9"
+    elif use_image:
+        bg_layer = (
+            '<div style="position:absolute;inset:0;background:linear-gradient(135deg,#1c1418,#6f182c);"></div>'
+            '<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,5,8,.18),rgba(8,5,8,.72));"></div>'
+            '<div style="position:absolute;top:10px;left:12px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);">'
+            f'{escape("book cover" if "cover" in image_mode else "character")} image</div>'
+        )
+        text_color, muted, accent = "#ffffff", "#e7c9cf", "#f0d4d9"
+    else:
+        bg_layer = f'<div style="position:absolute;inset:0;background:{pal["bg"]};"></div>'
+        text_color, muted, accent = pal["fg"], pal["muted"], pal["accent"]
+
+    quote_html = markdown_to_html(str(quote or "")[:400])
+    attribution_html = escape(attribution) if attribution and attribution != "Not specified" else "Verified reader review"
+    promo_html = (
+        f'<div style="position:relative;margin-top:14px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:{muted};font-weight:800;">{escape(promo)}</div>'
+        if promo and promo != "Not specified" else ""
+    )
+    badge_html = (
+        f'<div style="position:absolute;top:12px;right:12px;font-size:9px;font-weight:800;color:{text_color};'
+        f'border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:2px 8px;background:rgba(0,0,0,.18);">{escape(badge)}</div>'
+    )
+    width = "260px" if aspect == "9 / 16" else "300px"
+    return (
+        f'<div style="width:{width};border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(20,10,16,.28);">'
+        f'<div style="position:relative;aspect-ratio:{aspect};display:flex;flex-direction:column;justify-content:center;padding:26px 24px;">'
+        f'{bg_layer}{badge_html}'
+        f'<div style="position:absolute;top:-8px;left:14px;font-family:Georgia,serif;font-size:90px;line-height:1;color:rgba(255,255,255,.10);">&ldquo;</div>'
+        f'<blockquote style="position:relative;margin:0;font-family:Georgia,serif;font-weight:600;font-size:clamp(17px,3.4vw,23px);line-height:1.35;color:{text_color};white-space:pre-wrap;">{quote_html}</blockquote>'
+        f'<div style="position:relative;margin-top:16px;font-size:13px;color:{accent};">&mdash; {attribution_html}</div>'
+        f'{promo_html}'
+        '</div></div>'
+    )
+
+
 def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
     def text(value) -> str:
         return normalize_selected(value)
 
     def safe(value) -> str:
         return escape(text(value))
+
+    def body(value) -> str:
+        return markdown_to_html(value)
 
     def image_markup(image_path, fallback_label: str) -> str:
         url = image_data_url(str(image_path or ""))
@@ -1743,40 +2409,21 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
         )
 
     if content_type == "instagram_caption":
-        formats = safe(fields.get("instagram_formats"))
-        hashtags = safe(fields.get("instagram_hashtags"))
-        hook = safe(fields.get("instagram_hook"))
-        visual_formats = safe(fields.get("instagram_visual_formats"))
-        visual_style = safe(fields.get("instagram_visual_style"))
-        caption = safe(fields.get("draft") or fields.get("caption"))
-        post_type = first_line(fields.get("instagram_formats"), "Post")
-        return f"""
-        <div style="max-width:430px;margin:0 auto;border-radius:28px;background:#fff;border:1px solid rgba(0,0,0,.10);box-shadow:0 18px 40px rgba(61,31,41,.10);overflow:hidden;">
-            <div style="padding:14px 16px;display:flex;align-items:center;gap:12px;">
-                <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#2a0712,#8E1F2F);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:24px;">M</div>
-                <div style="flex:1;">
-                    <div style="font-weight:800;font-size:14px;">mortalvengeance <span style="color:#2f80ed;">✓</span></div>
-                <div style="font-size:11px;color:#777;">{escape(post_type)} preview</div>
-                </div>
-                <div style="font-size:24px;line-height:1;">•••</div>
-            </div>
-            <div style="aspect-ratio:1/1;background:#160f13;">{image_markup(fields.get("image_path"), "UPLOAD IMAGE")}</div>
-            <div style="padding:12px 16px;">
-                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:10px;color:#333;font-weight:800;"><span>Like · Comment · Share</span><span>Save</span></div>
-                <div style="font-size:13px;margin-bottom:8px;">Liked by <strong>bookish.souls</strong> and <strong>1,243 others</strong></div>
-                <div style="font-size:13px;line-height:1.45;white-space:pre-wrap;"><strong>mortalvengeance</strong> {caption}</div>
-                <div style="font-size:12px;color:#2454a6;line-height:1.45;margin-top:8px;">{hashtags}</div>
-                <div style="font-size:11px;color:#777;margin-top:10px;"><strong>Hook:</strong> {hook} · <strong>Formats:</strong> {formats}</div>
-                <div style="font-size:11px;color:#777;margin-top:4px;"><strong>Image package:</strong> {visual_style} · {visual_formats}</div>
-            </div>
-        </div>
-        """
+        selected = [str(f).strip() for f in (fields.get("instagram_formats") or []) if str(f).strip()] or ["Feed post"]
+        parsed = parse_instagram_multiformat(text(fields.get("draft")))
+        image_path = str(fields.get("image_path") or "")
+        format_images = fields.get("instagram_format_images") or {}
+        cards = "".join(
+            build_instagram_format_card(fmt, parsed.get(fmt.lower(), {}), image_path, format_images.get(fmt.lower()))
+            for fmt in selected
+        )
+        return f'<div style="display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:flex-start;">{cards}</div>'
 
     if content_type == "linkedin_content":
         formats = safe(fields.get("linkedin_formats"))
         angle = safe(fields.get("linkedin_angle"))
         cta = safe(fields.get("linkedin_cta"))
-        draft = safe(fields.get("draft"))
+        draft = body(fields.get("draft"))
         return f"""
         <div style="max-width:520px;margin:0 auto;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.12);box-shadow:0 18px 40px rgba(61,31,41,.08);overflow:hidden;">
             <div style="padding:16px;display:flex;gap:12px;align-items:center;">
@@ -1802,7 +2449,7 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
         formats = safe(fields.get("youtube_formats"))
         keywords = safe(fields.get("youtube_keywords"))
         link = safe(fields.get("youtube_link"))
-        draft = safe(fields.get("draft"))
+        draft = body(fields.get("draft"))
         title = escape(first_line(fields.get("draft"), "Mortal Vengeance: A Grim Tale"))
         return f"""
         <div style="max-width:560px;margin:0 auto;border-radius:18px;background:#fff;border:1px solid rgba(0,0,0,.12);box-shadow:0 18px 40px rgba(61,31,41,.08);overflow:hidden;">
@@ -1825,7 +2472,8 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
         draft_raw = text(fields.get("draft") or fields.get("topic"))
         lines = [line.strip() for line in draft_raw.splitlines() if line.strip()]
         headline = escape(first_line(draft_raw, "Press Release Headline"))
-        body = safe("\n\n".join(lines[1:8]) if len(lines) > 1 else draft_raw)
+        body_source = "\n\n".join(lines[1:8]) if len(lines) > 1 else draft_raw
+        body_html = body(body_source[:1800])
         dateline_parts = [
             text(fields.get("pr_city")) if text(fields.get("pr_city")) != "Not specified" else "",
             text(fields.get("pr_state")) if text(fields.get("pr_state")) != "Not specified" else "",
@@ -1848,7 +2496,7 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
                 <div>
                     <div style="font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#8E1F2F;font-weight:900;margin-bottom:8px;">{dateline}</div>
                     <h1 style="font-family:Georgia,serif;font-size:38px;line-height:1.02;margin:0 0 10px;color:#17120f;">{headline}</h1>
-                    <div style="font-size:15px;line-height:1.58;white-space:pre-wrap;color:#26211e;column-count:2;column-gap:20px;">{body[:1800]}</div>
+                    <div style="font-size:15px;line-height:1.58;white-space:pre-wrap;color:#26211e;column-count:2;column-gap:20px;">{body_html}</div>
                 </div>
                 <aside style="border-left:1px solid rgba(44,24,31,.22);padding-left:14px;">
                     <div style="font-size:12px;text-transform:uppercase;letter-spacing:.14em;font-weight:900;border-bottom:1px solid rgba(44,24,31,.2);padding-bottom:6px;margin-bottom:10px;">Newswire Notes</div>
@@ -1869,7 +2517,7 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
         blog_character = safe(fields.get("blog_character"))
         visual_style = safe(fields.get("blog_visual_style"))
         visual_formats = safe(fields.get("blog_visual_formats"))
-        draft = safe(fields.get("draft") or fields.get("topic"))
+        draft = body(text(fields.get("draft") or fields.get("topic"))[:700])
         title = escape(first_line(fields.get("draft") or fields.get("topic"), "Mortal Vengeance Feature"))
         return f"""
         <article style="max-width:680px;margin:0 auto;border-radius:22px;background:#fffdfb;border:1px solid rgba(44,24,31,.13);box-shadow:0 18px 40px rgba(61,31,41,.09);overflow:hidden;">
@@ -1878,7 +2526,7 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
                 <div style="text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:#8E1F2F;font-weight:900;margin-bottom:10px;">{blog_format}</div>
                 <h2 style="font-family:Georgia,serif;font-size:34px;line-height:1.08;margin:0 0 12px;color:#171217;">{title}</h2>
                 <div style="font-size:13px;color:#71686a;margin-bottom:14px;"><strong>Length:</strong> {blog_length} · <strong>Image:</strong> {image_mode} · <strong>Character:</strong> {blog_character}</div>
-                <div style="font-size:14px;line-height:1.58;white-space:pre-wrap;color:#2f292b;margin-bottom:14px;">{draft[:700]}</div>
+                <div style="font-size:14px;line-height:1.58;white-space:pre-wrap;color:#2f292b;margin-bottom:14px;">{draft}</div>
                 <div style="font-size:12px;color:#71686a;"><strong>Structure:</strong> {structure}</div>
                 <div style="font-size:12px;color:#71686a;margin-top:6px;"><strong>SEO:</strong> {seo}</div>
                 <div style="font-size:12px;color:#71686a;margin-top:6px;"><strong>Visuals:</strong> {visual_style} · {visual_formats}</div>
@@ -1888,10 +2536,16 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
 
     if content_type == "character_spotlight":
         subject = text(fields.get("character_subject") or fields.get("cs_character"))
+        if subject == "Not specified":
+            return """
+            <div style="border-radius:20px;padding:30px 24px;background:#faf7f3;border:1px dashed rgba(44,24,31,.22);color:#8a8079;text-align:center;font-size:14px;">
+                Select a character above to preview the spotlight.
+            </div>
+            """
         focus = safe(fields.get("character_focus") or fields.get("cs_focus"))
         format_label = text(fields.get("character_format") or fields.get("cs_platform_format"))
         image_mode = text(fields.get("character_image_mode") or fields.get("cs_image_mode"))
-        draft = safe(fields.get("draft"))
+        draft_text = text(fields.get("draft"))
         portrait = resolve_character_portrait_asset(subject) if image_mode != "use uploaded image" else None
         portrait_url = image_data_url(portrait) if portrait else ""
         if image_mode == "text-only highlight image":
@@ -1919,7 +2573,7 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
             text_style = "padding:20px;"
 
         max_copy = 520 if "blog" in lookup else 240
-        display_draft = draft[:max_copy] + ("..." if len(draft) > max_copy else "")
+        display_draft = body(draft_text[:max_copy]) + ("..." if len(draft_text) > max_copy else "")
         return f"""
         <div style="{container_style};margin:0 auto;border-radius:22px;background:#fffdfb;border:1px solid rgba(44,24,31,.13);box-shadow:0 18px 40px rgba(61,31,41,.09);overflow:hidden;">
             <div style="{layout};width:100%;height:100%;">
@@ -1935,6 +2589,55 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
         </div>
         """
 
+    if content_type == "newsletter_blurb":
+        subject = text(fields.get("newsletter_subject"))
+        subject_display = escape(subject) if subject != "Not specified" else "Your subject line appears here"
+        preview_text = text(fields.get("newsletter_preview"))
+        preview_display = escape(preview_text) if preview_text != "Not specified" else "Preview text shown beside the subject in the inbox"
+        structure = safe(fields.get("newsletter_structure"))
+        newsletter_body = body(text(fields.get("draft") or fields.get("topic"))[:1200])
+        sender = "Mortal Vengeance"
+        return f"""
+        <div style="max-width:560px;margin:0 auto;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.12);box-shadow:0 18px 40px rgba(61,31,41,.08);overflow:hidden;font-family:Helvetica,Arial,sans-serif;">
+            <div style="background:#f1f3f4;padding:10px 16px;font-size:12px;color:#5f6368;border-bottom:1px solid #e0e0e0;">Inbox</div>
+            <div style="padding:14px 16px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:flex-start;">
+                <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#2a0712,#8E1F2F);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:20px;flex:none;">M</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;justify-content:space-between;font-size:13px;"><strong>{escape(sender)}</strong><span style="color:#5f6368;font-size:12px;">now</span></div>
+                    <div style="font-size:14px;font-weight:700;color:#202124;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{subject_display}</div>
+                    <div style="font-size:13px;color:#5f6368;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{preview_display}</div>
+                </div>
+            </div>
+            <div style="padding:20px 22px;">
+                <div style="text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:#8E1F2F;font-weight:800;margin-bottom:10px;">{structure}</div>
+                <h2 style="font-family:Georgia,serif;font-size:24px;line-height:1.2;margin:0 0 14px;color:#1a1417;">{subject_display}</h2>
+                <div style="font-size:14px;line-height:1.6;white-space:pre-wrap;color:#2f292b;">{newsletter_body}</div>
+            </div>
+        </div>
+        """
+
+    if content_type == "review_pull_quote":
+        quote_raw = text(fields.get("review_quote_text") or fields.get("draft"))
+        if quote_raw == "Not specified":
+            quote_raw = "Select or paste a quote to preview the pull-quote card."
+        # If the resolved text is a full generated draft, preview the first quote in it.
+        elif len(quote_raw) > 220 or quote_raw.strip().count("\n") >= 2:
+            candidates = extract_quote_candidates(quote_raw)
+            if candidates:
+                quote_raw = candidates[0]
+        selected = [str(f).strip() for f in (fields.get("review_instagram_formats") or []) if str(f).strip()] or ["Feed post"]
+        style = text(fields.get("review_card_style"))
+        image_type = text(fields.get("review_image_type"))
+        source = text(fields.get("review_attribution") or fields.get("review_source"))
+        attribution = source if source != "Not specified" else ""
+        promo = text(fields.get("review_promo_line"))
+        image_path = str(fields.get("image_path") or "")
+        cards = "".join(
+            build_review_quote_card(fmt, style, image_type, quote_raw, attribution, promo, image_path)
+            for fmt in selected
+        )
+        return f'<div style="display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:flex-start;">{cards}</div>'
+
     return f"""
     <div style="border-radius:20px;padding:20px;background:#ffffff;border:1px dashed rgba(17,17,20,.16);color:#6b6b6b;">
         Select a content type to see a platform-style preview.
@@ -1946,20 +2649,31 @@ def extract_quote_for_graphic(content: str) -> str:
     text = str(content or "").strip()
     if not text:
         return ""
+    # Prefer an explicit on-image text line from the structured output.
     label_match = re.search(
-        r"(?im)^\s*(?:quote|pull quote|review quote|caption text|graphic text)\s*:\s*(.+)$",
+        r"(?im)^\s*(?:overlay text|image text suggestion|quote|pull quote|review quote|caption text|graphic text)\s*:\s*(.+)$",
         text,
     )
     if label_match:
-        return label_match.group(1).strip().strip('"“”')[:260]
+        candidate = label_match.group(1).strip().strip('"“”')
+        if candidate and not candidate.startswith("<"):
+            return candidate[:260]
     curly_match = re.search(r"[“\"]([^”\"]{18,260})[”\"]", text)
     if curly_match:
         return curly_match.group(1).strip()
+    # Line scan: skip "=== HEADER ===" scaffolding and strip field-label prefixes
+    # so the overlay never shows "=== FEED POST ===" or "Caption:" (BUG-IMG-03).
+    label_prefix = re.compile(
+        r"(?i)^(?:caption|hashtags|image direction|overlay text|cta|attribution|hook|slide\s*\d*[^:]*)\s*:\s*"
+    )
     for line in text.splitlines():
-        cleaned = line.strip().strip("#*- ").strip('"“”')
-        if 18 <= len(cleaned) <= 260:
+        cleaned = line.strip()
+        if re.match(r"^={2,}.*={2,}$", cleaned):
+            continue
+        cleaned = label_prefix.sub("", cleaned).strip("#*- ").strip('"“”')
+        if 18 <= len(cleaned) <= 260 and not cleaned.startswith("<"):
             return cleaned
-    return text[:260]
+    return label_prefix.sub("", text.strip().splitlines()[0] if text.strip().splitlines() else text)[:260]
 
 
 def clean_quote_candidate(value: str) -> str:
@@ -2007,6 +2721,207 @@ def extract_quote_candidates(content: str, limit: int = 12) -> list[str]:
     return unique
 
 
+def parse_instagram_multiformat(draft: str) -> dict[str, dict]:
+    """Parse the labeled '=== FORMAT ===' Instagram output into per-format field dicts.
+
+    Returns {format_key: {caption, hashtags, overlay text, cta, image direction, slides[]}}.
+    """
+    text = str(draft or "")
+    parts = re.split(r"(?im)^\s*={2,}\s*(.+?)\s*={2,}\s*$", text)
+    if len(parts) < 3:
+        return {}
+
+    def parse_block(body: str) -> dict:
+        fields: dict[str, object] = {}
+        slides: list[str] = []
+        current = None
+        for line in body.splitlines():
+            m_field = re.match(r"(?i)^\s*(caption|hashtags|overlay text|cta|image direction)\s*:\s*(.*)$", line)
+            m_slide = re.match(r"(?i)^\s*slide\s*(\d+)\s*(?:\([^)]*\))?\s*:\s*(.*)$", line)
+            if m_field:
+                current = m_field.group(1).lower()
+                fields[current] = m_field.group(2).strip()
+            elif m_slide:
+                current = ("slide", len(slides))
+                slides.append(m_slide.group(2).strip())
+            elif current is not None and line.strip():
+                if isinstance(current, tuple):
+                    slides[current[1]] = (slides[current[1]] + "\n" + line.strip()).strip()
+                else:
+                    fields[current] = (str(fields[current]) + "\n" + line.strip()).strip()
+        if slides:
+            fields["slides"] = slides
+        return fields
+
+    blocks: dict[str, dict] = {}
+    iterator = iter(parts[1:])
+    for header, segment in zip(iterator, iterator):
+        blocks[header.strip().lower()] = parse_block(segment)
+    return blocks
+
+
+def extract_speaker_from_content(content: str) -> str:
+    """Best-effort extraction of a quote's speaker/attribution from generated text."""
+    text = str(content or "")
+    label_match = re.search(
+        r"(?im)^\s*(?:speaker|character|attribution|attributed to|said by|spoken by|—\s*by)\s*[:\-]\s*(.+)$",
+        text,
+    )
+    if label_match:
+        name = label_match.group(1).strip().strip('"“”')
+        if name and name.lower() != "not specified":
+            return name[:60]
+    # Dash attribution at the end of a line, e.g. "— Alex Herrera" or "- María García".
+    for line in text.splitlines():
+        dash_match = re.search(r"[—–-]\s*([A-ZÁÉÍÓÚÑ][\w'’.\- ]{1,48})\s*$", line.strip())
+        if dash_match:
+            name = dash_match.group(1).strip().strip(".")
+            if 1 <= len(name.split()) <= 5 and name.lower() not in {"mortal vengeance"}:
+                return name[:60]
+    return ""
+
+
+# Maps each selected Instagram post format to the image format(s) it should render.
+# Carousel expands to N distinct slides; story/reel/post each render one image.
+INSTAGRAM_POST_FORMAT_VISUALS = {
+    "feed post": ["Instagram Post (4:5)"],
+    "post": ["Instagram Post (4:5)"],
+    "reel": ["Instagram Reel (9:16)"],
+    "story": ["Instagram Story (9:16)"],
+}
+
+
+def _carousel_slide_labels(slide_count: int) -> list[str]:
+    count = max(2, min(10, int(slide_count or 5)))
+    return [f"Carousel Slide {i} (4:5)" for i in range(1, count + 1)]
+
+
+# Per-format caption/hashtag rules injected into the generation prompt.
+INSTAGRAM_FORMAT_SPECS = {
+    "feed post": [
+        "Caption: full caption up to 2200 characters — open with the hook line, then a body built from the book/source content, end with a clean CTA.",
+        "Hashtags: 10-15 mixed, audience-native hashtags.",
+        "Image direction: one line of visual direction.",
+    ],
+    "reel": [
+        "Caption: 3-5 punchy lines plus a CTA. Keep it minimal.",
+        "Hashtags: 3-5 hashtags maximum.",
+        "Image direction: one line of visual direction for the cover frame.",
+    ],
+    "story": [
+        "Overlay text: 1-6 words meant to sit large ON the image (not a paragraph caption).",
+        "CTA: a swipe / link / poll prompt.",
+        "Hashtags: 1 hashtag maximum, or 'none'.",
+        "Image direction: one line of visual direction.",
+    ],
+}
+
+
+def instagram_generation_instructions(formats, carousel_slides: int = 5, image_content_type: str = "") -> list[str]:
+    """Build the structured per-format output instructions for Instagram generation."""
+    selected = [str(f).strip() for f in (formats or []) if str(f).strip()] or ["Feed post"]
+    carousel_n = max(2, min(10, int(carousel_slides or 5)))
+    lines = [
+        "Instruction: The opening hook is ONLY the caption's first line / tonal direction. Build the full caption body from the related book/source content and the knowledge base — never expand the caption from the hook text alone.",
+        f"Instruction: Image content type for every generated image: {image_content_type or 'text / quote graphic'}.",
+        "Instruction: Produce a SEPARATE format-specific deliverable for EACH selected format below. Use EXACTLY these labeled blocks (header line '=== FORMAT ===' followed by the listed fields), one block per format, and output nothing outside these blocks:",
+    ]
+    for fmt in selected:
+        key = fmt.lower()
+        lines.append(f"=== {fmt.upper()} ===")
+        if key == "carousel":
+            lines.append("Caption: intro hook + a 'swipe →' teaser.")
+            lines.append("Hashtags: 5-10 hashtags.")
+            for i in range(1, carousel_n + 1):
+                role = "cover hook" if i == 1 else ("CTA" if i == carousel_n else "content beat from book")
+                lines.append(f"Slide {i} ({role}): <text drawn from book content>")
+            lines.append("Image direction: one line of visual direction for the slides.")
+        else:
+            lines.extend(INSTAGRAM_FORMAT_SPECS.get(key, INSTAGRAM_FORMAT_SPECS["feed post"]))
+    return lines
+
+
+REVIEW_INSTAGRAM_FORMAT_VISUALS = {
+    "feed post": "Instagram Post (4:5)",
+    "feed": "Instagram Post (4:5)",
+    "story": "Instagram Story (9:16)",
+    "reel": "Instagram Reel (9:16)",
+}
+
+# Caption length rules per Instagram format for pull-quote cards.
+REVIEW_FORMAT_CAPTION_RULES = {
+    "feed post": "Caption: 1-2 short paragraphs that frame the quote, plus 5-10 hashtags.",
+    "story": "Overlay note: the quote sits large ON the image; Caption: a 1-line CTA only (swipe/link), no hashtags.",
+    "reel": "Caption: 2-3 punchy lines plus a CTA; 3-5 hashtags max.",
+}
+
+
+def review_visual_formats_for_instagram(instagram_formats, explicit_visual_formats=None) -> list[str]:
+    """Map review_pull_quote Instagram format choices to image format labels."""
+    labels: list[str] = []
+    for fmt in (instagram_formats or []):
+        label = REVIEW_INSTAGRAM_FORMAT_VISUALS.get(str(fmt).strip().lower())
+        if label:
+            labels.append(label)
+    for fmt in (explicit_visual_formats or []):
+        labels.append(str(fmt))
+    seen: set[str] = set()
+    result: list[str] = []
+    for label in labels:
+        if label and label not in seen:
+            seen.add(label)
+            result.append(label)
+    return result or ["Instagram Post (4:5)"]
+
+
+def review_generation_instructions(instagram_formats, image_type: str = "", card_style: str = "", quote_mode: str = "", manual_quote: str = "") -> list[str]:
+    """Structured per-format pull-quote card instructions (BUG-RPQ-04)."""
+    selected = [str(f).strip() for f in (instagram_formats or []) if str(f).strip()] or ["Feed post"]
+    mode = str(quote_mode or "").lower()
+    lines = []
+    if "paste" in mode and str(manual_quote or "").strip():
+        lines.append(f"Instruction: Use this EXACT pasted pull quote verbatim, do not rewrite it: \"{str(manual_quote).strip()}\".")
+    elif "ai-generated" in mode or "ai generated" in mode:
+        lines.append("Instruction: Write 3 fresh pull quotes in the STYLE of real reader/critic reviews (do not fabricate a specific outlet or attribute a real reviewer). Mark them clearly as brand-created, style-of-review quotes.")
+    else:
+        lines.append("Instruction: Use ONLY real review text from the knowledge base; preserve exact wording and keep the real source/attribution.")
+    lines.append(f"Instruction: Image type for the cards: {image_type or 'Text-only card'}. Card style: {card_style or 'Dark gothic'}.")
+    lines.append("Instruction: Output discrete, ready-to-use pull-quote CARDS. For EACH quote use EXACTLY this labeled block and nothing else between blocks:")
+    lines.append("=== PULL QUOTE ===")
+    lines.append("Quote: <the pull quote text>")
+    lines.append("Attribution: <reviewer name / outlet, or 'brand-created style-of-review'>")
+    for fmt in selected:
+        rule = REVIEW_FORMAT_CAPTION_RULES.get(fmt.lower(), REVIEW_FORMAT_CAPTION_RULES["feed post"])
+        lines.append(f"{fmt} {rule}")
+    lines.append("Image direction: <one line of visual direction for the card>")
+    lines.append("Instruction: Produce 3-5 such pull-quote card blocks.")
+    return lines
+
+
+def instagram_visual_formats_for_post(post_formats, explicit_visual_formats=None, carousel_slides: int = 5) -> list[str]:
+    """Derive the image formats to render from the selected Instagram post formats.
+
+    Carousel expands to ``carousel_slides`` slides; story/reel/post each map to one
+    image. Any explicitly chosen image types are appended. Order-preserving de-dupe.
+    """
+    labels: list[str] = []
+    for fmt in (post_formats or []):
+        key = str(fmt).strip().lower()
+        if key == "carousel":
+            labels.extend(_carousel_slide_labels(carousel_slides))
+        else:
+            labels.extend(INSTAGRAM_POST_FORMAT_VISUALS.get(key, []))
+    for fmt in (explicit_visual_formats or []):
+        labels.append(str(fmt))
+    seen: set[str] = set()
+    result: list[str] = []
+    for label in labels:
+        if label and label not in seen:
+            seen.add(label)
+            result.append(label)
+    return result or ["Instagram Post (4:5)"]
+
+
 def formats_for_character_spotlight(selection) -> list[str]:
     selected = normalize_selected(selection)
     lookup = selected.lower()
@@ -2043,55 +2958,139 @@ def render_generated_visual_package(
     character_name: str = "",
     format_labels=None,
     theme_name: str = "",
+    image_content_type: str = "",
+    base_image_path: str = "",
 ) -> dict[str, object]:
     """Render a basic downloadable image package for visual content workflows."""
-    if content_type not in {"quote_post", "review_pull_quote", "character_spotlight", "blog_post", "instagram_caption"}:
+    if content_type not in {"quote_post", "review_pull_quote", "character_spotlight", "blog_post", "instagram_caption", "linkedin_content", "youtube_content", "newsletter_blurb"}:
+        return {}
+    # An EXPLICIT empty format list means "skip images" (e.g. all Instagram image
+    # chips cleared); None still falls through to the per-type defaults below.
+    if format_labels is not None and len(list(format_labels)) == 0:
         return {}
 
     quote = extract_quote_for_graphic(content)
     if not quote:
         quote = extract_quote_for_graphic(topic)
-    if not quote and content_type in {"instagram_caption", "blog_post", "character_spotlight"}:
+    if not quote and content_type in {"instagram_caption", "blog_post", "character_spotlight", "linkedin_content", "youtube_content", "newsletter_blurb"}:
         quote = first_nonempty_line(content) or first_nonempty_line(topic)
     if not quote:
         return {}
 
     output_dir = PROJECT_ROOT / "outputs" / "generated_visuals" / datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     file_stem = slugify_filename(f"{content_type}_{quote}", "generated_visual")
+    default_format_labels = {
+        "blog_post": ["Blog Cover (16:9)", "Blog Square (1:1)", "Blog Horizontal (1.91:1)"],
+        "instagram_caption": ["Instagram Post (4:5)"],
+        "linkedin_content": ["LinkedIn Post Horizontal (1.91:1)"],
+        "youtube_content": ["YouTube Image Cover (16:9)"],
+        "newsletter_blurb": ["Link Preview (1.91:1)"],
+    }
     if not format_labels:
-        if content_type == "blog_post":
-            format_labels = ["Blog Cover (16:9)", "Blog Square (1:1)", "Blog Horizontal (1.91:1)"]
-        elif content_type == "instagram_caption":
-            format_labels = ["Instagram Post (4:5)"]
-        else:
-            format_labels = ["Instagram Post (4:5)"]
+        format_labels = default_format_labels.get(content_type, ["Instagram Post (4:5)"])
 
     use_case_lookup = {
         "blog_post": "Blog hero images",
         "instagram_caption": "Instagram posts",
         "character_spotlight": "Character illustrations",
         "review_pull_quote": "Social quote cards",
+        "linkedin_content": "LinkedIn post images",
+        "youtube_content": "YouTube thumbnails",
+        "newsletter_blurb": "Email header images",
     }
     content_kind_lookup = {
         "blog_post": "character" if character_name else "hero",
         "instagram_caption": "social post",
         "character_spotlight": "character",
         "review_pull_quote": "quote typography",
+        "linkedin_content": "social post",
+        "youtube_content": "youtube image",
+        "newsletter_blurb": "email header",
     }
+    if content_type == "instagram_caption":
+        attribution = character_name or extract_speaker_from_content(content) or "Mortal Vengeance"
+    elif content_type == "review_pull_quote":
+        attribution = character_name or extract_speaker_from_content(content) or "Real reader review"
+    else:
+        attribution = character_name or extract_speaker_from_content(content) or "Mortal Vengeance"
+    # Image content type (BUG-IG-03) chooses provider intent and whether quote text is drawn on-image.
+    image_kind = (image_content_type or "").lower()
+    content_kind = content_kind_lookup.get(content_type, "")
+    render_text_override = None
+    if content_type == "instagram_caption":
+        if "portrait" in image_kind:
+            content_kind = "character portrait illustration"
+            render_text_override = False
+        elif "abstract" in image_kind or "mood" in image_kind:
+            content_kind = "abstract mood illustration"
+            render_text_override = False
+        elif "mixed" in image_kind:
+            content_kind = "social post illustration"
+            render_text_override = None
+        else:  # text / quote graphic
+            content_kind = "social post quote typography"
+            render_text_override = True
+    elif content_type == "review_pull_quote":
+        if "character" in image_kind:
+            content_kind = "character portrait with quote typography overlay"
+            render_text_override = True
+        elif "cover" in image_kind:
+            content_kind = "book cover with quote typography overlay"
+            render_text_override = True
+        else:  # text-only card
+            content_kind = "social post quote typography"
+            render_text_override = True
+    # Carousel slides get distinct text per slide so they don't render identically.
+    # Keyed by the specific carousel label (not by position) so non-carousel sizes in
+    # the SAME set (feed/story/reel) keep the shared quote — no positional leakage.
+    carousel_labels = [lbl for lbl in (format_labels or []) if "Carousel Slide" in str(lbl)]
+    carousel_slide_texts = None
+    if carousel_labels:
+        _slide_candidates = extract_quote_candidates(content) or []
+        carousel_slide_texts = {
+            lbl: _slide_candidates[i]
+            for i, lbl in enumerate(carousel_labels)
+            if i < len(_slide_candidates) and _slide_candidates[i]
+        }
+    # Base image chosen by the user: composite the quote onto it locally and skip
+    # fresh generation (the chosen image IS the visual).
+    if base_image_path and Path(str(base_image_path)).exists():
+        usable_labels = [lbl for lbl in format_labels if lbl in QUOTE_GRAPHIC_FORMATS]
+        if usable_labels:
+            try:
+                return render_quote_cards(
+                    quote=quote,
+                    attribution=attribution,
+                    format_labels=usable_labels,
+                    brand_title="Mortal Vengeance",
+                    output_dir=output_dir,
+                    file_stem=file_stem,
+                    theme_name=theme_name or "Gothic",
+                    character_name=character_name,
+                    background_image_path=str(base_image_path),
+                    slide_texts=carousel_slide_texts,
+                )
+            except Exception as exc:
+                return {"error": str(exc), "quote": quote}
+
     external_paths: list[str] = []
     external_errors: list[str] = []
     external_prompts: list[str] = []
     for label in format_labels:
+        # Only carousel slides get distinct per-slide text; other multi-size sets
+        # reuse the same quote so a single post stays consistent across its sizes.
+        slide_quote = (carousel_slide_texts or {}).get(label) or quote
         external = generate_external_visual(
             use_case=use_case_lookup.get(content_type, "Social posts"),
-            content=quote,
+            content=slide_quote,
             topic=topic,
             style=theme_name,
-            attribution=character_name or ("Real reader review" if content_type == "review_pull_quote" else "Mortal Vengeance"),
+            attribution=attribution,
             format_label=label,
             output_dir=output_dir,
             file_stem=file_stem,
-            content_kind=content_kind_lookup.get(content_type, ""),
+            content_kind=content_kind,
+            render_text=render_text_override,
         )
         if external.get("path"):
             external_paths.append(str(external["path"]))
@@ -2121,13 +3120,14 @@ def render_generated_visual_package(
     try:
         return render_quote_cards(
             quote=quote,
-            attribution=character_name or ("Real reader review" if content_type == "review_pull_quote" else "Mortal Vengeance"),
+            attribution=attribution,
             format_labels=format_labels,
             brand_title="Mortal Vengeance",
             output_dir=output_dir,
             file_stem=file_stem,
             theme_name=theme_name or "Gothic",
-            character_name=character_name,
+            character_name=character_name or extract_speaker_from_content(content),
+            slide_texts=carousel_slide_texts,
         )
     except Exception as exc:
         return {"error": str(exc), "quote": quote}
@@ -2322,6 +3322,7 @@ def render_campaign_quote_graphic(
     widgets: dict[str, object],
     campaign_topic: str,
     asset_number: int,
+    theme_override: str = "",
 ) -> dict[str, object]:
     quote = extract_quote_for_graphic(content)
     if not quote and content_type in {"character_spotlight", "blog_post"}:
@@ -2338,7 +3339,7 @@ def render_campaign_quote_graphic(
             brand_title="Mortal Vengeance",
             output_dir=output_dir,
             file_stem=file_stem,
-            theme_name=campaign_graphic_theme(content_type, widgets),
+            theme_name=(theme_override or campaign_graphic_theme(content_type, widgets)),
             character_name=normalize_selected(
                 widgets.get("characters").value
                 if widgets.get("characters")
@@ -2477,6 +3478,8 @@ async def generate_draft_from_fields(
     instagram_formats,
     instagram_hashtags,
     instagram_hook,
+    instagram_image_content_type="",
+    instagram_carousel_slides=5,
     cs_character,
     cs_focus,
     cs_platform_format,
@@ -2502,6 +3505,19 @@ async def generate_draft_from_fields(
     pr_quote_source,
     pr_target_media,
     pr_required_assets,
+    review_book="",
+    review_source="",
+    review_quote="",
+    review_mode="",
+    review_attribution="",
+    review_promo_line="",
+    review_graphic_formats=None,
+    review_visual_style="",
+    review_quote_mode="",
+    review_manual_quote="",
+    review_image_type="",
+    review_instagram_formats=None,
+    review_card_style="",
     status,
     filtered_context_path,
     prompt_path,
@@ -2514,6 +3530,7 @@ async def generate_draft_from_fields(
     uploaded_image_path: str = "",
     generated_visual_path=None,
     generated_visual_package_path=None,
+    form_fields_snapshot=None,
 ) -> None:
     status.value = "Generating..."
     generated_output.value = ""
@@ -2559,6 +3576,8 @@ async def generate_draft_from_fields(
         instagram_formats=instagram_formats,
         instagram_hashtags=instagram_hashtags,
         instagram_hook=instagram_hook,
+        instagram_image_content_type=instagram_image_content_type,
+        instagram_carousel_slides=instagram_carousel_slides,
         cs_character=cs_character,
         cs_focus=cs_focus,
         cs_platform_format=cs_platform_format,
@@ -2584,6 +3603,19 @@ async def generate_draft_from_fields(
         pr_quote_source=pr_quote_source,
         pr_target_media=pr_target_media,
         pr_required_assets=pr_required_assets,
+        review_book=review_book,
+        review_source=review_source,
+        review_quote=review_quote,
+        review_mode=review_mode,
+        review_attribution=review_attribution,
+        review_promo_line=review_promo_line,
+        review_graphic_formats=review_graphic_formats,
+        review_visual_style=review_visual_style,
+        review_quote_mode=review_quote_mode,
+        review_manual_quote=review_manual_quote,
+        review_image_type=review_image_type,
+        review_instagram_formats=review_instagram_formats,
+        review_card_style=review_card_style,
         uploaded_image_path=uploaded_image_path,
     )
     if structured_brief_output is not None:
@@ -2632,6 +3664,11 @@ async def generate_draft_from_fields(
             character_name="" if character_for_visual == "Not specified" else character_for_visual,
             format_labels=visual_format_labels,
             theme_name=visual_theme_name,
+            image_content_type=(
+                instagram_image_content_type if content_type == "instagram_caption"
+                else review_image_type if content_type == "review_pull_quote"
+                else ""
+            ),
         )
     )
     if generated_visual_path is not None:
@@ -2659,6 +3696,7 @@ async def generate_draft_from_fields(
             "audience": normalize_selected(audience),
             "constraints": normalize_selected(constraints),
             "uploaded_image_path": uploaded_image_path,
+            "form_fields": form_fields_snapshot or {},
         },
     )
     if saved_draft_path is not None:
@@ -2670,21 +3708,55 @@ async def generate_draft_from_fields(
 
 NICEGUI_APP_CSS = r"""
 :root {
-    --mce-bg: #f8f3ee;
-    --mce-bg-2: #fbf8f4;
-    --mce-card: rgba(255, 255, 255, 0.94);
-    --mce-card-solid: #fffdfb;
-    --mce-ink: #171217;
-    --mce-muted: #71686a;
-    --mce-border: rgba(44, 24, 31, 0.13);
-    --mce-border-strong: rgba(123, 21, 48, 0.25);
-    --mce-accent: #8e1f2f;
-    --mce-accent-dark: #4d1020;
-    --mce-accent-soft: #f7e4e7;
-    --mce-gold: #ead5ad;
+    --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+    --font-ui: "Inter", Arial, ui-sans-serif, system-ui, sans-serif;
+    --mce-bg: #fbf7f1;
+    --mce-bg-2: #fffaf6;
+    --mce-card: #ffffff;
+    --mce-card-solid: #ffffff;
+    --mce-surface-soft: #fffaf6;
+    --mce-ink: #161014;
+    --mce-muted: #6f6668;
+    --mce-border: #eadfda;
+    --mce-border-strong: rgba(143, 15, 45, 0.25);
+    --mce-accent: #8f0f2d;
+    --mce-accent-dark: #260d1a;
+    --mce-wine-dark: #140911;
+    --mce-red: #c91f3a;
+    --mce-red-bright: #df2f4b;
+    --mce-accent-soft: #f8e5e4;
+    --mce-gold: #d9a85c;
+    --mce-gold-soft: #f4d49a;
     --mce-success: #2e7d4f;
-    --mce-shadow: 0 22px 70px rgba(41, 24, 31, 0.11);
-    --mce-shadow-soft: 0 12px 36px rgba(41, 24, 31, 0.08);
+    --mce-shadow: 0 24px 70px rgba(70, 20, 25, 0.18);
+    --mce-shadow-soft: 0 14px 36px rgba(40, 20, 20, 0.07);
+}
+
+/* NTH-02: dark mode palette (overrides the CSS variables the theme is built on). */
+body.mce-dark {
+    --mce-bg: #14100f;
+    --mce-bg-2: #1c1715;
+    --mce-card: rgba(34, 28, 30, 0.96);
+    --mce-card-solid: #221c1e;
+    --mce-ink: #f4ece6;
+    --mce-muted: #b8a8ab;
+    --mce-border: rgba(255, 255, 255, 0.12);
+    --mce-border-strong: rgba(214, 130, 146, 0.42);
+    --mce-accent-soft: #3a1822;
+    --mce-shadow: 0 22px 70px rgba(0, 0, 0, 0.55);
+    --mce-shadow-soft: 0 12px 36px rgba(0, 0, 0, 0.45);
+}
+body.mce-dark .mce-tabs,
+body.mce-dark .mce-dashboard-pill {
+    background: rgba(255, 255, 255, 0.06);
+}
+body.mce-dark .mce-card,
+body.mce-dark .mce-subcard,
+body.mce-dark .mce-expansion {
+    background: var(--mce-card-solid);
+}
+.mce-dark-toggle {
+    color: var(--mce-accent) !important;
 }
 
 html, body, #app, .q-layout, .q-page, .nicegui-content {
@@ -2694,7 +3766,7 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
         radial-gradient(780px 360px at 96% 4%, rgba(234, 213, 173, 0.22), transparent 52%),
         linear-gradient(180deg, var(--mce-bg-2) 0%, var(--mce-bg) 100%) !important;
     color: var(--mce-ink);
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--font-ui);
 }
 
 .nicegui-content {
@@ -2712,57 +3784,118 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
 
 .mce-hero {
     position: relative;
-    isolation: isolate;
     width: 100%;
-    min-height: 154px;
     overflow: hidden;
-    border-radius: 30px;
-    padding: 30px 34px;
-    color: #fffaf5;
-    background:
-        radial-gradient(620px 260px at 84% 8%, rgba(255, 255, 255, 0.14), transparent 50%),
-        radial-gradient(420px 220px at 7% 94%, rgba(234, 213, 173, 0.16), transparent 58%),
-        linear-gradient(135deg, #181116 0%, #441321 52%, #9c1f38 100%);
-    box-shadow: var(--mce-shadow);
+    border-radius: 24px;
+    cursor: pointer;
+    line-height: 0;
+    box-shadow: 0 24px 70px rgba(70, 20, 25, 0.18);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.mce-hero::after {
-    content: "";
-    position: absolute;
-    inset: auto -80px -150px auto;
-    width: 360px;
-    height: 360px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    opacity: 0.7;
-    z-index: -1;
+.mce-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 30px 84px rgba(70, 20, 25, 0.26);
+}
+
+/* Pre-composed banner artwork (text, logo and CTA are baked into the image). */
+.mce-banner-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 24px;
 }
 
 .mce-kicker {
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    opacity: 0.74;
-    font-weight: 850;
+    color: var(--mce-gold);
+    font-weight: 700;
 }
 
 .mce-hero-title {
-    margin-top: 17px;
-    max-width: 880px;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(25px, 3.1vw, 41px);
-    line-height: 1.04;
-    font-weight: 850;
-    letter-spacing: -0.045em;
+    margin-top: 18px;
+    max-width: 720px;
+    font-family: var(--font-display);
+    font-size: clamp(34px, 4.2vw, 56px);
+    line-height: 0.98;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.mce-hero-title span {
+    color: var(--mce-red-bright);
 }
 
 .mce-hero-subtitle {
-    margin-top: 12px;
-    max-width: 820px;
-    color: rgba(255, 255, 255, 0.78);
-    font-size: 15px;
+    margin-top: 16px;
+    max-width: 620px;
+    color: #f3e9df;
+    font-size: 18px;
     line-height: 1.5;
+}
+
+.mce-hero-chips {
+    display: flex;
+    gap: 14px;
+    margin-top: 26px;
+    flex-wrap: wrap;
+}
+
+.mce-hero-chip {
+    border: 1px solid rgba(244, 212, 154, 0.35);
+    background: rgba(0, 0, 0, 0.32);
+    color: #f8efe4;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-size: 13px;
+}
+
+.mce-bottom-banner {
+    position: relative;
+    margin-top: 26px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 24px;
+    cursor: pointer;
+    line-height: 0;
+    box-shadow: 0 24px 70px rgba(70, 20, 25, 0.18);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.mce-bottom-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 30px 84px rgba(70, 20, 25, 0.26);
+}
+
+.mce-bottom-banner-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 1.05;
+    margin: 0;
+    font-weight: 800;
+}
+
+.mce-bottom-banner-title span {
+    color: var(--mce-red-bright);
+}
+
+.mce-bottom-banner-sub {
+    margin-top: 8px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.mce-cta {
+    background: linear-gradient(135deg, #c61e3c, #97122a) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 16px !important;
+    padding: 16px 28px !important;
+    font-weight: 800 !important;
+    white-space: nowrap;
 }
 
 .mce-tabs-wrap {
@@ -2792,9 +3925,10 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
 }
 
 .mce-tabs .q-tab--active {
-    color: var(--mce-accent) !important;
-    background: #fff;
-    box-shadow: 0 8px 18px rgba(44, 24, 31, 0.06);
+    color: #fff !important;
+    background: linear-gradient(135deg, var(--mce-accent), #b61734);
+    font-weight: 900;
+    box-shadow: 0 8px 18px rgba(143, 15, 45, 0.32);
 }
 
 .mce-tabs .q-tab__indicator {
@@ -2820,6 +3954,11 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
     align-items: start;
 }
 
+/* UI-06: single-column until the right panel has content. */
+.mce-grid-single {
+    grid-template-columns: minmax(0, 1fr);
+}
+
 .mce-card {
     width: 100%;
     min-width: 0;
@@ -2840,7 +3979,7 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
 
 .mce-card-title {
     margin: 0;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: var(--font-display);
     font-size: 25px;
     line-height: 1.08;
     font-weight: 850;
@@ -2976,6 +4115,309 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
     font-size: 12px !important;
 }
 
+/* UX-09: read-only fields look distinct from editable inputs. */
+.mce-readonly .q-field__control {
+    background: rgba(61, 31, 41, 0.05) !important;
+}
+.mce-readonly .q-field__control:before {
+    border-style: dashed !important;
+    border-color: rgba(61, 31, 41, 0.18) !important;
+}
+.mce-readonly .q-field__control:after {
+    display: none !important;
+}
+.mce-readonly input,
+.mce-readonly textarea {
+    cursor: default !important;
+    color: #5c524b !important;
+}
+
+/* UI-04/05: suggest-button status states. */
+.mce-status-loading {
+    color: #8E1F2F !important;
+    font-weight: 700 !important;
+}
+.mce-status-success {
+    color: #1f8a4c !important;
+    font-weight: 800 !important;
+}
+.mce-status-error {
+    color: #c0392b !important;
+    font-weight: 700 !important;
+}
+
+/* UI-03: image upload success state + thumbnail. */
+.mce-upload-success {
+    color: #1f8a4c !important;
+    font-weight: 800 !important;
+}
+.mce-upload-thumb {
+    width: 96px;
+    height: 96px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 2px solid #1f8a4c;
+    margin-top: 6px;
+}
+
+/* BUG-IMG-02: visible gallery of generated image assets. */
+.mce-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.mce-gallery-thumb {
+    width: 140px;
+    height: 140px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid var(--mce-border);
+}
+
+/* UX-08: saved drafts list view. */
+.mce-saved-list {
+    border: 1px solid var(--mce-border);
+    border-radius: 14px;
+    overflow: hidden;
+    gap: 0 !important;
+}
+.mce-saved-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--mce-border);
+    cursor: pointer;
+    flex-wrap: nowrap;
+}
+.mce-saved-row:last-child {
+    border-bottom: none;
+}
+.mce-saved-row:hover:not(.mce-saved-head) {
+    background: rgba(142, 31, 47, 0.06);
+}
+.mce-saved-head {
+    cursor: default;
+    background: rgba(61, 31, 41, 0.05);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #6b6b6b;
+}
+.mce-saved-col-title {
+    flex: 2;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+}
+.mce-saved-col-type {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.mce-saved-col-date {
+    flex: 1;
+    min-width: 0;
+    text-align: right;
+    color: #6b6b6b;
+    font-size: 12px;
+}
+
+/* UX-06: dashboard live-stats block. */
+.mce-dashboard-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 22px;
+    justify-content: center;
+}
+.mce-stat-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+.mce-stat-label {
+    font-size: 12px;
+    color: #6b6b6b;
+}
+.mce-stat-value {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 15px;
+    color: #17120f;
+    text-align: right;
+    max-width: 62%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---- Three-card dashboard summary row (This session / Quick tip / Glance) ---- */
+.mce-dash-row {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    gap: 28px;
+    width: 100%;
+    align-items: stretch;
+}
+.mce-dash-card {
+    border-radius: 28px;
+    padding: 30px 34px;
+    min-height: 268px;
+    box-shadow: 0 18px 45px rgba(20, 20, 30, 0.08);
+    display: flex;
+    flex-direction: column;
+}
+.mce-dash-card-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.1;
+    margin: 0 0 22px;
+}
+/* Card 1 — This session (dark). */
+.mce-session-card {
+    background: #11121a;
+    color: #ffffff;
+    position: relative;
+}
+.mce-session-card::before {
+    content: "";
+    position: absolute;
+    left: 24px;
+    top: 32px;
+    bottom: 32px;
+    width: 3px;
+    border-radius: 99px;
+    background: #e03b52;
+}
+.mce-session-inner {
+    padding-left: 26px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.mce-session-inner .mce-dash-card-title {
+    color: #ffffff;
+}
+.mce-session-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 18px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    font-family: var(--font-ui);
+    font-size: 16px;
+    color: #cfd0d8;
+}
+.mce-session-row:first-of-type {
+    border-top: none;
+}
+.mce-session-value {
+    font-weight: 700;
+    color: #f04c61;
+    text-align: right;
+    max-width: 55%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+/* Card 2 — Quick tip (cream). */
+.mce-tip-card {
+    background: #f8f0e5;
+    color: #1f2430;
+}
+.mce-tip-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 20px;
+    color: #1f2430;
+}
+.mce-tip-icon {
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    border-radius: 50%;
+    background: #c61f3d;
+    color: #ffffff;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 20px rgba(198, 31, 61, 0.25);
+}
+.mce-tip-icon .q-icon {
+    font-size: 26px;
+}
+.mce-tip-copy {
+    margin: 26px 0 auto;
+    font-family: var(--font-ui);
+    font-size: 19px;
+    line-height: 1.55;
+    color: #1f2430;
+}
+.mce-tip-button {
+    margin-top: 26px;
+    align-self: flex-start;
+    border: 1px solid #f1dfcf !important;
+    background: #ffffff !important;
+    border-radius: 16px;
+    padding: 12px 24px;
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: none;
+    box-shadow: 0 6px 18px rgba(20, 20, 30, 0.06);
+}
+.mce-tip-button,
+.mce-tip-button .q-btn__content {
+    color: #b01835 !important;
+}
+/* Card 3 — Content at a glance (white). */
+.mce-glance-card {
+    background: #ffffff;
+    color: #2a2a2a;
+}
+.mce-glance-title {
+    color: #15151a;
+    margin-bottom: 10px;
+}
+.mce-glance-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 16px 0;
+    border-top: 1px solid #e9e2dc;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    color: #2a2a2a;
+}
+.mce-glance-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.mce-glance-icon {
+    color: #8a8077;
+    font-size: 20px;
+}
+.mce-glance-value {
+    font-family: var(--font-ui);
+    font-weight: 800;
+    font-size: 18px;
+    color: #15151a;
+}
+
 .mce-expansion {
     width: 100%;
     border: 1px solid var(--mce-border);
@@ -3043,6 +4485,196 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
     color: var(--mce-muted);
 }
 
+.mce-dashboard-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 430px);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.mce-dashboard-logo-card {
+    min-height: 220px;
+    overflow: hidden;
+    border-radius: 28px;
+    border: 1px solid var(--mce-border);
+    background: #160d14;
+    box-shadow: var(--mce-shadow-soft);
+}
+
+.mce-dashboard-logo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mce-dashboard-feature {
+    position: relative;
+    min-height: 220px;
+    overflow: hidden;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: #220a15;
+    box-shadow: var(--mce-shadow);
+    cursor: pointer;
+}
+
+.mce-dashboard-feature img {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    object-fit: cover;
+    display: block;
+}
+
+.mce-dashboard-feature:hover,
+.mce-dashboard-card:hover,
+.mce-quick-card:hover {
+    transform: translateY(-2px);
+}
+
+.mce-dashboard-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mce-dashboard-pill {
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--mce-border);
+    background: rgba(255, 255, 255, 0.72);
+    color: var(--mce-muted);
+    font-size: 12px;
+    font-weight: 850;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.mce-dashboard-pill:hover {
+    border-color: var(--mce-accent);
+    color: var(--mce-accent);
+}
+
+.mce-dashboard-pill-active {
+    background: linear-gradient(180deg, var(--mce-accent), var(--mce-accent-dark));
+    color: white;
+    border-color: transparent;
+}
+
+.mce-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.mce-dashboard-card,
+.mce-quick-card,
+.mce-draft-card {
+    min-width: 0;
+    border: 1px solid var(--mce-border);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: var(--mce-shadow-soft);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+    cursor: pointer;
+}
+
+.mce-dashboard-card {
+    min-height: 154px;
+    padding: 18px;
+}
+
+.mce-dashboard-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    object-fit: cover;
+    margin-bottom: 14px;
+}
+
+.mce-dashboard-card-title,
+.mce-dash-section-title {
+    font-family: var(--font-display);
+    color: var(--mce-ink);
+    font-weight: 850;
+    letter-spacing: -0.03em;
+}
+
+.mce-dashboard-card-title {
+    font-size: 16px;
+    line-height: 1.1;
+}
+
+.mce-dashboard-card-copy {
+    margin-top: 7px;
+    color: #4e4649;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.mce-dashboard-card-arrow {
+    margin-top: auto;
+    color: var(--mce-accent-dark);
+    font-size: 22px;
+    line-height: 1;
+}
+
+.mce-dashboard-lower {
+    display: grid;
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+    gap: 18px;
+}
+
+.mce-dashboard-panel {
+    border: 1px solid var(--mce-border);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: var(--mce-shadow-soft);
+    padding: 18px;
+}
+
+.mce-dash-section-title {
+    font-size: 20px;
+}
+
+.mce-draft-card {
+    padding: 12px 14px;
+}
+
+.mce-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.mce-quick-card {
+    min-height: 120px;
+    padding: 16px;
+    text-align: center;
+}
+
+.mce-quick-card img {
+    width: 42px;
+    height: 42px;
+    object-fit: cover;
+    margin: 0 auto 10px;
+    border-radius: 14px;
+}
+
+.mce-quick-card strong,
+.mce-draft-card strong {
+    color: var(--mce-ink);
+    font-size: 13px;
+}
+
+.mce-quick-card span,
+.mce-draft-card span {
+    display: block;
+    margin-top: 5px;
+    color: var(--mce-muted);
+    font-size: 11.5px;
+    line-height: 1.35;
+}
+
 @media (max-width: 1100px) {
     .mce-grid {
         grid-template-columns: 1fr;
@@ -3051,6 +4683,20 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
     .mce-sticky {
         position: static;
         max-height: none;
+    }
+
+    .mce-dashboard-top,
+    .mce-dashboard-lower,
+    .mce-dash-row {
+        grid-template-columns: 1fr;
+    }
+
+    .mce-dashboard-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mce-quick-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -3086,12 +4732,66 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
     .mce-status-row {
         grid-template-columns: 1fr;
     }
+
+    .mce-dashboard-grid,
+    .mce-quick-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* UI-11: turn NiceGUI's faint "Connection lost / reconnecting" popup into a clearly
+   visible branded toast (the framework toggles aria-hidden; we only restyle it). */
+.nicegui-error-popup {
+    bottom: 0 !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    margin: 0 0 24px !important;
+    padding: 14px 24px 14px 48px !important;
+    border: none !important;
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, #8E1F2F, #4d1020) !important;
+    color: #fff6f3 !important;
+    box-shadow: 0 18px 44px rgba(20, 10, 16, 0.5) !important;
+    gap: 2px !important;
+    max-width: min(92vw, 460px) !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+}
+.body--light .nicegui-error-popup,
+.body--dark .nicegui-error-popup {
+    background: linear-gradient(135deg, #8E1F2F, #4d1020) !important;
+}
+.nicegui-error-popup > span:first-child {
+    font-weight: 800 !important;
+    font-size: 14px !important;
+}
+.nicegui-error-popup:dir(ltr) > span:first-child::before,
+.nicegui-error-popup:dir(rtl) > span:first-child::before {
+    left: 18px !important;
+    right: auto !important;
+    top: 14px !important;
 }
 """
 
 
+_ASSETS_STATIC_MOUNTED = False
+
+
 def install_nicegui_theme() -> None:
-    ui.colors(primary="#8E1F2F", secondary="#111114", accent="#EAD5AD", positive="#2E7D4F")
+    global _ASSETS_STATIC_MOUNTED
+    ui.colors(primary="#8f0f2d", secondary="#140911", accent="#d9a85c", positive="#2E7D4F")
+    if not _ASSETS_STATIC_MOUNTED:
+        try:
+            app.add_static_files("/assets", str(PROJECT_ROOT / "assets"))
+        except Exception:
+            pass
+        _ASSETS_STATIC_MOUNTED = True
+    ui.add_head_html(
+        '<link rel="preconnect" href="https://fonts.googleapis.com">'
+        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+        '<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">'
+    )
     ui.add_head_html(f"<style>{NICEGUI_APP_CSS}</style>")
 
 
@@ -3118,12 +4818,27 @@ def apply_field_props(component, props: str = "outlined dense"):
     return component.props(props).classes("w-full")
 
 
+def base_image_picker():
+    """Campaign 'base image' picker that re-scans disk on focus so a freshly
+    generated image shows up in the list without a manual page refresh."""
+    picker = apply_field_props(
+        ui.select(list_existing_images(), label="Base image (optional)", with_input=True).props("clearable")
+    )
+    picker.on("focus", lambda _event: picker.set_options(list_existing_images()))
+    return picker
+
+
 def readonly_input(label: str, value: str = ""):
-    return ui.input(label=label, value=value).props("readonly outlined dense").classes("w-full mce-path-field")
+    return ui.input(label=label, value=value).props("readonly outlined dense").classes("w-full mce-path-field mce-readonly")
 
 
 def readonly_textarea(label: str, value: str = ""):
-    return ui.textarea(label=label, value=value).props("readonly outlined autogrow").classes("w-full mce-output-textarea")
+    return ui.textarea(label=label, value=value).props("readonly outlined autogrow").classes("w-full mce-output-textarea mce-readonly")
+
+
+def dashboard_asset(name: str) -> str:
+    path = DASHBOARD_ASSET_DIR / name
+    return str(path) if path.exists() else ""
 
 
 @ui.page("/")
@@ -3132,31 +4847,241 @@ def index() -> None:
 
     content_types = list_supported_content_types()
     generator_content_types = [content_type for content_type in content_types if content_type != "podcast"]
+    generator_content_type_labels = {ct: content_type_label(ct) for ct in generator_content_types}
     default_content_type = "blog_post" if "blog_post" in generator_content_types else generator_content_types[0]
 
     with ui.column().classes("mce-shell"):
-        with ui.column().classes("mce-hero"):
-            ui.label("MYTHOS CONTENT ENGINE").classes("mce-kicker")
-            ui.label("A cleaner local workspace for briefs, drafts, and podcast production.").classes("mce-hero-title")
-            ui.label(
-                "NiceGUI powers the responsive studio shell while the content pipeline stays local, traceable, and fast."
-            ).classes("mce-hero-subtitle")
+        with ui.element("div").classes("mce-hero").on(
+            "click", lambda: open_generator(default_content_type)
+        ):
+            ui.image(dashboard_asset("mortal-vengeance-academy-hero.webp")).classes("mce-banner-img")
 
-        with ui.row().classes("mce-tabs-wrap"):
+        with ui.row().classes("mce-tabs-wrap items-center"):
             with ui.tabs().classes("mce-tabs") as tabs:
+                dashboard_tab = ui.tab("Dashboard")
                 generator_tab = ui.tab("Generator")
+                saved_drafts_tab = ui.tab("Saved Drafts")
                 campaign_tab = ui.tab("Campaign Mode")
                 podcast_tab = ui.tab("Podcast Studio")
-                saved_drafts_tab = ui.tab("Saved Drafts")
 
-        with ui.tab_panels(tabs, value=generator_tab).classes("w-full mce-tab-panels"):
+            dark_mode = ui.dark_mode(value=False)
+            dark_state = {"on": False}
+
+            def toggle_dark() -> None:
+                dark_state["on"] = not dark_state["on"]
+                dark_mode.value = dark_state["on"]
+                action = "add" if dark_state["on"] else "remove"
+                ui.run_javascript(f"document.body.classList.{action}('mce-dark')")
+
+            ui.button(icon="dark_mode", on_click=toggle_dark).props("flat round dense").classes("mce-dark-toggle").tooltip("Toggle dark mode")
+
+        def open_generator(content_type_name: str | None = None) -> None:
+            tabs.value = generator_tab
+            if content_type_name:
+                content_type.value = content_type_name
+                apply_visibility(content_type_name)
+
+        def open_campaign() -> None:
+            tabs.value = campaign_tab
+
+        def open_podcast() -> None:
+            tabs.value = podcast_tab
+
+        def open_drafts() -> None:
+            tabs.value = saved_drafts_tab
+
+        session_stats = {"drafts": 0, "last_type": "—", "last_topic": "—"}
+        glance_values: dict[str, object] = {}
+        dashboard_refresh: dict[str, object] = {"stats": None, "recent": None, "glance": None}
+
+        def update_drafts_badge() -> None:
+            count = len(list_saved_drafts(250))
+            saved_drafts_tab.props(f'label="Saved Drafts ({count})"')
+
+        def refresh_dashboard() -> None:
+            for key in ("stats", "recent", "glance"):
+                fn = dashboard_refresh.get(key)
+                if callable(fn):
+                    fn()
+            update_drafts_badge()
+
+        tabs.on_value_change(lambda _event: refresh_dashboard())
+        update_drafts_badge()
+
+        with ui.tab_panels(tabs, value=dashboard_tab).classes("w-full mce-tab-panels"):
+            with ui.tab_panel(dashboard_tab).classes("mce-panel"):
+                with ui.column().classes("mce-stack w-full"):
+                    with ui.element("section").classes("mce-dash-row"):
+                        # Card 1 — live session stats (dark).
+                        with ui.element("div").classes("mce-dash-card mce-session-card"):
+                            with ui.element("div").classes("mce-session-inner"):
+                                ui.label("This session").classes("mce-dash-card-title")
+                                with ui.element("div").classes("mce-session-row"):
+                                    ui.label("Drafts generated").classes("mce-session-label")
+                                    stat_drafts = ui.label("0").classes("mce-session-value")
+                                with ui.element("div").classes("mce-session-row"):
+                                    ui.label("Last content type").classes("mce-session-label")
+                                    stat_last_type = ui.label("—").classes("mce-session-value")
+                                with ui.element("div").classes("mce-session-row"):
+                                    ui.label("Last topic").classes("mce-session-label")
+                                    stat_last_topic = ui.label("—").classes("mce-session-value")
+
+                        # Card 2 — quick tip pointing at Campaign Mode (cream).
+                        with ui.element("div").classes("mce-dash-card mce-tip-card"):
+                            with ui.element("div").classes("mce-tip-header"):
+                                with ui.element("div").classes("mce-tip-icon"):
+                                    ui.icon("bolt")
+                                ui.label("Quick tip").classes("mce-tip-title")
+                            ui.label(
+                                "Use Campaign Mode to map out your content calendar and stay ahead."
+                            ).classes("mce-tip-copy")
+                            ui.button(
+                                "Go to Campaign Mode",
+                                on_click=lambda: open_campaign(),
+                            ).props("no-caps unelevated icon-right=arrow_forward").classes("mce-tip-button")
+
+                        # Card 3 — aggregate content stats (white).
+                        with ui.element("div").classes("mce-dash-card mce-glance-card"):
+                            ui.label("Content at a glance").classes("mce-dash-card-title mce-glance-title")
+                            for _g_icon, _g_label, _g_key in (
+                                ("description", "Saved Drafts", "saved"),
+                                ("event", "Content Generated", "generated"),
+                                ("layers", "Formats Available", "formats"),
+                                ("mic", "Podcast Episodes", "podcast"),
+                            ):
+                                with ui.element("div").classes("mce-glance-row"):
+                                    with ui.element("div").classes("mce-glance-left"):
+                                        ui.icon(_g_icon).classes("mce-glance-icon")
+                                        ui.label(_g_label).classes("mce-glance-label")
+                                    glance_values[_g_key] = ui.label("—").classes("mce-glance-value")
+
+                    def refresh_session_stats() -> None:
+                        stat_drafts.set_text(str(session_stats["drafts"]))
+                        stat_last_type.set_text(session_stats["last_type"])
+                        stat_last_topic.set_text(session_stats["last_topic"])
+
+                    dashboard_refresh["stats"] = refresh_session_stats
+
+                    def refresh_glance_stats() -> None:
+                        outputs_dir = PROJECT_ROOT / "outputs"
+                        generated = 0
+                        podcasts = 0
+                        if outputs_dir.exists():
+                            for entry in outputs_dir.iterdir():
+                                if entry.is_file():
+                                    generated += 1
+                                    if entry.name.lower().startswith("podcast"):
+                                        podcasts += 1
+                        glance_values["saved"].set_text(str(len(list_saved_drafts(250))))
+                        glance_values["generated"].set_text(str(generated))
+                        glance_values["formats"].set_text(f"{len(content_types)}+")
+                        glance_values["podcast"].set_text(str(podcasts))
+
+                    dashboard_refresh["glance"] = refresh_glance_stats
+                    refresh_glance_stats()
+
+                    dashboard_filters = ["All Formats", "Social Media", "Long-Form", "PR & Media", "Quotes", "Email"]
+                    dashboard_cards = [
+                        ("Podcast", "Full script + show notes with timestamps.", "podcast_icon.webp", open_podcast, "Long-Form"),
+                        ("Instagram Caption", "Captions + hashtags for the feed.", "instagram_caption_icon.webp", lambda: open_generator("instagram_caption"), "Social Media"),
+                        ("YouTube", "Titles, descriptions, and talking points.", "youtube_content_icon.webp", lambda: open_generator("youtube_content"), "Social Media"),
+                        ("LinkedIn", "Posts and articles that build authority.", "linkedin_content_icon.webp", lambda: open_generator("linkedin_content"), "Social Media"),
+                        ("Press Release", "News-ready copy for media and PR.", "press_release_icon.webp", lambda: open_generator("press_release"), "PR & Media"),
+                        ("Quote Post", "Book quotes with branded graphics.", "quote_post_icon.webp", lambda: open_generator("quote_post"), "Quotes"),
+                        ("Pull Quote", "Shareable quotes for promotions.", "review_pull_quote_icon.webp", lambda: open_generator("review_pull_quote"), "Quotes"),
+                        ("Blog Post", "Long-form articles that inform and inspire.", "blog_post_icon.webp", lambda: open_generator("blog_post"), "Long-Form"),
+                        ("Newsletter Blurb", "Email-ready content that drives opens.", "newsletter_blurb_icon.webp", lambda: open_generator("newsletter_blurb"), "Email"),
+                        ("Character Spotlight", "Deep dives into characters and arcs.", "character_spotlight_icon.webp", lambda: open_generator("character_spotlight"), "Social Media"),
+                    ]
+
+                    pill_elements: dict[str, object] = {}
+                    card_elements: list[tuple[object, str]] = []
+
+                    def apply_dashboard_filter(selected: str) -> None:
+                        for name, pill in pill_elements.items():
+                            if name == selected:
+                                pill.classes(add="mce-dashboard-pill-active")
+                            else:
+                                pill.classes(remove="mce-dashboard-pill-active")
+                        for card_el, category in card_elements:
+                            card_el.set_visibility(selected == "All Formats" or category == selected)
+
+                    with ui.element("div").classes("mce-dashboard-filter-row"):
+                        for filter_name in dashboard_filters:
+                            pill = ui.label(filter_name).classes("mce-dashboard-pill")
+                            pill.on("click", lambda _event, name=filter_name: apply_dashboard_filter(name))
+                            pill_elements[filter_name] = pill
+
+                    with ui.element("section").classes("mce-dashboard-grid"):
+                        for title, copy, icon, action, category in dashboard_cards:
+                            card = ui.card().classes("mce-dashboard-card")
+                            card.on("click", lambda _event, action=action: action())
+                            card_elements.append((card, category))
+                            with card:
+                                ui.image(dashboard_asset(icon)).classes("mce-dashboard-icon")
+                                ui.label(title).classes("mce-dashboard-card-title")
+                                ui.label(copy).classes("mce-dashboard-card-copy")
+                                ui.icon("arrow_forward").classes("mce-dashboard-card-arrow")
+
+                    apply_dashboard_filter("All Formats")
+
+                    with ui.element("section").classes("mce-dashboard-lower"):
+                        with ui.element("div").classes("mce-dashboard-panel"):
+                            with ui.row().classes("items-center justify-between w-full"):
+                                ui.label("Recent Drafts").classes("mce-dash-section-title")
+                                ui.button("View all drafts", on_click=open_drafts).props("flat no-caps dense").classes("mce-secondary")
+                            recent_drafts_container = ui.column().classes("w-full mce-stack")
+
+                            def refresh_recent_drafts() -> None:
+                                recent_drafts_container.clear()
+                                with recent_drafts_container:
+                                    records = list_saved_drafts(4)
+                                    if not records:
+                                        ui.label("No saved drafts yet. Generate content to see it here.").classes("mce-dashboard-card-copy")
+                                        return
+                                    for record in records:
+                                        rec_title = record.get("title") or "Untitled draft"
+                                        rec_type = content_type_label(record.get("content_type") or "content")
+                                        rec_when = str(record.get("updated_at") or record.get("created_at") or "").replace("T", " ")
+                                        draft_card = ui.card().classes("mce-draft-card")
+                                        draft_card.on("click", lambda _event: open_drafts())
+                                        with draft_card:
+                                            ui.label(rec_title).classes("mce-dashboard-card-title")
+                                            ui.label(f"{rec_type} · {rec_when}").classes("mce-dashboard-card-copy")
+
+                            dashboard_refresh["recent"] = refresh_recent_drafts
+                            refresh_recent_drafts()
+
+                        with ui.element("div").classes("mce-dashboard-panel"):
+                            with ui.row().classes("items-center justify-between w-full"):
+                                ui.label("Quick Start").classes("mce-dash-section-title")
+                                ui.button("Explore templates", on_click=lambda: open_generator("blog_post")).props("flat no-caps dense").classes("mce-secondary")
+                            quick_cards = [
+                                ("Start with a Brief", "Open the default content builder.", "quick_brief.webp", lambda: open_generator(default_content_type)),
+                                ("Campaign Generator", "Create multiple assets from one brief.", "quick_campaign.webp", open_campaign),
+                                ("Continue Latest Draft", "Pick up where you left off most recently.", "quick_continue.webp", open_drafts),
+                                ("Browse Templates", "Explore proven formats and examples.", "quick_templates.webp", lambda: open_generator("blog_post")),
+                            ]
+                            with ui.element("div").classes("mce-quick-grid"):
+                                for title, copy, icon, action in quick_cards:
+                                    quick = ui.element("div").classes("mce-quick-card")
+                                    quick.on("click", lambda _event, action=action: action())
+                                    with quick:
+                                        ui.image(dashboard_asset(icon))
+                                        ui.html(f"<strong>{escape(title)}</strong><span>{escape(copy)}</span>", sanitize=False)
+
+                    with ui.element("div").classes("mce-bottom-banner").on(
+                        "click", lambda: open_generator(default_content_type)
+                    ):
+                        ui.image(dashboard_asset("excelsior-banner.webp")).classes("mce-banner-img")
+
             with ui.tab_panel(generator_tab).classes("mce-panel"):
                 with ui.element("section").classes("mce-grid"):
                     with ui.card().classes("mce-card"):
                         section_heading("Content Brief", "Shape the prompt, then generate a draft with the existing pipeline.")
                         with ui.column().classes("mce-stack w-full"):
                             content_type = apply_field_props(
-                                ui.select(generator_content_types, value=default_content_type, label="Content type"),
+                                ui.select(generator_content_type_labels, value=default_content_type, label="Content type"),
                             )
                             topic = apply_field_props(
                                 ui.textarea(label="Topic", placeholder="What should this content be about?"),
@@ -3190,21 +5115,50 @@ def index() -> None:
 
                             preview_refresh: dict[str, object] = {"fn": None}
 
-                            async def save_social_image(event, path_input, status_label, platform_name: str) -> None:
+                            async def save_social_image(event, path_input, status_label, platform_name: str, preview=None) -> None:
                                 suffix = Path(event.file.name or "").suffix.lower()
                                 if suffix not in ALLOWED_IMAGE_EXTENSIONS:
                                     status_label.set_text("Use PNG, JPG, JPEG, or WEBP.")
+                                    status_label.classes(remove="mce-upload-success")
                                     ui.notify("Please upload a PNG, JPG, JPEG, or WEBP image.", type="warning")
                                     return
                                 IMAGE_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
                                 destination = IMAGE_UPLOAD_DIR / safe_upload_filename(event.file.name)
                                 await event.file.save(destination)
                                 path_input.value = str(destination)
-                                status_label.set_text(f"{platform_name} image ready: {event.file.name}")
+                                status_label.set_text(f"✓ Uploaded: {event.file.name}")
+                                status_label.classes(add="mce-upload-success")
+                                if preview is not None:
+                                    preview.set_source(image_data_url(str(destination)))
+                                    preview.set_visibility(True)
                                 refresh = preview_refresh.get("fn")
                                 if callable(refresh):
                                     refresh()
                                 ui.notify(f"{platform_name} image uploaded.", type="positive")
+
+                            def attach_asset_picker(path_input, status_label, thumb=None) -> None:
+                                """Add a 'choose an existing image' picker beside an upload field (BUG-IMG-01)."""
+                                picker = apply_field_props(
+                                    ui.select({}, label="Or choose an existing image", with_input=True).props("clearable"),
+                                    "outlined dense",
+                                )
+
+                                def apply_choice(value) -> None:
+                                    if not value:
+                                        return
+                                    path_input.value = str(value)
+                                    status_label.set_text(f"✓ Selected: {Path(str(value)).name}")
+                                    status_label.classes(add="mce-upload-success")
+                                    if thumb is not None:
+                                        thumb.set_source(image_data_url(str(value)))
+                                        thumb.set_visibility(True)
+                                    refresh = preview_refresh.get("fn")
+                                    if callable(refresh):
+                                        refresh()
+
+                                picker.on("focus", lambda _event: picker.set_options(list_existing_images()))
+                                picker.on_value_change(lambda event: apply_choice(event.value))
+                                picker.set_options(list_existing_images())
 
                             with ui.card().classes("mce-subcard") as instagram_card:
                                 subcard_heading("Instagram Settings")
@@ -3212,27 +5166,56 @@ def index() -> None:
                                     ui.select(INSTAGRAM_FORMAT_OPTIONS, multiple=True, label="Instagram formats"),
                                     "outlined dense use-chips clearable",
                                 )
+                                ui.label("Each selected format gets its own caption, image, and aspect ratio (Post 4:5, Reel/Story 9:16, Carousel slides).").classes("mce-muted")
+                                instagram_carousel_slides = apply_field_props(
+                                    ui.number(label="Carousel slide count", value=5, min=2, max=10, precision=0),
+                                )
+                                instagram_carousel_slides.set_visibility(False)
+
+                                def update_carousel_slides_visibility(formats=None) -> None:
+                                    selected = [str(f).strip().lower() for f in (formats if formats is not None else (instagram_formats.value or []))]
+                                    instagram_carousel_slides.set_visibility("carousel" in selected)
+
+                                instagram_formats.on_value_change(lambda event: update_carousel_slides_visibility(event.value))
                                 instagram_hashtags = apply_field_props(
-                                    ui.select(INSTAGRAM_HASHTAG_OPTIONS, label="Instagram hashtags"),
+                                    ui.select(INSTAGRAM_HASHTAG_OPTIONS, label="Instagram hashtags (baseline)"),
+                                )
+                                ui.label("Hashtag counts are tuned per format automatically (Feed 10–15, Reel 3–5, Story ≤1, Carousel 5–10).").classes("mce-muted")
+                                instagram_image_content_type = apply_field_props(
+                                    ui.select(
+                                        ["text / quote graphic", "character portrait", "abstract / mood graphic", "mixed"],
+                                        value="text / quote graphic",
+                                        label="Image content type",
+                                    ),
                                 )
                                 instagram_hook = apply_field_props(
-                                    ui.textarea(label="Instagram hook", placeholder="Opening hook or callout"),
+                                    ui.textarea(label="Hook / Opening line", placeholder="Opening line or tonal direction"),
                                     "outlined autogrow",
                                 )
-                                instagram_generate_images = apply_field_props(
-                                    ui.select(["yes", "no"], value="yes", label="Generate image package"),
-                                )
-                                instagram_visual_formats = apply_field_props(
-                                    ui.select(INSTAGRAM_VISUAL_FORMAT_OPTIONS, multiple=True, label="Image type / format"),
+                                ui.label("Used as the caption's opening line only. The caption body is generated from your book/source content.").classes("mce-muted")
+                                instagram_image_formats = apply_field_props(
+                                    ui.select(list(INSTAGRAM_FORMAT_OPTIONS), multiple=True, value=list(INSTAGRAM_FORMAT_OPTIONS), label="Generate images for"),
                                     "outlined dense use-chips clearable",
                                 )
+                                ui.label("Toggle which formats get an image. Remove a chip to skip that format; clear all to skip image generation.").classes("mce-muted")
+
+                                def instagram_image_format_selection() -> list[str]:
+                                    return [f for f in (instagram_formats.value or []) if f in (instagram_image_formats.value or [])]
+                                # BUG-IG-A: formats auto-map to aspect ratios (Feed 4:5, Reel/Story 9:16,
+                                # Carousel slides), so this extra override is hidden to avoid a redundant
+                                # second format picker. Kept in code for the rare edge-case override.
+                                instagram_visual_formats = apply_field_props(
+                                    ui.select(INSTAGRAM_VISUAL_FORMAT_OPTIONS, multiple=True, label="Extra image formats (optional override)"),
+                                    "outlined dense use-chips clearable",
+                                )
+                                instagram_visual_formats.visible = False
                                 instagram_visual_style = apply_field_props(
                                     ui.select(QUOTE_IMAGE_STYLE_OPTIONS, value="Gothic", label="Visual style"),
                                 )
                                 instagram_hook_status = ui.label("").classes("mce-muted")
 
                                 async def suggest_instagram_hook() -> None:
-                                    instagram_hook_status.set_text("Suggesting hook...")
+                                    set_field_status(instagram_hook_status, "loading", "Suggesting hook…")
                                     prompt = f"""Suggest one short Instagram hook / first line for Mythos Content Engine.
 
 Topic: {topic.value}
@@ -3244,20 +5227,23 @@ Objective: {normalize_selected(social_objectives.value)}
 Return only the hook. Keep it under 14 words. Make it bookish, specific, and non-generic."""
                                     try:
                                         instagram_hook.value = (await asyncio.to_thread(generate_text, prompt)).strip().splitlines()[0][:120]
-                                        instagram_hook_status.set_text("Hook suggested.")
+                                        set_field_status(instagram_hook_status, "success", "Hook suggested.")
                                     except Exception as exc:
-                                        instagram_hook_status.set_text(f"Could not suggest hook: {exc}")
+                                        set_field_status(instagram_hook_status, "error", f"Could not suggest hook: {exc}")
 
                                 make_secondary_button("Suggest Hook", suggest_instagram_hook)
                                 instagram_image_path = readonly_input("Instagram image", "")
                                 instagram_image_status = ui.label("No image selected").classes("mce-muted")
+                                instagram_image_thumb = ui.image("").classes("mce-upload-thumb")
+                                instagram_image_thumb.set_visibility(False)
 
                                 async def handle_instagram_image_upload(event) -> None:
-                                    await save_social_image(event, instagram_image_path, instagram_image_status, "Instagram")
+                                    await save_social_image(event, instagram_image_path, instagram_image_status, "Instagram", instagram_image_thumb)
 
                                 ui.upload(on_upload=handle_instagram_image_upload, auto_upload=True).props(
                                     'accept=".png,.jpg,.jpeg,.webp" max-files=1 label="Upload Instagram image"'
                                 ).classes("w-full")
+                                attach_asset_picker(instagram_image_path, instagram_image_status, instagram_image_thumb)
 
                             with ui.card().classes("mce-subcard") as linkedin_card:
                                 subcard_heading("LinkedIn Settings")
@@ -3274,13 +5260,16 @@ Return only the hook. Keep it under 14 words. Make it bookish, specific, and non
                                 )
                                 linkedin_image_path = readonly_input("LinkedIn image", "")
                                 linkedin_image_status = ui.label("No image selected").classes("mce-muted")
+                                linkedin_image_thumb = ui.image("").classes("mce-upload-thumb")
+                                linkedin_image_thumb.set_visibility(False)
 
                                 async def handle_linkedin_image_upload(event) -> None:
-                                    await save_social_image(event, linkedin_image_path, linkedin_image_status, "LinkedIn")
+                                    await save_social_image(event, linkedin_image_path, linkedin_image_status, "LinkedIn", linkedin_image_thumb)
 
                                 ui.upload(on_upload=handle_linkedin_image_upload, auto_upload=True).props(
                                     'accept=".png,.jpg,.jpeg,.webp" max-files=1 label="Upload LinkedIn image"'
                                 ).classes("w-full")
+                                attach_asset_picker(linkedin_image_path, linkedin_image_status, linkedin_image_thumb)
 
                             with ui.card().classes("mce-subcard") as youtube_card:
                                 subcard_heading("YouTube Settings")
@@ -3296,13 +5285,16 @@ Return only the hook. Keep it under 14 words. Make it bookish, specific, and non
                                 )
                                 youtube_image_path = readonly_input("YouTube image", "")
                                 youtube_image_status = ui.label("No image selected").classes("mce-muted")
+                                youtube_image_thumb = ui.image("").classes("mce-upload-thumb")
+                                youtube_image_thumb.set_visibility(False)
 
                                 async def handle_youtube_image_upload(event) -> None:
-                                    await save_social_image(event, youtube_image_path, youtube_image_status, "YouTube")
+                                    await save_social_image(event, youtube_image_path, youtube_image_status, "YouTube", youtube_image_thumb)
 
                                 ui.upload(on_upload=handle_youtube_image_upload, auto_upload=True).props(
                                     'accept=".png,.jpg,.jpeg,.webp" max-files=1 label="Upload YouTube image"'
                                 ).classes("w-full")
+                                attach_asset_picker(youtube_image_path, youtube_image_status, youtube_image_thumb)
 
                             with ui.card().classes("mce-subcard") as quote_card:
                                 subcard_heading("Quote Post Settings")
@@ -3344,7 +5336,7 @@ Return only the hook. Keep it under 14 words. Make it bookish, specific, and non
                                 blog_structure_status = ui.label("").classes("mce-muted")
 
                                 async def suggest_blog_structure() -> None:
-                                    blog_structure_status.set_text("Suggesting structure...")
+                                    set_field_status(blog_structure_status, "loading", "Suggesting structure…")
                                     prompt = f"""Suggest a concise blog structure for Mythos Content Engine.
 
 Topic: {topic.value}
@@ -3356,9 +5348,9 @@ Selected checklist: {normalize_selected(blog_structure_options.value)}
 Return only a practical section outline with 5-8 bullets."""
                                     try:
                                         blog_sections.value = await asyncio.to_thread(generate_text, prompt)
-                                        blog_structure_status.set_text("Structure suggested.")
+                                        set_field_status(blog_structure_status, "success", "Structure suggested.")
                                     except Exception as exc:
-                                        blog_structure_status.set_text(f"Could not suggest structure: {exc}")
+                                        set_field_status(blog_structure_status, "error", f"Could not suggest structure: {exc}")
 
                                 make_secondary_button("Suggest Structure", suggest_blog_structure)
                                 blog_seo_keywords = apply_field_props(
@@ -3385,13 +5377,16 @@ Return only a practical section outline with 5-8 bullets."""
                                 blog_format.on_value_change(sync_blog_visual_defaults)
                                 blog_image_path = readonly_input("Blog image", "")
                                 blog_image_status = ui.label("No image selected").classes("mce-muted")
+                                blog_image_thumb = ui.image("").classes("mce-upload-thumb")
+                                blog_image_thumb.set_visibility(False)
 
                                 async def handle_blog_image_upload(event) -> None:
-                                    await save_social_image(event, blog_image_path, blog_image_status, "Blog")
+                                    await save_social_image(event, blog_image_path, blog_image_status, "Blog", blog_image_thumb)
 
                                 ui.upload(on_upload=handle_blog_image_upload, auto_upload=True).props(
                                     'accept=".png,.jpg,.jpeg,.webp" max-files=1 label="Upload blog image"'
                                 ).classes("w-full")
+                                attach_asset_picker(blog_image_path, blog_image_status, blog_image_thumb)
 
                             with ui.card().classes("mce-subcard") as newsletter_card:
                                 subcard_heading("Newsletter Settings")
@@ -3426,13 +5421,16 @@ Return only a practical section outline with 5-8 bullets."""
                                 )
                                 cs_image_path = readonly_input("Character spotlight image", "")
                                 cs_image_status = ui.label("No image selected").classes("mce-muted")
+                                cs_image_thumb = ui.image("").classes("mce-upload-thumb")
+                                cs_image_thumb.set_visibility(False)
 
                                 async def handle_character_image_upload(event) -> None:
-                                    await save_social_image(event, cs_image_path, cs_image_status, "Character Spotlight")
+                                    await save_social_image(event, cs_image_path, cs_image_status, "Character Spotlight", cs_image_thumb)
 
                                 ui.upload(on_upload=handle_character_image_upload, auto_upload=True).props(
                                     'accept=".png,.jpg,.jpeg,.webp" max-files=1 label="Upload character spotlight image"'
                                 ).classes("w-full")
+                                attach_asset_picker(cs_image_path, cs_image_status, cs_image_thumb)
 
                             with ui.card().classes("mce-subcard") as press_release_card:
                                 subcard_heading("Press Release Settings")
@@ -3443,29 +5441,157 @@ Return only a practical section outline with 5-8 bullets."""
                                 pr_profile_name = apply_field_props(
                                     ui.input(label="Profile name", placeholder="Author / publisher profile name"),
                                 )
+
+                                subcard_heading("Timing & Distribution")
                                 pr_destination = readonly_input("Distribution", PRESS_RELEASE_DESTINATION)
                                 with ui.element("div").classes("mce-two-col"):
                                     pr_timing = apply_field_props(ui.select(PRESS_RELEASE_TIMING_OPTIONS, label="Press release timing"))
                                     pr_embargo_date = apply_field_props(ui.input(label="Embargo date", placeholder="If embargoed, provide the date"))
+                                    pr_release_date = apply_field_props(ui.input(label="Release date").props("type=date"))
                                     pr_city = apply_field_props(ui.input(label="Dateline city", placeholder="City for the dateline"))
                                     pr_state = apply_field_props(ui.input(label="Dateline state / region", placeholder="State or region"))
-                                    pr_release_date = apply_field_props(ui.input(label="Release date").props("type=date"))
+
+                                subcard_heading("Contact Info")
+                                with ui.element("div").classes("mce-two-col"):
                                     pr_contact_name = apply_field_props(ui.input(label="Media contact name", placeholder="Contact person name"))
                                     pr_contact_title = apply_field_props(ui.input(label="Media contact title", placeholder="Contact person's title"))
                                     pr_organization = apply_field_props(ui.input(label="Organization / imprint", placeholder="Organization or imprint"))
                                     pr_contact_email = apply_field_props(ui.input(label="Media contact email", placeholder="contact@example.com"))
                                     pr_contact_phone = apply_field_props(ui.input(label="Media contact phone", placeholder="Phone number"))
-                                pr_website = apply_field_props(ui.input(label="Website", placeholder="Organization website"))
+                                    pr_website = apply_field_props(ui.input(label="Website", placeholder="Organization website"))
+
+                                subcard_heading("Newswire Details")
                                 pr_news_angle = apply_field_props(ui.textarea(label="News angle", placeholder="Why this is newsworthy"), "outlined autogrow")
+                                pr_news_angle_status = ui.label("").classes("mce-muted")
                                 pr_profile_actions = ui.row().classes("mce-actions")
                                 pr_supporting_proof = apply_field_props(ui.textarea(label="Supporting proof", placeholder="Verified facts, awards, or evidence"), "outlined autogrow")
                                 pr_quote_source = apply_field_props(ui.textarea(label="Quote source", placeholder="Approved spokesperson quote source"), "outlined autogrow")
                                 pr_target_media = apply_field_props(ui.textarea(label="Target media", placeholder="Journalists, reviewers, outlets, or PR channels"), "outlined autogrow")
+
+                                subcard_heading("Assets")
                                 pr_required_assets = apply_field_props(
-                                    ui.select(PR_ASSET_OPTIONS, multiple=True, label="Required PR assets to generate"),
+                                    ui.select(PRESS_RELEASE_COMPANION_ASSETS, multiple=True, label="Companion assets"),
                                     "outlined dense use-chips clearable",
                                 )
+                                ui.label("Optional assets to generate alongside the press release.").classes("mce-muted")
                                 pr_asset_status = readonly_input("Generated PR assets", "")
+
+                            with ui.card().classes("mce-subcard") as review_card:
+                                subcard_heading("Review / Pull Quote Settings")
+                                ui.label("Build a pull quote from a real review, an AI quote in the style of real reviews, or your own pasted quote.").classes("mce-muted")
+                                review_quote_mode = apply_field_props(
+                                    ui.select(
+                                        ["From my quote bank", "AI-generated in style of real review", "I'll paste it manually"],
+                                        value="From my quote bank",
+                                        label="Quote source",
+                                    ),
+                                )
+                                with ui.column().classes("w-full mce-stack") as review_bank_group:
+                                    review_book = apply_field_props(
+                                        ui.select(
+                                            review_book_options(),
+                                            value=review_book_options()[0] if review_book_options() else None,
+                                            label="Review book/source",
+                                        ),
+                                    )
+                                    review_source = apply_field_props(
+                                        ui.select([], label="Review source / outlet"),
+                                        "outlined dense clearable",
+                                    )
+                                    review_quote = apply_field_props(
+                                        ui.select([], label="Grounded review quote"),
+                                        "outlined dense clearable",
+                                    )
+                                review_manual_quote = apply_field_props(
+                                    ui.textarea(label="Paste the quote you want to use", placeholder="Paste the exact pull-quote text here"),
+                                    "outlined autogrow",
+                                )
+                                review_manual_quote.set_visibility(False)
+                                review_mode = apply_field_props(
+                                    ui.select(
+                                        ["critic pull quote", "reader praise", "short testimonial", "media kit blurb"],
+                                        value="critic pull quote",
+                                        label="Quote style",
+                                    ),
+                                )
+                                review_attribution = apply_field_props(
+                                    ui.input(label="Reviewer / source attribution", placeholder="e.g. Goodreads reviewer, Literary Titan"),
+                                )
+                                review_image_type = apply_field_props(
+                                    ui.select(
+                                        ["Text-only card", "Character image + quote overlay", "Book cover + quote overlay"],
+                                        value="Text-only card",
+                                        label="Image type",
+                                    ),
+                                )
+                                review_instagram_formats = apply_field_props(
+                                    ui.select(["Feed post", "Story", "Reel"], multiple=True, value=["Feed post"], label="Instagram format"),
+                                    "outlined dense use-chips clearable",
+                                )
+                                review_card_style = apply_field_props(
+                                    ui.select(["Dark gothic", "Light minimal", "Brand default"], value="Dark gothic", label="Card style"),
+                                )
+                                review_promo_line = apply_field_props(
+                                    ui.input(label="Brand promo line", placeholder="Optional tagline shown under the quote"),
+                                )
+                                review_visual_formats = apply_field_props(
+                                    ui.select(quote_graphic_format_options(), multiple=True, label="Extra image formats (optional override)"),
+                                    "outlined dense use-chips clearable",
+                                )
+                                review_visual_style = apply_field_props(
+                                    ui.select(QUOTE_IMAGE_STYLE_OPTIONS, value="Press", label="Visual style"),
+                                )
+                                review_image_path = readonly_input("Review pull quote image", "")
+                                review_image_status = ui.label("No image selected").classes("mce-muted")
+                                review_image_thumb = ui.image("").classes("mce-upload-thumb")
+                                review_image_thumb.set_visibility(False)
+
+                                async def handle_review_image_upload(event) -> None:
+                                    await save_social_image(event, review_image_path, review_image_status, "Review pull quote", review_image_thumb)
+
+                                ui.upload(on_upload=handle_review_image_upload, auto_upload=True).props(
+                                    'accept=".png,.jpg,.jpeg,.webp" max-files=1 label="Upload pull quote image"'
+                                ).classes("w-full")
+                                attach_asset_picker(review_image_path, review_image_status, review_image_thumb)
+
+                                def trigger_review_preview() -> None:
+                                    refresh = preview_refresh.get("fn")
+                                    if callable(refresh):
+                                        refresh()
+
+                                def update_review_quotes() -> None:
+                                    options = review_quotes_for_source(review_book.value or "", review_source.value or "")
+                                    review_quote.options = options
+                                    if review_quote.value not in options:
+                                        review_quote.value = options[0] if options else None
+                                    review_quote.update()
+                                    if review_source.value and not (review_attribution.value or "").strip():
+                                        review_attribution.value = review_source.value
+                                    trigger_review_preview()
+
+                                def update_review_sources() -> None:
+                                    options = review_source_options(review_book.value or "")
+                                    review_source.options = options
+                                    review_source.value = options[0] if options else None
+                                    review_source.update()
+                                    update_review_quotes()
+
+                                def update_review_mode_visibility() -> None:
+                                    mode = review_quote_mode.value or ""
+                                    review_bank_group.set_visibility(mode != "I'll paste it manually")
+                                    review_manual_quote.set_visibility(mode == "I'll paste it manually")
+                                    trigger_review_preview()
+
+                                review_book.on_value_change(lambda _e: update_review_sources())
+                                review_source.on_value_change(lambda _e: update_review_quotes())
+                                review_quote.on_value_change(lambda _e: trigger_review_preview())
+                                review_quote_mode.on_value_change(lambda _e: update_review_mode_visibility())
+                                review_manual_quote.on_value_change(lambda _e: trigger_review_preview())
+                                review_instagram_formats.on_value_change(lambda _e: trigger_review_preview())
+                                review_image_type.on_value_change(lambda _e: trigger_review_preview())
+                                review_card_style.on_value_change(lambda _e: trigger_review_preview())
+                                update_review_sources()
+                                update_review_mode_visibility()
 
                             generator_actions = ui.row().classes("mce-actions")
 
@@ -3480,8 +5606,51 @@ Return only a practical section outline with 5-8 bullets."""
                                 build_preview_html(content_type.value, {"draft": "Select a content type to see a platform-style preview."}),
                                 sanitize=False,
                             ).classes("mce-preview")
-                            generated_output = readonly_textarea("Generated content", "")
+                            generated_output = ui.textarea(label="Generated content (editable)", value="").props("outlined autogrow").classes("w-full mce-output-textarea")
+
+                            # Registry of generator form fields, used to snapshot the form into
+                            # a saved draft and restore it when the draft is re-opened in the
+                            # builder. Built from locals() so any field not defined for a content
+                            # type is simply skipped (never a NameError).
+                            _generator_field_names = [
+                                "topic", "related_book", "platform", "social_objectives", "audience",
+                                "cta", "constraints",
+                                "instagram_formats", "instagram_carousel_slides", "instagram_hashtags",
+                                "instagram_image_content_type", "instagram_hook", "instagram_visual_style",
+                                "linkedin_formats", "linkedin_angle", "linkedin_cta",
+                                "youtube_formats", "youtube_keywords", "youtube_link",
+                                "quote_book", "quote_moods", "character_tags",
+                                "blog_length", "blog_format", "blog_structure_options", "blog_sections",
+                                "blog_seo_keywords", "blog_image_mode",
+                                "cs_character", "cs_focus",
+                                "review_quote_mode", "review_quote",
+                                "newsletter_subject", "newsletter_preview", "newsletter_structure",
+                            ]
+                            _generator_local_scope = locals()
+                            generator_fields = {
+                                name: _generator_local_scope[name]
+                                for name in _generator_field_names
+                                if name in _generator_local_scope
+                            }
+                            generator_fields_snapshot = lambda: {
+                                name: widget.value for name, widget in generator_fields.items()
+                            }
+                            with ui.card().classes("mce-subcard w-full"):
+                                subcard_heading("Rendered preview")
+                                generated_output_rendered = ui.markdown("").classes("w-full mce-rendered-output")
+                                generated_output_rendered.bind_content_from(generated_output, "value")
                             result_actions = ui.row().classes("mce-actions")
+                            with ui.card().classes("mce-subcard") as generated_images_card:
+                                subcard_heading("Generated images")
+                                ui.label("Rendered image assets for this draft. Use Download Images / Assets for the full package.").classes("mce-muted")
+                                generated_images_gallery = ui.row().classes("w-full mce-gallery")
+                            generated_images_card.visible = False
+                            instagram_format_images: dict[str, list[str]] = {}
+                            with ui.card().classes("mce-subcard") as instagram_regen_card:
+                                subcard_heading("Per-format images")
+                                ui.label("Regenerate the image for a single Instagram format without rebuilding the draft.").classes("mce-muted")
+                                instagram_regen_actions = ui.row().classes("mce-actions")
+                            instagram_regen_card.visible = False
                             with ui.card().classes("mce-subcard") as quote_image_builder:
                                 subcard_heading("Quote Image Builder")
                                 ui.label("Select the quote cards you want to render, then generate platform-ready image mockups.").classes("mce-muted")
@@ -3588,8 +5757,24 @@ Return only a practical section outline with 5-8 bullets."""
                             "blog_visual_formats": blog_visual_formats.value,
                             "blog_visual_style": blog_visual_style.value,
                             "character_subject": cs_character.value,
+                            "character_focus": cs_focus.value,
                             "character_format": cs_platform_format.value,
                             "character_image_mode": cs_image_mode.value,
+                            "newsletter_subject": nl_subject.value,
+                            "newsletter_preview": nl_preview.value,
+                            "newsletter_structure": nl_structure.value,
+                            "review_mode": review_mode.value,
+                            "review_quote_text": (
+                                review_manual_quote.value
+                                if (review_quote_mode.value == "I'll paste it manually" and str(review_manual_quote.value or "").strip())
+                                else review_quote.value or generated_output.value or topic.value
+                            ),
+                            "review_source": review_source.value,
+                            "review_attribution": review_attribution.value or review_source.value,
+                            "review_promo_line": review_promo_line.value,
+                            "review_instagram_formats": review_instagram_formats.value,
+                            "review_card_style": review_card_style.value,
+                            "review_image_type": review_image_type.value,
                             "pr_city": pr_city.value,
                             "pr_state": pr_state.value,
                             "pr_release_date": pr_release_date.value,
@@ -3598,10 +5783,77 @@ Return only a practical section outline with 5-8 bullets."""
                             "pr_news_angle": pr_news_angle.value,
                             "pr_required_assets": pr_required_assets.value,
                             "image_path": current_uploaded_image_path(),
+                            "instagram_format_images": dict(instagram_format_images),
                         }
 
                     def refresh_platform_preview() -> None:
                         platform_preview.content = build_preview_html(content_type.value, preview_fields())
+
+                    def refresh_generated_images_gallery() -> None:
+                        """Show thumbnails of the image files rendered for this draft (BUG-IMG-02)."""
+                        generated_images_gallery.clear()
+                        primary = str(generated_visual_path.value or "").strip()
+                        image_paths: list[str] = []
+                        if primary and Path(primary).exists():
+                            # All images of one generation land in a single timestamped folder.
+                            folder = Path(primary).parent
+                            image_paths = sorted(
+                                str(p) for p in folder.glob("*")
+                                if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}
+                            )
+                        generated_images_card.visible = bool(image_paths)
+                        if not image_paths:
+                            return
+                        with generated_images_gallery:
+                            for path in image_paths[:12]:
+                                ui.image(path).classes("mce-gallery-thumb")
+
+                    async def regenerate_instagram_format(fmt: str) -> None:
+                        labels = instagram_visual_formats_for_post([fmt], instagram_visual_formats.value, int(instagram_carousel_slides.value or 5))
+                        status.value = f"Regenerating {fmt} image…"
+                        try:
+                            package = await asyncio.to_thread(
+                                render_generated_visual_package,
+                                content_type="instagram_caption",
+                                content=generated_output.value or topic.value,
+                                topic=topic.value,
+                                format_labels=labels,
+                                theme_name=instagram_visual_style.value or "Gothic",
+                                image_content_type=instagram_image_content_type.value,
+                            )
+                        except Exception as exc:
+                            status.value = f"Regeneration failed: {exc}"
+                            ui.notify(status.value, type="negative")
+                            return
+                        paths = [str(p) for p in package.get("paths", [])] if isinstance(package, dict) else []
+                        if paths:
+                            instagram_format_images[fmt.lower()] = paths
+                            status.value = f"Regenerated {fmt} ({len(paths)} image file(s))."
+                            ui.notify(status.value, type="positive")
+                        else:
+                            error = str(package.get("error", "")) if isinstance(package, dict) else ""
+                            status.value = error or f"No image generated for {fmt}."
+                            ui.notify(status.value, type="warning")
+                        refresh_platform_preview()
+                        refresh_generated_images_gallery()
+
+                    def refresh_instagram_regen_actions() -> None:
+                        instagram_regen_actions.clear()
+                        has_draft = bool(str(generated_output.value or "").strip())
+                        formats = (
+                            instagram_image_format_selection()
+                            if (content_type.value == "instagram_caption" and has_draft)
+                            else []
+                        )
+                        instagram_regen_card.visible = bool(formats)
+                        if not formats:
+                            return
+                        with instagram_regen_actions:
+                            for fmt in formats:
+                                make_secondary_button(
+                                    f"Regenerate {fmt}",
+                                    lambda f=fmt: asyncio.create_task(regenerate_instagram_format(f)),
+                                )
 
                     def refresh_press_profile_options() -> None:
                         pr_profile.set_options(press_profile_options(), value=pr_profile.value if pr_profile.value in press_profile_options() else None)
@@ -3643,7 +5895,7 @@ Return only a practical section outline with 5-8 bullets."""
                         ui.notify("Press profile saved.", type="positive")
 
                     async def suggest_press_news_angle() -> None:
-                        pr_news_angle.value = "Suggesting news angle..."
+                        set_field_status(pr_news_angle_status, "loading", "Suggesting news angle…")
                         prompt = f"""Suggest 3 strong, journalist-friendly news angles for this press release.
 
 Topic: {topic.value}
@@ -3654,10 +5906,11 @@ Target media: {pr_target_media.value}
 Return concise angle options with why each is newsworthy."""
                         try:
                             pr_news_angle.value = await asyncio.to_thread(generate_text, prompt)
+                            set_field_status(pr_news_angle_status, "success", "News angle suggested.")
                             ui.notify("News angle suggested.", type="positive")
                         except Exception as exc:
-                            pr_news_angle.value = f"Could not suggest news angle: {exc}"
-                            ui.notify(pr_news_angle.value, type="negative")
+                            set_field_status(pr_news_angle_status, "error", f"Could not suggest news angle: {exc}")
+                            ui.notify(f"Could not suggest news angle: {exc}", type="negative")
                         refresh_platform_preview()
 
                     def quote_attribution_value() -> str:
@@ -3725,13 +5978,22 @@ Return concise angle options with why each is newsworthy."""
                             ui.notify(quote_image_status.value, type="warning")
                             return
                         quote_image_status.value = "Generating quote card images..."
+                        is_review = content_type.value == "review_pull_quote"
+                        if is_review:
+                            format_labels = review_visual_formats_for_instagram(review_instagram_formats.value, review_visual_formats.value)
+                            theme = review_visual_style.value or "Press"
+                            attribution = review_attribution.value or quote_attribution_value()
+                        else:
+                            format_labels = quote_visual_formats.value or ["Instagram Post (4:5)"]
+                            theme = quote_visual_style.value or "Gothic"
+                            attribution = quote_attribution_value()
                         try:
                             package = await asyncio.to_thread(
                                 render_selected_quote_visual_package,
                                 quotes=list(selected_quotes),
-                                attribution=quote_attribution_value(),
-                                format_labels=quote_visual_formats.value or ["Instagram Post (4:5)"],
-                                theme_name=quote_visual_style.value or "Gothic",
+                                attribution=attribution,
+                                format_labels=format_labels,
+                                theme_name=theme,
                             )
                         except Exception as exc:
                             quote_image_status.value = f"Quote image generation failed: {exc}"
@@ -3749,6 +6011,9 @@ Return concise angle options with why each is newsworthy."""
                         ui.notify(quote_image_status.value, type="positive" if paths else "warning")
 
                     preview_refresh["fn"] = refresh_platform_preview
+                    instagram_image_formats.on_value_change(lambda _event: refresh_instagram_regen_actions())
+                    # BUG-EDIT-01: edits to the generated content re-render the preview/mock live.
+                    generated_output.on_value_change(lambda _event: refresh_platform_preview())
 
                     def apply_visibility(selected_type: str) -> None:
                         is_press_release = selected_type == "press_release"
@@ -3759,11 +6024,23 @@ Return concise angle options with why each is newsworthy."""
                         blog_card.visible = selected_type == "blog_post"
                         newsletter_card.visible = selected_type == "newsletter_blurb"
                         character_card.visible = selected_type == "character_spotlight"
+                        review_card.visible = selected_type == "review_pull_quote"
                         press_release_card.visible = is_press_release
-                        quote_image_builder.visible = selected_type == "quote_post"
-                        platform.visible = not is_press_release
-                        social_objectives.visible = not is_press_release
-                        audience.visible = not is_press_release
+                        quote_image_builder.visible = selected_type in {"quote_post", "review_pull_quote"}
+                        # BUG-QP-01: quote_post has its own "Quote book/source" field, so hide
+                        # the duplicate top-level Related book/source for it.
+                        related_book.visible = selected_type != "quote_post"
+                        platform.visible = selected_type not in PLATFORM_IMPLIED_CONTENT_TYPES
+                        hide_social_audience = selected_type in HIDE_SOCIAL_AUDIENCE_CONTENT_TYPES
+                        social_objectives.visible = not hide_social_audience
+                        audience.visible = not hide_social_audience
+                        is_newsletter = selected_type == "newsletter_blurb"
+                        objective_options = NEWSLETTER_OBJECTIVE_OPTIONS if is_newsletter else SOCIAL_OBJECTIVES
+                        if list(social_objectives.options) != list(objective_options):
+                            social_objectives.options = list(objective_options)
+                            social_objectives.value = [v for v in (social_objectives.value or []) if v in objective_options]
+                            social_objectives.props(f'label="{"Email objectives" if is_newsletter else "Social objectives"}"')
+                            social_objectives.update()
                         if is_press_release:
                             platform.value = PRESS_RELEASE_DESTINATION
                             social_objectives.value = []
@@ -3771,22 +6048,34 @@ Return concise angle options with why each is newsworthy."""
                         if not is_press_release and platform.value not in PLATFORM_OPTIONS:
                             platform.value = PLATFORM_OPTIONS[0]
                         platform_preview.content = build_preview_html(selected_type, preview_fields())
+                        refresh_instagram_regen_actions()
+                        refresh_generated_images_gallery()
+
+                    def sync_platform_default(selected_type: str) -> None:
+                        default_platform = PLATFORM_BY_CONTENT_TYPE.get(selected_type)
+                        if default_platform:
+                            platform.value = default_platform
 
                     def on_content_type_change(event) -> None:
+                        sync_platform_default(event.value)
                         apply_visibility(event.value)
 
                     content_type.on_value_change(on_content_type_change)
+                    sync_platform_default(content_type.value)
                     apply_visibility(content_type.value)
 
                     async def generate_content() -> None:
                         started_at = datetime.now()
+                        instagram_format_images.clear()
                         content_asset_total = 1
                         if content_type.value == "press_release" and pr_required_assets.value:
                             content_asset_total += len(pr_required_assets.value)
                         elif content_type.value == "quote_post":
                             content_asset_total += len(quote_visual_formats.value or [])
-                        elif content_type.value == "instagram_caption" and instagram_generate_images.value == "yes":
-                            content_asset_total += len(instagram_visual_formats.value or INSTAGRAM_VISUAL_FORMAT_OPTIONS)
+                        elif content_type.value == "review_pull_quote":
+                            content_asset_total += len(review_visual_formats_for_instagram(review_instagram_formats.value, review_visual_formats.value))
+                        elif content_type.value == "instagram_caption" and instagram_image_format_selection():
+                            content_asset_total += len(instagram_visual_formats_for_post(instagram_image_format_selection(), instagram_visual_formats.value, instagram_carousel_slides.value))
                         elif content_type.value == "blog_post":
                             content_asset_total += len(
                                 blog_visual_formats.value
@@ -3844,9 +6133,12 @@ Return concise angle options with why each is newsworthy."""
                                 message="Generating draft and selected media assets...",
                             )
                             await generate_draft_from_fields(
+                                form_fields_snapshot=generator_fields_snapshot(),
                                 content_type=content_type.value,
                                 topic=topic.value,
-                                related_book=related_book.value,
+                                # BUG-QP-01: ground quote_post on the dedicated Quote book/source only,
+                                # so the hidden top-level Related book/source can't contaminate retrieval.
+                                related_book=(quote_book.value if content_type.value == "quote_post" else related_book.value),
                                 platform=platform.value,
                                 social_objectives=social_objectives.value,
                                 audience=audience.value,
@@ -3875,6 +6167,8 @@ Return concise angle options with why each is newsworthy."""
                                 instagram_formats=instagram_formats.value,
                                 instagram_hashtags=instagram_hashtags.value,
                                 instagram_hook=instagram_hook.value,
+                                instagram_image_content_type=instagram_image_content_type.value,
+                                instagram_carousel_slides=instagram_carousel_slides.value,
                                 cs_character=cs_character.value,
                                 cs_focus=cs_focus.value,
                                 cs_platform_format=cs_platform_format.value,
@@ -3900,6 +6194,19 @@ Return concise angle options with why each is newsworthy."""
                                 pr_quote_source=pr_quote_source.value,
                                 pr_target_media=pr_target_media.value,
                                 pr_required_assets=pr_required_assets.value,
+                                review_book=review_book.value,
+                                review_source=review_source.value,
+                                review_quote=review_quote.value,
+                                review_mode=review_mode.value,
+                                review_attribution=review_attribution.value,
+                                review_promo_line=review_promo_line.value,
+                                review_graphic_formats=review_visual_formats.value,
+                                review_visual_style=review_visual_style.value,
+                                review_quote_mode=review_quote_mode.value,
+                                review_manual_quote=review_manual_quote.value,
+                                review_image_type=review_image_type.value,
+                                review_instagram_formats=review_instagram_formats.value,
+                                review_card_style=review_card_style.value,
                                 status=status,
                                 filtered_context_path=filtered_context_path,
                                 prompt_path=prompt_path,
@@ -3908,8 +6215,13 @@ Return concise angle options with why each is newsworthy."""
                                 visual_format_labels=(
                                     quote_visual_formats.value
                                     if content_type.value == "quote_post"
-                                    else instagram_visual_formats.value or INSTAGRAM_VISUAL_FORMAT_OPTIONS
-                                    if content_type.value == "instagram_caption" and instagram_generate_images.value == "yes"
+                                    else review_visual_formats_for_instagram(review_instagram_formats.value, review_visual_formats.value)
+                                    if content_type.value == "review_pull_quote"
+                                    else (
+                                        instagram_visual_formats_for_post(instagram_image_format_selection(), instagram_visual_formats.value, instagram_carousel_slides.value)
+                                        if instagram_image_format_selection() else []
+                                    )
+                                    if content_type.value == "instagram_caption"
                                     else formats_for_character_spotlight(cs_platform_format.value)
                                     if content_type.value == "character_spotlight"
                                     else selected_blog_visual_formats
@@ -3919,6 +6231,8 @@ Return concise angle options with why each is newsworthy."""
                                 visual_theme_name=(
                                     quote_visual_style.value
                                     if content_type.value == "quote_post"
+                                    else review_visual_style.value
+                                    if content_type.value == "review_pull_quote"
                                     else instagram_visual_style.value
                                     if content_type.value == "instagram_caption"
                                     else blog_visual_style.value
@@ -3931,6 +6245,12 @@ Return concise angle options with why each is newsworthy."""
                                 generated_visual_path=generated_visual_path,
                                 generated_visual_package_path=generated_visual_package_path,
                             )
+                            session_stats["drafts"] += 1
+                            session_stats["last_type"] = content_type_label(content_type.value)
+                            session_stats["last_topic"] = (str(topic.value or "").strip()[:60] or "—")
+                            refresh_dashboard()
+                            refresh_instagram_regen_actions()
+                            refresh_generated_images_gallery()
                             completed_assets = 1
                             generated_package_value = str(generated_visual_package_path.value or "").strip()
                             generated_package = Path(generated_package_value) if generated_package_value else None
@@ -3978,8 +6298,18 @@ Return concise angle options with why each is newsworthy."""
                                     pr_asset_status.value = str(assets.get("zip_path") or assets.get("error") or "")
                                     generated_visual_package_path.value = str(assets.get("zip_path") or generated_visual_package_path.value)
                                     completed_assets = content_asset_total if assets.get("paths") else 1
+                                    # Show the actual companion-asset content in the editable results.
+                                    rendered_assets = assets.get("assets") if isinstance(assets.get("assets"), list) else []
+                                    if rendered_assets:
+                                        blocks = [str(generated_output.value or "").rstrip(), "", "---", "", "# Companion Assets", ""]
+                                        for item in rendered_assets:
+                                            blocks.append(f"## {item.get('asset', 'Asset')}")
+                                            blocks.append("")
+                                            blocks.append(str(item.get("content") or "").strip())
+                                            blocks.append("")
+                                        generated_output.value = "\n".join(blocks).strip()
                                     ui.notify("PR assets generated.", type="positive" if assets.get("paths") else "warning")
-                            if content_type.value == "quote_post":
+                            if content_type.value in {"quote_post", "review_pull_quote"}:
                                 refresh_quote_candidates(select_all=True)
                             refresh_platform_preview()
                             await finish_generation_progress(
@@ -4043,6 +6373,7 @@ Return concise angle options with why each is newsworthy."""
                                 "generated_visual_path": generated_visual_path.value,
                                 "generated_visual_package_path": generated_visual_package_path.value,
                                 "manual_save": True,
+                                "form_fields": generator_fields_snapshot(),
                             },
                         )
                         saved_draft_path.value = draft_record["path"]
@@ -4050,18 +6381,7 @@ Return concise angle options with why each is newsworthy."""
                         ui.notify("Draft saved.", type="positive")
 
                     def download_generated_draft() -> None:
-                        if draft_path.value and Path(str(draft_path.value)).exists():
-                            ui.download(draft_path.value)
-                            return
-                        if saved_draft_path.value and Path(str(saved_draft_path.value)).exists():
-                            ui.download(saved_draft_path.value)
-                            return
-                        if str(generated_output.value or "").strip():
-                            saved_path = save_output(generated_output.value, content_type.value, "download")
-                            draft_path.value = str(saved_path)
-                            ui.download(str(saved_path))
-                            return
-                        ui.notify("Generate content before downloading.", type="warning")
+                        download_docx(generated_output.value, content_type_label(content_type.value))
 
                     def download_generated_media_package() -> None:
                         package = str(generated_visual_package_path.value or "").strip()
@@ -4083,9 +6403,43 @@ Return concise angle options with why each is newsworthy."""
                         make_secondary_button("Load Profile", apply_press_profile)
                         make_secondary_button("Save Profile", save_press_profile_from_fields)
                         make_secondary_button("Suggest News Angle", suggest_press_news_angle)
+                    brief_fields = [topic, related_book, platform, social_objectives, audience, cta, constraints]
+                    brief_history: list[list] = []
+                    brief_restoring = {"active": False}
+
+                    def snapshot_brief() -> list:
+                        return [list(f.value) if isinstance(f.value, list) else f.value for f in brief_fields]
+
+                    def push_brief_history() -> None:
+                        if brief_restoring["active"]:
+                            return
+                        snap = snapshot_brief()
+                        if not brief_history or brief_history[-1] != snap:
+                            brief_history.append(snap)
+                            if len(brief_history) > 40:
+                                brief_history.pop(0)
+
+                    def undo_brief() -> None:
+                        if len(brief_history) < 2:
+                            ui.notify("Nothing to undo.", type="warning")
+                            return
+                        brief_restoring["active"] = True
+                        brief_history.pop()
+                        prev = brief_history[-1]
+                        for field, val in zip(brief_fields, prev):
+                            field.value = list(val) if isinstance(val, list) else val
+                        brief_restoring["active"] = False
+                        refresh_platform_preview()
+                        ui.notify("Brief restored to previous state.", type="positive")
+
+                    for _brief_field in brief_fields:
+                        _brief_field.on_value_change(lambda _event: push_brief_history())
+                    push_brief_history()
+
                     with generator_actions:
                         make_primary_button("Generate Draft", generate_content)
                         make_secondary_button("Save Draft", save_current_draft)
+                        make_secondary_button("Undo Brief Change", undo_brief)
                     with result_actions:
                         make_secondary_button("Retry / Regenerate", generate_content)
                         make_secondary_button("Download Draft", download_generated_draft)
@@ -4096,13 +6450,16 @@ Return concise angle options with why each is newsworthy."""
                         make_secondary_button("Save Judgment", save_preference)
 
             with ui.tab_panel(campaign_tab).classes("mce-panel"):
-                with ui.element("section").classes("mce-grid"):
+                with ui.element("section").classes("mce-grid mce-grid-single") as campaign_section:
                     with ui.card().classes("mce-card"):
                         section_heading(
                             "Campaign Mode",
                             "One brief, multiple configured assets. Select outputs first, then tune each content type.",
                         )
                         with ui.column().classes("mce-stack w-full"):
+                            campaign_name = apply_field_props(
+                                ui.input(label="Campaign name", placeholder="e.g. Mortal Vengeance Award Launch"),
+                            )
                             campaign_topic = apply_field_props(
                                 ui.textarea(
                                     label="Campaign topic",
@@ -4110,6 +6467,18 @@ Return concise angle options with why each is newsworthy."""
                                 ),
                                 "outlined autogrow",
                             )
+                            with ui.element("div").classes("mce-two-col"):
+                                campaign_start_date = apply_field_props(ui.input(label="Start date (optional)").props("type=date"))
+                                campaign_cadence = apply_field_props(
+                                    ui.select(
+                                        ["daily", "every 2 days", "twice a week", "weekly"],
+                                        value=None,
+                                        label="Posting cadence (optional)",
+                                    ).props("clearable"),
+                                )
+                                campaign_duration = apply_field_props(
+                                    ui.select(CAMPAIGN_DURATION_OPTIONS, value=None, label="Campaign duration (optional)").props("clearable"),
+                                )
                             campaign_book = apply_field_props(
                                 ui.select(
                                     QUOTE_BOOK_OPTIONS,
@@ -4118,7 +6487,11 @@ Return concise angle options with why each is newsworthy."""
                                 ),
                             )
                             campaign_tone = apply_field_props(
-                                ui.input(label="Campaign tone", placeholder="Example: cinematic, literary, darkly funny, media-ready"),
+                                ui.select(
+                                    PODCAST_TONE_OPTIONS,
+                                    value=None,
+                                    label="Campaign tone",
+                                ).props("use-input new-value-mode=add-unique clearable"),
                             )
                             campaign_objectives = apply_field_props(
                                 ui.select(SOCIAL_OBJECTIVES, multiple=True, label="Campaign objectives"),
@@ -4129,19 +6502,37 @@ Return concise angle options with why each is newsworthy."""
                                 "outlined dense use-chips clearable",
                             )
                             campaign_cta = apply_field_props(
-                                ui.input(label="Campaign CTA", placeholder="What should every asset ultimately drive people to do?"),
+                                ui.input(label="Campaign CTA", placeholder="e.g. 'Get the book at [link]' — applied across all generated assets"),
                             )
                             campaign_constraints = apply_field_props(
                                 ui.select(CONSTRAINT_OPTIONS, multiple=True, label="Campaign constraints"),
                                 "outlined dense use-chips clearable",
                             )
+                            ui.label("e.g. spoiler-free, make it punchy, no hashtags").classes("mce-muted")
                             campaign_formats = apply_field_props(
                                 ui.select({key: label for key, label in CAMPAIGN_FORMATS}, multiple=True, label="Campaign content types"),
                                 "outlined dense use-chips clearable",
                             )
+                            # Registry of the shared campaign fields, used to snapshot the
+                            # form into a saved draft and restore it when re-opened.
+                            campaign_shared_fields = {
+                                "campaign_name": campaign_name,
+                                "campaign_topic": campaign_topic,
+                                "campaign_start_date": campaign_start_date,
+                                "campaign_cadence": campaign_cadence,
+                                "campaign_duration": campaign_duration,
+                                "campaign_book": campaign_book,
+                                "campaign_tone": campaign_tone,
+                                "campaign_objectives": campaign_objectives,
+                                "campaign_audience": campaign_audience,
+                                "campaign_cta": campaign_cta,
+                                "campaign_constraints": campaign_constraints,
+                                "campaign_formats": campaign_formats,
+                            }
+                            ui.label("Pick the formats to generate, e.g. Instagram, Blog Post, Newsletter").classes("mce-muted")
 
                             ui.label("Selected Content Type Settings").classes("mce-section-title")
-                            ui.label("Only cards for selected formats appear below. One tiny mercy from the UI gods.").classes("mce-muted")
+                            ui.label("Only settings for selected formats appear below.").classes("mce-muted")
 
                             campaign_widgets: dict[str, dict[str, object]] = {}
                             campaign_cards: dict[str, object] = {}
@@ -4152,7 +6543,10 @@ Return concise angle options with why each is newsworthy."""
                                         ui.select(style_choices(content_type), value=default_style(content_type), label="Style / variant"),
                                     ),
                                     "quantity": apply_field_props(
-                                        ui.select(CAMPAIGN_QUANTITY_OPTIONS, value="1", label="Quantity"),
+                                        ui.number(
+                                            label="Quantity (manual · auto-fills when cadence + duration are set)",
+                                            value=1, min=1, format="%.0f",
+                                        ),
                                     ),
                                 }
 
@@ -4162,24 +6556,85 @@ Return concise angle options with why each is newsworthy."""
                                 campaign_widgets["podcast"]["format"] = apply_field_props(ui.select(PODCAST_FORMAT_OPTIONS, value=PODCAST_FORMAT_OPTIONS[0], label="Podcast format"))
                                 campaign_widgets["podcast"]["length"] = apply_field_props(ui.select(PODCAST_LENGTH_OPTIONS, value=PODCAST_LENGTH_OPTIONS[0], label="Podcast length"))
                                 campaign_widgets["podcast"]["tone"] = apply_field_props(ui.select(PODCAST_TONE_OPTIONS, value=PODCAST_TONE_OPTIONS[0], label="Podcast delivery tone"))
+                                campaign_widgets["podcast"]["speakers"] = apply_field_props(ui.input(label="Podcast speaker count", placeholder="e.g. 2"))
+                                campaign_widgets["podcast"]["roles"] = apply_field_props(ui.input(label="Speaker roles / names", placeholder="e.g. Host: Maya, Guest: Carlos"))
+                                with ui.expansion("Podcast voice settings (audio)", icon="record_voice_over").classes("mce-expansion"):
+                                    with ui.column().classes("mce-stack w-full"):
+                                        campaign_widgets["podcast"]["model"] = apply_field_props(ui.select(ELEVENLABS_MODEL_OPTIONS, value=ELEVENLABS_MODEL_OPTIONS[0], label="ElevenLabs model"))
+                                        campaign_podcast_voice_status = readonly_input("Voice library status", "Loading ElevenLabs voices...")
+                                        campaign_widgets["podcast"]["host_voice"] = apply_field_props(ui.select({}, label="Host voice"))
+                                        campaign_widgets["podcast"]["guest_voice"] = apply_field_props(ui.select({}, label="Guest voice"))
+                                        campaign_widgets["podcast"]["guest_2_voice"] = apply_field_props(ui.select({}, label="Guest 2 / co-host voice"))
+                                        ui.label("Voice sample preview (click a voice above)").classes("mce-muted")
+                                        campaign_podcast_voice_preview = ui.audio("", controls=True).classes("mce-audio")
+
+                                        def preview_campaign_voice(voice_id) -> None:
+                                            url = voice_preview_url(voice_id or "", campaign_podcast_voices_state)
+                                            campaign_podcast_voice_preview.set_source(url or "")
+
+                                        campaign_widgets["podcast"]["host_voice"].on_value_change(lambda e: preview_campaign_voice(e.value))
+                                        campaign_widgets["podcast"]["guest_voice"].on_value_change(lambda e: preview_campaign_voice(e.value))
+                                        campaign_widgets["podcast"]["guest_2_voice"].on_value_change(lambda e: preview_campaign_voice(e.value))
+                                        ui.label("Stability").classes("mce-muted")
+                                        campaign_widgets["podcast"]["stability"] = ui.slider(min=0, max=1, value=0.5, step=0.05).props("label-always").classes("w-full")
+                                        ui.label("Similarity").classes("mce-muted")
+                                        campaign_widgets["podcast"]["similarity"] = ui.slider(min=0, max=1, value=0.75, step=0.05).props("label-always").classes("w-full")
+                                        ui.label("Style").classes("mce-muted")
+                                        campaign_widgets["podcast"]["style_slider"] = ui.slider(min=0, max=1, value=0.0, step=0.05).props("label-always").classes("w-full")
+                                        ui.label("Speed").classes("mce-muted")
+                                        campaign_widgets["podcast"]["speed"] = ui.slider(min=0.7, max=1.2, value=1.0, step=0.05).props("label-always").classes("w-full")
+                                        campaign_widgets["podcast"]["speaker_boost"] = ui.switch("Speaker boost", value=True)
                             campaign_cards["podcast"] = campaign_podcast_card
+
+                            campaign_podcast_voices_state: list[dict] = []
+
+                            async def load_campaign_podcast_voices() -> None:
+                                nonlocal campaign_podcast_voices_state
+                                try:
+                                    voices = await asyncio.to_thread(list_voices)
+                                except Exception as exc:
+                                    campaign_podcast_voice_status.value = f"Could not load voices: {exc}"
+                                    return
+                                campaign_podcast_voices_state = voices
+                                options = voice_options(voices)
+                                ids = list(options.keys())
+                                campaign_widgets["podcast"]["host_voice"].set_options(options, value=ids[0] if ids else None)
+                                campaign_widgets["podcast"]["guest_voice"].set_options(options, value=ids[1] if len(ids) > 1 else (ids[0] if ids else None))
+                                campaign_widgets["podcast"]["guest_2_voice"].set_options(options, value=ids[2] if len(ids) > 2 else (ids[0] if ids else None))
+                                preview_campaign_voice(campaign_widgets["podcast"]["host_voice"].value)
+                                campaign_podcast_voice_status.value = f"Loaded {len(voices)} ElevenLabs voice(s)."
+
+                            ui.timer(0.3, load_campaign_podcast_voices, once=True)
 
                             with ui.card().classes("mce-subcard") as campaign_instagram_card:
                                 subcard_heading("Instagram")
                                 campaign_widgets["instagram_caption"] = add_base_campaign_fields("instagram_caption")
                                 campaign_widgets["instagram_caption"]["formats"] = apply_field_props(ui.select(INSTAGRAM_FORMAT_OPTIONS, multiple=True, label="Instagram formats"), "outlined dense use-chips clearable")
+                                campaign_widgets["instagram_caption"]["hook"] = apply_field_props(ui.input(label="Hook / Opening line", placeholder="Optional opening line / tone"))
+                                campaign_widgets["instagram_caption"]["generate_images"] = apply_field_props(ui.select(INSTAGRAM_FORMAT_OPTIONS, multiple=True, label="Generate images for"), "outlined dense use-chips clearable")
+                                campaign_widgets["instagram_caption"]["image_content_type"] = apply_field_props(ui.select(["text / quote graphic", "character portrait", "abstract / mood graphic", "mixed"], value="text / quote graphic", label="Image content type"))
+                                campaign_widgets["instagram_caption"]["visual_style"] = apply_field_props(ui.select(QUOTE_IMAGE_STYLE_OPTIONS, value="Gothic", label="Visual style"))
+                                campaign_widgets["instagram_caption"]["base_image"] = base_image_picker()
                             campaign_cards["instagram_caption"] = campaign_instagram_card
 
                             with ui.card().classes("mce-subcard") as campaign_youtube_card:
                                 subcard_heading("YouTube")
                                 campaign_widgets["youtube_content"] = add_base_campaign_fields("youtube_content")
                                 campaign_widgets["youtube_content"]["formats"] = apply_field_props(ui.select(YOUTUBE_CONTENT_FORMAT_OPTIONS, multiple=True, label="YouTube deliverables"), "outlined dense use-chips clearable")
+                                campaign_widgets["youtube_content"]["generate_images"] = apply_field_props(ui.select(["YouTube Image Cover (16:9)", "YouTube Post (1:1)"], multiple=True, label="Generate images for"), "outlined dense use-chips clearable")
+                                campaign_widgets["youtube_content"]["image_content_type"] = apply_field_props(ui.select(["text / quote graphic", "character portrait", "abstract / mood graphic", "mixed"], value="text / quote graphic", label="Image content type"))
+                                campaign_widgets["youtube_content"]["visual_style"] = apply_field_props(ui.select(QUOTE_IMAGE_STYLE_OPTIONS, value="Gothic", label="Visual style"))
+                                campaign_widgets["youtube_content"]["base_image"] = base_image_picker()
                             campaign_cards["youtube_content"] = campaign_youtube_card
 
                             with ui.card().classes("mce-subcard") as campaign_linkedin_card:
                                 subcard_heading("LinkedIn")
                                 campaign_widgets["linkedin_content"] = add_base_campaign_fields("linkedin_content")
                                 campaign_widgets["linkedin_content"]["formats"] = apply_field_props(ui.select(LINKEDIN_CONTENT_FORMAT_OPTIONS, multiple=True, label="LinkedIn deliverables"), "outlined dense use-chips clearable")
+                                campaign_widgets["linkedin_content"]["generate_images"] = apply_field_props(ui.select(["LinkedIn Post Horizontal (1.91:1)", "LinkedIn Post Square (1:1)"], multiple=True, label="Generate images for"), "outlined dense use-chips clearable")
+                                campaign_widgets["linkedin_content"]["image_content_type"] = apply_field_props(ui.select(["text / quote graphic", "character portrait", "abstract / mood graphic", "mixed"], value="text / quote graphic", label="Image content type"))
+                                campaign_widgets["linkedin_content"]["visual_style"] = apply_field_props(ui.select(QUOTE_IMAGE_STYLE_OPTIONS, value="Press", label="Visual style"))
+                                campaign_widgets["linkedin_content"]["base_image"] = base_image_picker()
                             campaign_cards["linkedin_content"] = campaign_linkedin_card
 
                             with ui.card().classes("mce-subcard") as campaign_blog_card:
@@ -4197,6 +6652,10 @@ Return concise angle options with why each is newsworthy."""
                                 subcard_heading("Newsletter")
                                 campaign_widgets["newsletter_blurb"] = add_base_campaign_fields("newsletter_blurb")
                                 campaign_widgets["newsletter_blurb"]["structure"] = apply_field_props(ui.select(NEWSLETTER_STRUCTURE_OPTIONS, value=NEWSLETTER_STRUCTURE_OPTIONS[0], label="Newsletter structure"))
+                                campaign_widgets["newsletter_blurb"]["generate_images"] = apply_field_props(ui.select(["Link Preview (1.91:1)", "Square Post (1:1)"], multiple=True, label="Generate images for"), "outlined dense use-chips clearable")
+                                campaign_widgets["newsletter_blurb"]["image_content_type"] = apply_field_props(ui.select(["text / quote graphic", "character portrait", "abstract / mood graphic", "mixed"], value="text / quote graphic", label="Image content type"))
+                                campaign_widgets["newsletter_blurb"]["visual_style"] = apply_field_props(ui.select(QUOTE_IMAGE_STYLE_OPTIONS, value="Gothic", label="Visual style"))
+                                campaign_widgets["newsletter_blurb"]["base_image"] = base_image_picker()
                             campaign_cards["newsletter_blurb"] = campaign_newsletter_card
 
                             with ui.card().classes("mce-subcard") as campaign_quote_card:
@@ -4234,7 +6693,7 @@ Return concise angle options with why each is newsworthy."""
 
                             campaign_actions = ui.row().classes("mce-actions")
 
-                    with ui.card().classes("mce-card mce-sticky"):
+                    with ui.card().classes("mce-card mce-sticky") as campaign_results_card:
                         section_heading("Campaign Results", "Campaign outputs appear as a bundle with each selected asset separated for review.")
                         with ui.column().classes("mce-stack w-full"):
                             campaign_status = readonly_input("Campaign status", "Ready")
@@ -4242,10 +6701,28 @@ Return concise angle options with why each is newsworthy."""
                             campaign_progress.visible = False
                             campaign_progress_label = ui.label("Ready").classes("mce-muted")
                             campaign_preview = ui.html(build_campaign_preview_html([]), sanitize=False).classes("mce-preview")
-                            campaign_output = readonly_textarea("Generated campaign", "")
+                            ui.label("Assets by content type").classes("mce-section-title")
+                            campaign_sections = ui.column().classes("w-full mce-stack")
+                            campaign_output = ui.textarea(label="Generated campaign (combined, editable)", value="").props("outlined autogrow").classes("w-full mce-output-textarea")
                             campaign_path = readonly_input("Combined campaign path", "")
                             campaign_saved_draft_path = readonly_input("Saved campaign draft", "")
                             campaign_result_actions = ui.row().classes("mce-actions")
+
+                            # Podcast audio for campaign podcast assets (uses the campaign podcast voice settings).
+                            campaign_podcast_scripts: list = []
+                            with ui.card().classes("mce-subcard") as campaign_podcast_audio_card:
+                                subcard_heading("Podcast audio")
+                                ui.label("Render ElevenLabs audio from a generated campaign podcast script using the voice settings above.").classes("mce-muted")
+                                campaign_podcast_script_select = apply_field_props(ui.select({}, label="Podcast script to render"))
+                                campaign_podcast_audio_status = readonly_input("Audio status", "Generate a campaign with a Podcast asset first.")
+                                campaign_podcast_audio_progress = ui.linear_progress(value=0).classes("w-full")
+                                campaign_podcast_audio_progress.visible = False
+                                campaign_podcast_audio_progress_label = ui.label("Ready").classes("mce-muted")
+                                campaign_podcast_audio_player = ui.audio("", controls=True).classes("mce-audio")
+                                campaign_podcast_audio_path = readonly_input("Podcast MP3 path", "")
+                                campaign_podcast_audio_package_path = readonly_input("Audio package path", "")
+                                campaign_podcast_audio_actions = ui.row().classes("mce-actions")
+                            campaign_podcast_audio_card.set_visibility(False)
                             with ui.expansion("Structured campaign brief", icon="subject").classes("mce-expansion"):
                                 campaign_brief_output = readonly_textarea("Structured campaign brief used for comparison", "")
 
@@ -4272,13 +6749,55 @@ Return concise angle options with why each is newsworthy."""
 
                     apply_campaign_visibility(campaign_formats.value)
                     campaign_formats.on_value_change(lambda event: apply_campaign_visibility(event.value))
+                    campaign_results_card.set_visibility(False)
+
+                    # Posting cadence × campaign duration drives how many posts are generated
+                    # per content type. Auto-fill every quantity field when either changes; the
+                    # number field stays editable so the user can override it. Suppressed while a
+                    # saved draft is being restored so saved quantities aren't clobbered.
+                    campaign_qty_autofill = {"suppress": False}
+
+                    def recompute_campaign_quantities(*_args) -> None:
+                        if campaign_qty_autofill["suppress"]:
+                            return
+                        cadence = str(campaign_cadence.value or "").strip()
+                        duration = str(campaign_duration.value or "").strip()
+                        # Cadence and duration are optional. Only auto-calculate when BOTH are
+                        # set; otherwise leave the quantity fields untouched so they stay manual.
+                        if not cadence or not duration:
+                            return
+                        qty = campaign_post_quantity(cadence, duration)
+                        for _ct_fields in campaign_widgets.values():
+                            quantity_field = _ct_fields.get("quantity")
+                            if quantity_field is not None:
+                                quantity_field.value = qty
+
+                    campaign_cadence.on_value_change(recompute_campaign_quantities)
+                    campaign_duration.on_value_change(recompute_campaign_quantities)
+                    recompute_campaign_quantities()
 
                     async def generate_campaign() -> None:
+                        campaign_section.classes(remove="mce-grid-single")
+                        campaign_results_card.set_visibility(True)
                         campaign_progress.visible = True
                         campaign_status.value = "Generating campaign..."
+                        campaign_podcast_scripts.clear()
+                        # Snapshot every campaign field (raw values) so the draft can be
+                        # re-opened in this form later to reproduce or modify the campaign.
+                        campaign_field_snapshot = {
+                            "shared": {name: widget.value for name, widget in campaign_shared_fields.items()},
+                            "widgets": {
+                                ct: {f: w.value for f, w in fields.items()}
+                                for ct, fields in campaign_widgets.items()
+                            },
+                        }
                         try:
                             await generate_campaign_from_fields(
+                                campaign_form_fields=campaign_field_snapshot,
                                 campaign_topic=campaign_topic.value,
+                                campaign_name=campaign_name.value,
+                                campaign_start_date=campaign_start_date.value,
+                                campaign_cadence=campaign_cadence.value,
                                 campaign_book=campaign_book.value,
                                 campaign_tone=campaign_tone.value,
                                 campaign_objectives=campaign_objectives.value,
@@ -4290,14 +6809,66 @@ Return concise angle options with why each is newsworthy."""
                                 status=campaign_status,
                                 campaign_output=campaign_output,
                                 campaign_preview=campaign_preview,
+                                campaign_sections=campaign_sections,
                                 campaign_brief_output=campaign_brief_output,
                                 campaign_path=campaign_path,
                                 saved_draft_path=campaign_saved_draft_path,
                                 campaign_progress=campaign_progress,
                                 campaign_progress_label=campaign_progress_label,
+                                podcast_scripts_out=campaign_podcast_scripts,
                             )
+                            if campaign_podcast_scripts:
+                                options = {str(i): label for i, (label, _script) in enumerate(campaign_podcast_scripts)}
+                                campaign_podcast_script_select.set_options(options, value="0")
+                                campaign_podcast_audio_status.value = f"{len(campaign_podcast_scripts)} podcast script(s) ready to render."
+                                campaign_podcast_audio_card.set_visibility(True)
+                            else:
+                                campaign_podcast_audio_card.set_visibility(False)
                         finally:
                             pass
+
+                    async def campaign_generate_podcast_audio(preview: bool) -> None:
+                        if not campaign_podcast_scripts:
+                            campaign_podcast_audio_status.value = "Generate a campaign with a Podcast asset first."
+                            ui.notify(campaign_podcast_audio_status.value, type="warning")
+                            return
+                        try:
+                            idx = int(campaign_podcast_script_select.value or "0")
+                        except (TypeError, ValueError):
+                            idx = 0
+                        idx = max(0, min(idx, len(campaign_podcast_scripts) - 1))
+                        _label, script = campaign_podcast_scripts[idx]
+                        pod = campaign_widgets["podcast"]
+                        campaign_podcast_audio_progress.visible = True
+                        await render_podcast_audio_native(
+                            script=script,
+                            document_name=(str(campaign_name.value or "").strip() or "campaign_podcast"),
+                            voices=campaign_podcast_voices_state,
+                            host_voice=pod["host_voice"].value,
+                            guest_voice=pod["guest_voice"].value,
+                            guest_2_voice=pod["guest_2_voice"].value,
+                            model_id=pod["model"].value,
+                            stability=pod["stability"].value or 0.5,
+                            similarity_boost=pod["similarity"].value or 0.75,
+                            style=pod["style_slider"].value or 0.0,
+                            speed=pod["speed"].value or 1.0,
+                            speaker_boost=bool(pod["speaker_boost"].value),
+                            preview_only=preview,
+                            status=campaign_podcast_audio_status,
+                            audio_player=campaign_podcast_audio_player,
+                            full_audio_path=campaign_podcast_audio_path,
+                            package_path=campaign_podcast_audio_package_path,
+                            progress=campaign_podcast_audio_progress,
+                            progress_label=campaign_podcast_audio_progress_label,
+                        )
+
+                    with campaign_podcast_audio_actions:
+                        make_secondary_button("Generate Audio Preview", lambda: asyncio.create_task(campaign_generate_podcast_audio(True)))
+                        make_secondary_button("Generate Full Podcast", lambda: asyncio.create_task(campaign_generate_podcast_audio(False)))
+                        make_secondary_button(
+                            "Download MP3",
+                            lambda: ui.download(campaign_podcast_audio_path.value) if campaign_podcast_audio_path.value else ui.notify("Generate audio first.", type="warning"),
+                        )
 
                     async def run_campaign_comparison() -> None:
                         await generate_chatgpt_comparison(
@@ -4328,18 +6899,7 @@ Return concise angle options with why each is newsworthy."""
                         )
 
                     def download_campaign_bundle() -> None:
-                        if campaign_path.value and Path(str(campaign_path.value)).exists():
-                            ui.download(campaign_path.value)
-                            return
-                        if campaign_saved_draft_path.value and Path(str(campaign_saved_draft_path.value)).exists():
-                            ui.download(campaign_saved_draft_path.value)
-                            return
-                        if str(campaign_output.value or "").strip():
-                            saved_path = save_output(campaign_output.value, "campaign_mode", "download")
-                            campaign_path.value = str(saved_path)
-                            ui.download(str(saved_path))
-                            return
-                        ui.notify("Generate a campaign before downloading.", type="warning")
+                        download_docx(campaign_output.value, (str(campaign_name.value or "").strip() or "campaign_bundle"))
 
                     with campaign_actions:
                         make_primary_button("Generate Campaign", generate_campaign)
@@ -4360,8 +6920,9 @@ Return concise angle options with why each is newsworthy."""
                                 "outlined autogrow",
                             )
                             podcast_platform = apply_field_props(
-                                ui.select(PODCAST_DESTINATION_OPTIONS, value=PODCAST_DESTINATION_OPTIONS[0], label="Podcast destination"),
+                                ui.select(PODCAST_DESTINATION_OPTIONS, value=PODCAST_DESTINATION_OPTIONS[0], label="Target platform"),
                             )
+                            podcast_platform.tooltip("This influences tone and format, not actual upload.")
                             podcast_related_book = apply_field_props(
                                 ui.select(
                                     QUOTE_BOOK_OPTIONS,
@@ -4389,7 +6950,7 @@ Return concise angle options with why each is newsworthy."""
                                 subcard_heading("Format and metadata")
                                 podcast_format_native = apply_field_props(ui.select(PODCAST_FORMAT_OPTIONS, value=PODCAST_FORMAT_OPTIONS[0], label="Podcast format"))
                                 podcast_speakers_native = apply_field_props(ui.input(label="Podcast speaker count", placeholder="For example: 2"))
-                                podcast_roles_native = apply_field_props(ui.input(label="Speaker roles / names", placeholder="Host, Author, Critic"))
+                                podcast_roles_native = apply_field_props(ui.input(label="Speaker roles / names", placeholder="e.g. Host: Maya, Guest: Carlos"))
                                 podcast_tone_native = apply_field_props(ui.select(PODCAST_TONE_OPTIONS, multiple=True, label="Podcast tone"), "outlined dense use-chips clearable")
                                 podcast_length_native = apply_field_props(ui.select(PODCAST_LENGTH_OPTIONS, value=PODCAST_LENGTH_OPTIONS[0], label="Podcast target length"))
                                 podcast_show_title_native = apply_field_props(ui.input(label="Podcast show title", placeholder="Series or show name"))
@@ -4399,22 +6960,27 @@ Return concise angle options with why each is newsworthy."""
                             with ui.expansion("Advanced voice settings", icon="record_voice_over").classes("mce-expansion"):
                                 with ui.column().classes("mce-stack w-full"):
                                     podcast_model_native = apply_field_props(ui.select(ELEVENLABS_MODEL_OPTIONS, value=ELEVENLABS_MODEL_OPTIONS[0], label="ElevenLabs model"))
+                                    # Human-readable casting shown to the user; the raw ID string is kept
+                                    # (hidden) because the TTS backend needs the voice IDs (BUG-POD-06).
+                                    podcast_voice_casting_display = readonly_input("Voice casting", "Loading voices…")
                                     podcast_voice_ids_native = apply_field_props(
                                         ui.input(label="Resolved voice casting", placeholder="Host=voice_id, Guest=voice_id"),
                                     ).props("readonly outlined dense")
+                                    podcast_voice_ids_native.visible = False
                                     voice_load_status = readonly_input("Voice library status", "Loading ElevenLabs voices...")
                                     podcast_host_voice = apply_field_props(ui.select({}, label="Host voice"))
                                     podcast_guest_voice = apply_field_props(ui.select({}, label="Guest voice"))
                                     podcast_guest_2_voice = apply_field_props(ui.select({}, label="Guest 2 / co-host voice"))
+                                    ui.label("Voice sample preview (not your generated episode)").classes("mce-muted")
                                     selected_voice_preview = ui.audio("", controls=True).classes("mce-audio")
-                                    podcast_stability = ui.slider(min=0, max=1, value=0.5, step=0.05).props("label-always").classes("w-full")
                                     ui.label("Stability").classes("mce-muted")
-                                    podcast_similarity = ui.slider(min=0, max=1, value=0.75, step=0.05).props("label-always").classes("w-full")
+                                    podcast_stability = ui.slider(min=0, max=1, value=0.5, step=0.05).props("label-always").classes("w-full")
                                     ui.label("Similarity").classes("mce-muted")
-                                    podcast_style = ui.slider(min=0, max=1, value=0.0, step=0.05).props("label-always").classes("w-full")
+                                    podcast_similarity = ui.slider(min=0, max=1, value=0.75, step=0.05).props("label-always").classes("w-full")
                                     ui.label("Style").classes("mce-muted")
-                                    podcast_speed = ui.slider(min=0.7, max=1.2, value=1.0, step=0.05).props("label-always").classes("w-full")
+                                    podcast_style = ui.slider(min=0, max=1, value=0.0, step=0.05).props("label-always").classes("w-full")
                                     ui.label("Speed").classes("mce-muted")
+                                    podcast_speed = ui.slider(min=0.7, max=1.2, value=1.0, step=0.05).props("label-always").classes("w-full")
                                     podcast_speaker_boost = ui.switch("Speaker boost", value=True)
 
                             podcast_actions = ui.row().classes("mce-actions")
@@ -4427,6 +6993,15 @@ Return concise angle options with why each is newsworthy."""
                             podcast_draft_progress.visible = False
                             podcast_draft_progress_label = ui.label("Ready").classes("mce-muted")
                             podcast_generated_output = ui.textarea(label="Script editor", value="").props("outlined autogrow").classes("w-full mce-script-textarea")
+                            podcast_script_meta = ui.label("0 words · ~0.0 min").classes("mce-muted")
+
+                            def update_podcast_script_meta() -> None:
+                                words = len(str(podcast_generated_output.value or "").split())
+                                minutes = words / 150
+                                podcast_script_meta.set_text(f"{words} words · ~{minutes:.1f} min estimated runtime")
+
+                            podcast_generated_output.on_value_change(lambda _event: update_podcast_script_meta())
+                            update_podcast_script_meta()
                             podcast_result_actions = ui.row().classes("mce-actions")
                             podcast_audio_status = readonly_input("Audio status / errors", "Generate a preview or full podcast when the script is ready.")
                             podcast_audio_progress = ui.linear_progress(value=0).classes("w-full")
@@ -4451,6 +7026,16 @@ Return concise angle options with why each is newsworthy."""
                             podcast_host_voice.value,
                             podcast_guest_voice.value,
                             podcast_guest_2_voice.value,
+                        )
+                        names = voice_options(podcast_voices_state)
+
+                        def name_for(voice_id):
+                            return names.get(voice_id, "—") if voice_id else "—"
+
+                        podcast_voice_casting_display.value = (
+                            f"Host: {name_for(podcast_host_voice.value)}  ·  "
+                            f"Guest: {name_for(podcast_guest_voice.value)}  ·  "
+                            f"Guest 2: {name_for(podcast_guest_2_voice.value)}"
                         )
 
                     def update_voice_preview(voice_id: str | None) -> None:
@@ -4660,25 +7245,19 @@ Return concise angle options with why each is newsworthy."""
                             pass
 
                     def download_podcast_script() -> None:
-                        if podcast_draft_path.value and Path(str(podcast_draft_path.value)).exists():
-                            ui.download(podcast_draft_path.value)
-                            return
-                        if podcast_saved_draft_path.value and Path(str(podcast_saved_draft_path.value)).exists():
-                            ui.download(podcast_saved_draft_path.value)
-                            return
-                        if str(podcast_generated_output.value or "").strip():
-                            saved_path = save_output(podcast_generated_output.value, "podcast", "script_download")
-                            podcast_draft_path.value = str(saved_path)
-                            ui.download(str(saved_path))
-                            return
-                        ui.notify("Generate a podcast script before downloading.", type="warning")
+                        download_docx(
+                            podcast_generated_output.value,
+                            (str(podcast_episode_title_native.value or "").strip() or str(podcast_show_title_native.value or "").strip() or "podcast_script"),
+                        )
 
                     with podcast_actions:
-                        make_primary_button("Generate Podcast Draft", generate_podcast_content)
+                        make_primary_button("1. Generate Script", generate_podcast_content)
+                        ui.label("Writes the script into the editor → review/edit → then use the Audio buttons below.").classes("mce-muted")
                     with podcast_result_actions:
                         make_secondary_button("Retry / Regenerate Script", generate_podcast_content)
                         make_secondary_button("Download Script", download_podcast_script)
                     with podcast_audio_actions:
+                        ui.label("2. Render audio from the script above:").classes("mce-muted w-full")
                         make_secondary_button("Generate Audio Preview", generate_audio_preview)
                         make_secondary_button("Generate Full Podcast", generate_full_podcast_audio)
                         make_secondary_button("Retry Audio Preview", generate_audio_preview)
@@ -4716,6 +7295,46 @@ Return concise angle options with why each is newsworthy."""
                         return options
 
                     with ui.column().classes("mce-stack w-full"):
+                        with ui.row().classes("items-center justify-between w-full"):
+                            saved_search = apply_field_props(
+                                ui.input(placeholder="Search drafts by title or type...").props("clearable"),
+                            )
+                            saved_draft_count = ui.label("").classes("mce-muted")
+                        saved_draft_list = ui.column().classes("w-full mce-saved-list")
+
+                        def render_saved_draft_list() -> None:
+                            query = str(saved_search.value or "").strip().lower()
+                            records = list_saved_drafts(100)
+                            filtered = [
+                                r for r in records
+                                if not query
+                                or query in str(r.get("title") or "").lower()
+                                or query in str(r.get("content_type") or "").lower()
+                            ]
+                            saved_draft_count.set_text(f"{len(filtered)} of {len(records)} drafts")
+                            saved_draft_list.clear()
+                            with saved_draft_list:
+                                if not filtered:
+                                    ui.label("No matching drafts." if records else "No saved drafts yet.").classes("mce-muted")
+                                    return
+                                with ui.row().classes("mce-saved-row mce-saved-head"):
+                                    ui.label("Title").classes("mce-saved-col-title")
+                                    ui.label("Type").classes("mce-saved-col-type")
+                                    ui.label("Last saved").classes("mce-saved-col-date")
+                                for record in filtered:
+                                    rid = str(record.get("id") or "")
+                                    rtitle = record.get("title") or "Untitled draft"
+                                    rtype = content_type_label(record.get("content_type") or "content")
+                                    rwhen = str(record.get("updated_at") or record.get("created_at") or "").replace("T", " ")
+                                    row = ui.row().classes("mce-saved-row")
+                                    row.on("click", lambda _e, draft_id=rid: load_saved_draft(draft_id))
+                                    with row:
+                                        ui.label(rtitle).classes("mce-saved-col-title")
+                                        ui.label(rtype).classes("mce-saved-col-type")
+                                        ui.label(rwhen).classes("mce-saved-col-date")
+
+                        saved_search.on_value_change(lambda _e: render_saved_draft_list())
+
                         saved_draft_select = apply_field_props(
                             ui.select(saved_draft_options(), label="Open saved draft"),
                         )
@@ -4764,6 +7383,76 @@ Return concise angle options with why each is newsworthy."""
                         saved_editor_path.value = record.get("path") or ""
                         saved_editor_message.value = "Draft opened. Edits stay here when you save revisions."
 
+                    def open_draft_in_builder(draft_id: str | None = None) -> None:
+                        """Re-open a saved draft inside the Generator (or Campaign) form with
+                        its fields and content restored, so it can be regenerated or modified."""
+                        selected_value = draft_id or saved_editor_draft_id.value or saved_draft_select.value
+                        selected_id = saved_draft_lookup.get(str(selected_value), str(selected_value or ""))
+                        record = get_saved_draft(str(selected_id)) if selected_id else None
+                        if not record:
+                            saved_editor_message.value = "Open a saved draft first, then reopen it in the builder."
+                            ui.notify(saved_editor_message.value, type="warning")
+                            return
+                        metadata = record.get("metadata") or {}
+                        form_fields = metadata.get("form_fields") or {}
+                        content = read_saved_draft_content(str(selected_id))
+                        draft_type = record.get("content_type") or ""
+
+                        if draft_type == "campaign_mode":
+                            open_campaign()
+                            # Suppress cadence/duration auto-recompute so the draft's saved
+                            # per-type quantities are restored, not overwritten by the formula.
+                            campaign_qty_autofill["suppress"] = True
+                            try:
+                                shared = form_fields.get("shared") or {}
+                                for name, widget in campaign_shared_fields.items():
+                                    if name in shared:
+                                        try:
+                                            widget.value = shared[name]
+                                        except Exception:
+                                            pass
+                                # Fallbacks for drafts saved before form_fields was captured.
+                                if "campaign_name" not in shared and metadata.get("campaign_name"):
+                                    campaign_name.value = metadata.get("campaign_name")
+                                if "campaign_topic" not in shared and metadata.get("topic"):
+                                    campaign_topic.value = metadata.get("topic")
+                                if "campaign_formats" not in shared and metadata.get("formats"):
+                                    campaign_formats.value = metadata.get("formats")
+                                for ct, fields in (form_fields.get("widgets") or {}).items():
+                                    target = campaign_widgets.get(ct) or {}
+                                    for field_name, value in fields.items():
+                                        widget = target.get(field_name)
+                                        if widget is not None:
+                                            try:
+                                                widget.value = value
+                                            except Exception:
+                                                pass
+                            finally:
+                                campaign_qty_autofill["suppress"] = False
+                            apply_campaign_visibility(campaign_formats.value)
+                            campaign_output.value = content
+                            ui.notify("Campaign loaded into the builder — edit or regenerate.", type="positive")
+                            return
+
+                        open_generator(draft_type or None)
+                        for name, widget in generator_fields.items():
+                            if name in form_fields:
+                                try:
+                                    widget.value = form_fields[name]
+                                except Exception:
+                                    pass
+                        # Fallbacks for drafts saved before form_fields was captured.
+                        if "topic" not in form_fields:
+                            topic.value = str(metadata.get("topic") or metadata.get("query") or "")
+                        book_fallback = metadata.get("related_book")
+                        if "related_book" not in form_fields and book_fallback and book_fallback != "Not specified":
+                            try:
+                                related_book.value = book_fallback
+                            except Exception:
+                                pass
+                        generated_output.value = content
+                        ui.notify("Draft loaded into the generator — edit or regenerate.", type="positive")
+
                     def refresh_saved_drafts() -> None:
                         current_label = saved_draft_select.value
                         current_id = saved_editor_draft_id.value
@@ -4779,6 +7468,7 @@ Return concise angle options with why each is newsworthy."""
                             load_saved_draft(saved_draft_select.value)
                         else:
                             saved_editor_message.value = "No saved drafts found yet."
+                        render_saved_draft_list()
                         ui.notify("Saved drafts refreshed.", type="positive")
 
                     def save_saved_draft_revision() -> None:
@@ -4808,20 +7498,110 @@ Return concise angle options with why each is newsworthy."""
                         saved_draft_select.set_options(options, value=selected_label)
                         saved_editor_draft_id.value = updated.get("id") or ""
                         saved_editor_message.value = "Revision saved."
+                        render_saved_draft_list()
                         ui.notify("Draft revision saved.", type="positive")
 
                     def download_saved_draft() -> None:
-                        if saved_editor_path.value:
-                            ui.download(saved_editor_path.value)
+                        download_docx(
+                            saved_editor_content.value,
+                            (str(saved_editor_title.value or "").strip() or "saved_draft"),
+                        )
+
+                    def clear_saved_editor() -> None:
+                        for field in (
+                            saved_editor_title, saved_editor_type, saved_editor_updated,
+                            saved_editor_draft_id, saved_editor_topic, saved_editor_brief,
+                            saved_editor_content, saved_editor_path,
+                        ):
+                            field.value = ""
+                        saved_editor_message.value = "Select a draft to open it."
+
+                    def archive_current_draft() -> None:
+                        selected_id = saved_editor_draft_id.value or saved_draft_lookup.get(str(saved_draft_select.value), "")
+                        if not selected_id:
+                            ui.notify("Open a draft before archiving.", type="warning")
                             return
-                        ui.notify("Open a saved draft first.", type="warning")
+                        if archive_saved_draft(str(selected_id)):
+                            refresh_saved_drafts()
+                            ui.notify("Draft archived.", type="positive")
+                        else:
+                            ui.notify("That draft could not be archived.", type="warning")
+
+                    def delete_current_draft() -> None:
+                        selected_id = saved_editor_draft_id.value or saved_draft_lookup.get(str(saved_draft_select.value), "")
+                        if not selected_id:
+                            ui.notify("Open a draft before deleting.", type="warning")
+                            return
+                        with ui.dialog() as confirm_dialog, ui.card():
+                            ui.label("Delete this saved draft permanently?").classes("mce-section-title")
+                            ui.label(f"{saved_editor_title.value or selected_id}").classes("mce-muted")
+
+                            def do_delete() -> None:
+                                confirm_dialog.close()
+                                if delete_saved_draft(str(selected_id)):
+                                    clear_saved_editor()
+                                    refresh_saved_drafts()
+                                    ui.notify("Draft deleted.", type="positive")
+                                else:
+                                    ui.notify("That draft could not be deleted.", type="warning")
+
+                            with ui.row().classes("mce-actions"):
+                                make_secondary_button("Cancel", confirm_dialog.close)
+                                make_primary_button("Delete", do_delete)
+                        confirm_dialog.open()
 
                     saved_draft_select.on_value_change(lambda event: load_saved_draft(event.value))
 
                     with ui.row().classes("mce-actions"):
+                        make_primary_button("Open in builder", open_draft_in_builder)
                         make_primary_button("Save Revision", save_saved_draft_revision)
                         make_secondary_button("Refresh Saved Drafts", refresh_saved_drafts)
                         make_secondary_button("Download Draft", download_saved_draft)
+                        make_secondary_button("Archive", archive_current_draft)
+                        make_secondary_button("Delete", delete_current_draft)
+
+                    render_saved_draft_list()
+
+        # NTH-01: keyboard shortcuts (Cmd/Ctrl+1..5 tabs, Cmd/Ctrl+Enter generate, Cmd/Ctrl+S save).
+        ui.add_body_html(
+            """
+            <script>
+            document.addEventListener('keydown', (e) => {
+                const mod = e.metaKey || e.ctrlKey;
+                if (mod && (e.key === 's' || (e.key >= '1' && e.key <= '5'))) {
+                    e.preventDefault();
+                }
+            }, true);
+            </script>
+            """
+        )
+
+        def handle_shortcut(event) -> None:
+            if not event.action.keydown:
+                return
+            if not (event.modifiers.meta or event.modifiers.ctrl):
+                return
+            key_name = str(getattr(event.key, "name", "") or event.key)
+            tab_map = {
+                "1": dashboard_tab,
+                "2": generator_tab,
+                "3": saved_drafts_tab,
+                "4": campaign_tab,
+                "5": podcast_tab,
+            }
+            if key_name in tab_map:
+                tabs.value = tab_map[key_name]
+                refresh_dashboard()
+            elif key_name == "Enter":
+                current = str(tabs.value)
+                if current == "Campaign Mode":
+                    asyncio.create_task(generate_campaign())
+                elif current == "Generator":
+                    asyncio.create_task(generate_content())
+            elif key_name in ("s", "S"):
+                save_current_draft()
+
+        ui.keyboard(on_key=handle_shortcut)
 
 
 if __name__ in {"__main__", "__mp_main__"}:

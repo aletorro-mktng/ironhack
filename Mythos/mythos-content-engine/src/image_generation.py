@@ -30,14 +30,23 @@ def external_images_enabled() -> bool:
 
 
 def preferred_provider(use_case: str, content_kind: str = "") -> str:
-    """Choose the external image provider by real-world asset type."""
+    """Choose the external image provider by real-world asset type.
+
+    A global ``IMAGE_PROVIDER`` env var (``openai`` or ``ideogram``) overrides the
+    heuristic when set, so a deployment without an Ideogram key can force OpenAI.
+    """
+    override = os.getenv("IMAGE_PROVIDER", "").strip().lower()
+    if override in {"openai", "ideogram"}:
+        return override
     key = f"{use_case} {content_kind}".lower()
+    # Instagram / social posts now use OpenAI (gpt-image-1) so quote graphics are
+    # generated as fresh AI images rather than routed to Ideogram.
+    if "instagram post" in key or "social post" in key:
+        return "openai"
     if any(term in key for term in ["quote", "typography", "font", "type", "linkedin banner"]):
         return "ideogram"
     if "blog hero" in key:
         return "openai"
-    if "instagram post" in key or "social post" in key:
-        return "ideogram"
     if "book cover" in key:
         return "ideogram"
     if any(term in key for term in ["character", "portrait", "illustration"]):
@@ -186,12 +195,24 @@ def build_visual_prompt(
     attribution: str = "",
     format_label: str = "",
     provider: str = "",
+    render_text: bool = False,
 ) -> str:
-    typography_note = (
-        "Use strong, legible custom typography and preserve exact short quote text."
-        if provider == "ideogram"
-        else "Create a polished cinematic illustration; avoid adding misspelled text unless explicitly requested."
-    )
+    if render_text:
+        attribution_clause = (
+            f"Clearly include the attribution/speaker name '{attribution}' beneath or beside the quote."
+            if attribution
+            else "Include a tasteful attribution line if a speaker is named in the text."
+        )
+        typography_note = (
+            "Render the exact short quote text as legible, well-kerned custom typography integrated into the design. "
+            + attribution_clause
+        )
+    else:
+        typography_note = (
+            "Use strong, legible custom typography and preserve exact short quote text."
+            if provider == "ideogram"
+            else "Create a polished cinematic illustration; avoid adding misspelled text unless explicitly requested."
+        )
     return "\n".join(
         part
         for part in [
@@ -220,11 +241,17 @@ def generate_external_visual(
     output_dir: Path,
     file_stem: str,
     content_kind: str = "",
+    render_text: Optional[bool] = None,
 ) -> dict:
     if not external_images_enabled():
         return {"error": "External image APIs are disabled."}
     provider = preferred_provider(use_case, content_kind)
     aspect_ratio = aspect_ratio_for_format(format_label)
+    key = f"{use_case} {content_kind}".lower()
+    if render_text is None:
+        render_text = any(term in key for term in ["quote", "typography", "social post", "instagram"]) and not any(
+            term in key for term in ["portrait", "abstract", "mood"]
+        )
     prompt = build_visual_prompt(
         use_case=use_case,
         content=content,
@@ -233,6 +260,7 @@ def generate_external_visual(
         attribution=attribution,
         format_label=format_label,
         provider=provider,
+        render_text=render_text,
     )
     output_path = output_dir / f"{slugify_filename(file_stem)}_{provider}_{slugify_filename(format_label, 'image')}.png"
     try:

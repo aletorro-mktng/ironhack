@@ -151,6 +151,37 @@ def update_saved_draft(
     )
 
 
+def delete_saved_draft(draft_id: str) -> bool:
+    """Remove a draft from the index and delete its file. Returns True if removed."""
+    records = _read_index()
+    remaining = [item for item in records if item.get("id") != draft_id]
+    if len(remaining) == len(records):
+        return False
+    for record in records:
+        if record.get("id") == draft_id:
+            path_text = str(record.get("path") or "").strip()
+            if path_text:
+                try:
+                    Path(path_text).unlink(missing_ok=True)
+                except OSError:
+                    pass
+    _write_index(remaining)
+    return True
+
+
+def archive_saved_draft(draft_id: str) -> dict[str, Any] | None:
+    """Mark a draft as Archived without deleting its file."""
+    records = _read_index()
+    for index, record in enumerate(records):
+        if record.get("id") == draft_id:
+            record["status"] = "Archived"
+            record["updated_at"] = datetime.now().isoformat(timespec="seconds")
+            records[index] = record
+            _write_index(records)
+            return record
+    return None
+
+
 def render_saved_drafts_markdown(limit: int = 12) -> str:
     records = list_saved_drafts(limit)
     if not records:

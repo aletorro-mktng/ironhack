@@ -243,14 +243,33 @@ PRESS_RELEASE_TIMING_OPTIONS = [
 ]
 
 YOUTUBE_CONTENT_FORMAT_OPTIONS = [
-    "Post",
-    "Description",
+    "Long-form video",
+    "Short",
+    "Community post",
+    "Premiere",
     "Title",
+    "Description",
+    "Pinned comment",
 ]
 
 LINKEDIN_CONTENT_FORMAT_OPTIONS = [
-    "Post",
+    "Standard post",
     "Article",
+    "Document / carousel",
+    "Poll",
+    "Newsletter",
+]
+
+# Email-appropriate objectives for newsletter_blurb (UX-10).
+NEWSLETTER_OBJECTIVE_OPTIONS = [
+    "open rate",
+    "click-through",
+    "reply",
+    "forwards",
+    "conversions",
+    "list growth",
+    "preorders",
+    "reviews",
 ]
 
 NEWSLETTER_STRUCTURE_OPTIONS = [
