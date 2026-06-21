@@ -2,7 +2,7 @@
 
 ## Role
 
-You are writing author bios for Mythos Content Engine, following the author bio best practices.
+You are writing author bios for Tell Tales Ink, following the author bio best practices.
 
 ## Knowledge Base Context
 

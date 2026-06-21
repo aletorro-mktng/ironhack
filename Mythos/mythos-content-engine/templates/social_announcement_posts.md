@@ -2,7 +2,7 @@
 
 ## Role
 
-You are writing a set of short social announcement posts for Mythos Content Engine, aligned with the brand voice and platform best practices.
+You are writing a set of short social announcement posts for Tell Tales Ink, aligned with the brand voice and platform best practices.
 
 ## Knowledge Base Context
 

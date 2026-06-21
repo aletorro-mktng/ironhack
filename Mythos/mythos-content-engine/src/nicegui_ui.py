@@ -1,4 +1,4 @@
-"""NiceGUI user interface for Mythos Content Engine."""
+"""NiceGUI user interface for Tell Tales Ink."""
 
 from __future__ import annotations
 
@@ -23,6 +23,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 os.chdir(PROJECT_ROOT)
 
+import chapter_reader
 from content_pipeline import create_generation_prompt, run_pipeline, save_output
 from context_filter import select_relevant_context
 from draft_store import (
@@ -70,7 +71,7 @@ from selection_options import (
 )
 
 
-APP_TITLE = "Mythos Content Engine"
+APP_TITLE = "Tell Tales Ink"
 DASHBOARD_ASSET_DIR = PROJECT_ROOT / "assets" / "dashboard"
 PRESS_PROFILE_PATH = PROJECT_ROOT / "outputs" / "press_profiles.json"
 PRESS_RELEASE_DESTINATION = "PR Distribution Services"
@@ -114,7 +115,7 @@ PRESS_RELEASE_COMPANION_ASSETS = [
     "Social announcement posts",
 ]
 
-# All publishing deliverables Mythos can produce (display labels).
+# All publishing deliverables Tell Tales Ink can produce (display labels).
 PUBLISHING_ASSET_TYPES = [
     "Press release",
     "Media kit",
@@ -384,6 +385,41 @@ def campaign_visual_theme_for_post(base_style: str, asset_number: int) -> str:
     base = base_style if base_style in themes else "Gothic"
     start = themes.index(base) if base in themes else 0
     return themes[(start + max(1, int(asset_number)) - 1) % len(themes)]
+
+
+# Platforms offered by the Chapter Promos tab -> the generation content type used.
+CHAPTER_PROMO_PLATFORMS = {
+    "Instagram": "instagram_caption",
+    "Blog": "blog_post",
+    "LinkedIn": "linkedin_content",
+    "YouTube": "youtube_content",
+}
+
+# Performance cues / emotional tags inserted into a podcast script. These survive the
+# pre-TTS strip (see NATURAL_DELIVERY_TAGS) so ElevenLabs (v3) can act on them.
+PODCAST_PERFORMANCE_CUES = [
+    "[laughs]", "[chuckles]", "[sighs]", "[exhales]", "[gasps]", "[groans]", "[scoffs]",
+    "[whispers]", "[softly]", "[quietly]", "[lowers voice]", "[under breath]",
+    "[excited]", "[enthusiastic]", "[nervous]", "[anxious]", "[somber]", "[serious]",
+    "[sarcastic]", "[dryly]", "[mocking]", "[playful]", "[warmly]", "[thoughtful]",
+    "[hesitant]", "[cautious]", "[tired]", "[clears throat]", "[deep breath]",
+    "[emphatic]", "[trailing off]", "[beat]", "[short pause]", "[long pause]",
+]
+
+# Stock transitions, sound effects and music cues. These are producer notes — stripped
+# before TTS (they are not spoken) but kept in the script for the human editor.
+PODCAST_SOUND_EFFECTS = [
+    "[TRANSITION: hard cut]", "[TRANSITION: crossfade]", "[TRANSITION: whoosh]",
+    "[TRANSITION: riser]", "[TRANSITION: stinger]", "[TRANSITION: glitch]",
+    "[TRANSITION: time jump]", "[TRANSITION: scene change]",
+    "[SFX: heartbeat]", "[SFX: footsteps]", "[SFX: door creak]", "[SFX: phone buzz]",
+    "[SFX: camera shutter]", "[SFX: thunder]", "[SFX: rain]", "[SFX: wind howl]",
+    "[SFX: clock ticking]", "[SFX: paper rustle]", "[SFX: glass shatter]",
+    "[SFX: distant scream]", "[SFX: vinyl crackle]", "[SFX: static burst]", "[SFX: tense drone]",
+    "[INTRO MUSIC: low cinematic strings, fade under host]",
+    "[OUTRO MUSIC: warm resolving theme, 12s]",
+    "[MUSIC BED: tense underscore]", "[STINGER: dramatic hit]",
+]
 INSTAGRAM_VISUAL_FORMAT_OPTIONS = [
     "Instagram Post (4:5)",
     "Instagram Reel (9:16)",
@@ -485,6 +521,13 @@ def markdown_to_html(value) -> str:
     out = re.sub(r"(?<!\*)\*(?!\*)(.+?)\*(?!\*)", r"<em>\1</em>", out)
     out = re.sub(r"(?<!_)_(?!_)(.+?)_(?!_)", r"<em>\1</em>", out)
     out = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r'<a href="\2">\1</a>', out)
+    # Thematic break: a standalone line of --- / *** / ___ becomes a divider (not literal text).
+    out = re.sub(
+        r"^\s{0,3}(?:-{3,}|\*{3,}|_{3,})\s*$",
+        '<hr style="border:none;border-top:1px solid rgba(0,0,0,.14);margin:10px 0;">',
+        out,
+        flags=re.MULTILINE,
+    )
     out = re.sub(r"^\s{0,3}#{1,6}\s*(.+)$", r"<strong>\1</strong>", out, flags=re.MULTILINE)
     out = re.sub(r"^\s{0,3}[-*+]\s+(.+)$", r"• \1", out, flags=re.MULTILINE)
     return out
@@ -547,7 +590,7 @@ def generate_press_release_assets(
     errors: list[str] = []
     rendered: list[dict[str, str]] = []
     for asset in assets:
-        prompt = f"""Create this press-release support asset for Mythos Content Engine.
+        prompt = f"""Create this press-release support asset for Tell Tales Ink.
 
 Asset: {asset}
 Topic: {topic}
@@ -632,13 +675,13 @@ IMAGE-AWARE OUTPUT REQUIREMENTS:
 
 
 def build_chatgpt_baseline_prompt(content_type: str, structured_brief: str) -> str:
-    """Build a fair baseline prompt without Mythos knowledge-base context."""
+    """Build a fair baseline prompt without Tell Tales Ink knowledge-base context."""
     return f"""You are ChatGPT responding in a fresh, general-purpose chat.
 
 Create the requested {content_type} using only the user's topic and selections below.
 
 Important comparison rules:
-- Do not use the Mythos Content Engine knowledge bases, brand playbooks, templates, quote libraries, or hidden project context.
+- Do not use the Tell Tales Ink knowledge bases, brand playbooks, templates, quote libraries, or hidden project context.
 - Do not mention this is a comparison.
 - Match the requested content type, selected formats, quantity, style, platform, audience, constraints, and CTA as closely as possible.
 - If the brief asks for verifiable quotes, reviews, awards, or manuscript details but does not provide exact evidence, avoid inventing them.
@@ -650,21 +693,21 @@ User topic and selections:
 
 
 def comparison_side_by_side_html(mythos_content: str = "", chatgpt_content: str = "", model: str = "") -> str:
-    """Render Mythos and ChatGPT outputs side by side for human judging."""
+    """Render Tell Tales Ink and ChatGPT outputs side by side for human judging."""
     if not mythos_content and not chatgpt_content:
         return """
         <div style="border:1px dashed rgba(17,17,20,.18);border-radius:20px;padding:18px;color:#6b6b6b;background:#fff;">
-            Generate a Mythos draft first, then create the ChatGPT baseline here.
+            Generate a Tell Tales Ink draft first, then create the ChatGPT baseline here.
         </div>
         """
 
-    safe_mythos = escape(mythos_content or "No Mythos draft generated yet.")
+    safe_mythos = escape(mythos_content or "No Tell Tales Ink draft generated yet.")
     safe_chatgpt = escape(chatgpt_content or "No ChatGPT baseline generated yet.")
     safe_model = escape(model or "Selected ChatGPT model")
     return f"""
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">
         <article style="border:1px solid rgba(142,31,47,.18);border-radius:18px;background:#fff;padding:14px;">
-            <div style="font-weight:800;color:#8E1F2F;margin-bottom:4px;">Mythos</div>
+            <div style="font-weight:800;color:#8E1F2F;margin-bottom:4px;">Tell Tales Ink</div>
             <div style="font-size:12px;color:#6b6b6b;margin-bottom:10px;">Knowledge base + templates + brand workflow</div>
             <pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.5;margin:0;">{safe_mythos}</pre>
         </article>
@@ -689,13 +732,13 @@ async def generate_chatgpt_comparison(
     chatgpt_prompt_path,
     chatgpt_draft_path,
 ) -> None:
-    """Generate and display a fresh ChatGPT baseline next to Mythos."""
+    """Generate and display a fresh ChatGPT baseline next to Tell Tales Ink."""
     if not mythos_content or not mythos_content.strip():
-        comparison_status.value = "Generate a Mythos draft first."
+        comparison_status.value = "Generate a Tell Tales Ink draft first."
         ui.notify(comparison_status.value, type="warning")
         return
     if not structured_brief or not structured_brief.strip():
-        comparison_status.value = "No structured brief captured yet. Generate a Mythos draft first."
+        comparison_status.value = "No structured brief captured yet. Generate a Tell Tales Ink draft first."
         ui.notify(comparison_status.value, type="warning")
         return
 
@@ -717,7 +760,7 @@ async def generate_chatgpt_comparison(
     chatgpt_draft_path.value = str(saved_draft)
     comparison_view.content = comparison_side_by_side_html(mythos_content, baseline, selected_model)
     comparison_status.value = "Comparison ready. Pick the stronger result below."
-    ui.notify("Mythos vs ChatGPT comparison ready.", type="positive")
+    ui.notify("Tell Tales Ink vs ChatGPT comparison ready.", type="positive")
 
 
 def save_comparison_preference(
@@ -736,11 +779,11 @@ def save_comparison_preference(
 ) -> None:
     """Save the human judge's comparison decision."""
     if not preference:
-        comparison_save_status.value = "Choose Mythos, ChatGPT, or Tie before saving."
+        comparison_save_status.value = "Choose Tell Tales Ink, ChatGPT, or Tie before saving."
         ui.notify(comparison_save_status.value, type="warning")
         return
 
-    report = f"""# Mythos vs ChatGPT Human Preference
+    report = f"""# Tell Tales Ink vs ChatGPT Human Preference
 
 - Content type: {content_type or "Not specified"}
 - Preference: {preference}
@@ -758,9 +801,9 @@ def save_comparison_preference(
 {structured_brief or "No structured brief captured."}
 ```
 
-## Mythos Output
+## Tell Tales Ink Output
 
-{mythos_content or "_No Mythos output captured._"}
+{mythos_content or "_No Tell Tales Ink output captured._"}
 
 ## ChatGPT Output
 
@@ -1002,7 +1045,7 @@ def build_brief(
 
 
 def run_pipeline_with_image(content_type: str, topic: str, image_path: str | Path) -> dict:
-    """Run the Mythos pipeline with markdown context plus an uploaded image."""
+    """Run the Tell Tales Ink pipeline with markdown context plus an uploaded image."""
 
     filtered_context = select_relevant_context(
         content_type=content_type,
@@ -1261,6 +1304,29 @@ async def generate_campaign_from_fields(
     asset_total = sum(max(1, int(float(campaign_widgets[content_type]["quantity"].value or 1))) for content_type in selected)
     completed_assets = 0
     started_at = datetime.now()
+    # Posting calendar basis. Cadence is optional; when set, each content type's posts are
+    # spaced at the cadence interval from the (optional) start date, so all types share the
+    # same campaign window and every post lands on a specific calendar date.
+    cadence_days = {"daily": 1, "every 2 days": 2, "twice a week": 3, "weekly": 7}.get(
+        str(campaign_cadence or "").strip().lower()
+    )
+    start = None
+    start_text = str(campaign_start_date or "").strip()
+    if start_text:
+        try:
+            start = datetime.strptime(start_text, "%Y-%m-%d")
+        except ValueError:
+            start = None
+
+    def post_schedule(post_index: int):
+        """(sort_key, date_label) for the post_index-th post of a content type, or None."""
+        if not cadence_days:
+            return None
+        offset = (max(1, int(post_index)) - 1) * cadence_days
+        if start:
+            day = start + timedelta(days=offset)
+            return (day, day.strftime("%a %b %d, %Y"))
+        return (offset, f"Day {1 + offset}")
 
     try:
         for content_type in selected:
@@ -1321,7 +1387,7 @@ async def generate_campaign_from_fields(
                     podcast_format=campaign_widgets["podcast"].get("format").value,
                     podcast_length=campaign_widgets["podcast"].get("length").value,
                     podcast_tone=campaign_widgets["podcast"].get("tone").value,
-                    podcast_speakers=(campaign_widgets["podcast"].get("speakers").value if campaign_widgets["podcast"].get("speakers") else ""),
+                    podcast_speakers=(str(int(campaign_widgets["podcast"]["speakers"].value)) if (campaign_widgets["podcast"].get("speakers") and campaign_widgets["podcast"]["speakers"].value) else ""),
                     podcast_roles=(campaign_widgets["podcast"].get("roles").value if campaign_widgets["podcast"].get("roles") else ""),
                     quote_book=campaign_widgets["quote_post"].get("book").value,
                     quote_moods=campaign_widgets["quote_post"].get("moods").value,
@@ -1341,6 +1407,9 @@ async def generate_campaign_from_fields(
                 all_briefs.append(brief)
                 result = await asyncio.to_thread(run_pipeline, content_type=content_type, topic=brief)
                 heading = f"## {label} {index}" if count > 1 else f"## {label}"
+                post_slot = post_schedule(index)
+                if post_slot is not None:
+                    heading = f"{heading} — 🗓 {post_slot[1]}"
                 generated_content = result["generated_content"]
                 results.append(f"{heading}\n\n{generated_content}")
                 if content_type == "podcast" and podcast_scripts_out is not None:
@@ -1415,6 +1484,10 @@ async def generate_campaign_from_fields(
                         "content_type": content_type,
                         "label": label,
                         "asset_label": f"Asset {index} of {count}",
+                        "asset_index": index,
+                        "asset_count": count,
+                        "post_date": post_slot[1] if post_slot else "",
+                        "post_sort": post_slot[0] if post_slot else None,
                         "style": widgets["style"].value,
                         "content": generated_content,
                         "preview_fields": preview_fields,
@@ -1455,24 +1528,32 @@ async def generate_campaign_from_fields(
         )
     # Campaign title + posting schedule (BUG-CM-03/04).
     campaign_title = str(campaign_name or "").strip() or str(campaign_topic).strip()[:60] or "Campaign"
-    cadence_days = {"daily": 1, "every 2 days": 2, "twice a week": 3, "weekly": 7}.get(
-        str(campaign_cadence or "").strip().lower(), 2
-    )
-    start = None
-    start_text = str(campaign_start_date or "").strip()
-    if start_text:
-        try:
-            start = datetime.strptime(start_text, "%Y-%m-%d")
-        except ValueError:
-            start = None
-    schedule_lines = ["## Posting Schedule", ""]
-    for i, record in enumerate(asset_records):
-        slot = f"{content_type_label(str(record.get('content_type') or 'content'))} {record.get('asset_label') or ''}".strip()
-        when = (start + timedelta(days=i * cadence_days)).strftime("%a %b %d, %Y") if start else f"Day {1 + i * cadence_days}"
-        schedule_lines.append(f"- **{when}** — {slot}")
-    schedule_block = "\n".join(schedule_lines)
+    # Posting calendar grouped by date (only when a cadence was set). Each post already
+    # carries its scheduled date, so we group them to show exactly what publishes when.
+    scheduled = [
+        (
+            record.get("post_sort"),
+            str(record.get("post_date")),
+            content_type_label(str(record.get("content_type") or "content"))
+            + (f" {record.get('asset_label')}" if int(record.get("asset_count") or 1) > 1 else ""),
+        )
+        for record in asset_records
+        if record.get("post_date")
+    ]
+    if scheduled:
+        scheduled.sort(key=lambda item: item[0])
+        schedule_lines = ["## Posting Calendar", ""]
+        current_date = None
+        for _sort_key, date_label, slot in scheduled:
+            if date_label != current_date:
+                schedule_lines.append(f"\n**{date_label}**")
+                current_date = date_label
+            schedule_lines.append(f"- {slot.strip()}")
+        schedule_block = "\n".join(schedule_lines) + "\n\n---\n\n"
+    else:
+        schedule_block = ""
 
-    combined = f"# {campaign_title}\n\n{schedule_block}\n\n---\n\n" + "\n\n---\n\n".join(results)
+    combined = f"# {campaign_title}\n\n{schedule_block}" + "\n\n---\n\n".join(results)
     saved_path = save_output(combined, "campaign_mode", slugify_filename(campaign_title, "bundle"))
     draft_record = save_draft(
         title=campaign_title[:90],
@@ -1500,66 +1581,80 @@ async def generate_campaign_from_fields(
         with campaign_sections:
             if not asset_records:
                 ui.label("No assets generated.").classes("mce-muted")
+            # Group assets by content type — one accordion section per type (first open),
+            # each showing its posts with real text, real generated images, and download.
+            grouped_records: dict[str, list] = {}
             for record in asset_records:
-                rec_ct = str(record.get("content_type") or "content")
-                rec_content = str(record.get("content") or "")
-                rec_label = str(record.get("asset_label") or "").strip()
-                heading = f"{content_type_label(rec_ct)} · {rec_label}".strip(" ·")
-                rec_title = f"{content_type_label(rec_ct)} {rec_label}".strip()
-                rec_widgets = record.get("widgets") if isinstance(record.get("widgets"), dict) else {}
-                with ui.expansion(heading, icon="article").classes("mce-expansion"):
-                    ui.markdown(rec_content).classes("w-full mce-rendered-output")
-                    asset_image_row = ui.row().classes("w-full mce-gallery")
+                grouped_records.setdefault(str(record.get("content_type") or "content"), []).append(record)
+            for group_index, (rec_ct, type_records) in enumerate(grouped_records.items()):
+                type_label = content_type_label(rec_ct)
+                with ui.expansion(f"{type_label}  ({len(type_records)})", icon="folder_open", value=(group_index == 0)).classes("mce-expansion"):
+                    for record in type_records:
+                        rec_content = str(record.get("content") or "")
+                        rec_label = str(record.get("asset_label") or "").strip()
+                        post_date = str(record.get("post_date") or "")
+                        rec_widgets = record.get("widgets") if isinstance(record.get("widgets"), dict) else {}
+                        rec_title = f"{type_label} {rec_label}".strip()
+                        quote_graphic = record.get("quote_graphic") if isinstance(record.get("quote_graphic"), dict) else {}
+                        asset_images = [str(p) for p in (record.get("image_paths") or []) if str(p or "").strip()]
+                        asset_images += [str(p) for p in (quote_graphic.get("paths") or []) if str(p or "").strip()]
+                        with ui.card().classes("mce-subcard w-full"):
+                            head_text = rec_title + (f"   ·   🗓 {post_date}" if post_date else "")
+                            ui.label(head_text).classes("mce-section-title")
+                            ui.markdown(rec_content).classes("w-full mce-rendered-output")
+                            asset_image_row = ui.row().classes("w-full mce-gallery")
 
-                    def render_asset_images(row=asset_image_row, paths=(record.get("image_paths") or [])) -> None:
-                        row.clear()
-                        with row:
-                            for image_path in [str(p) for p in paths if str(p or "").strip()][:8]:
-                                ui.image(image_path).classes("mce-gallery-thumb")
+                            def render_asset_images(row=asset_image_row, paths=tuple(asset_images)) -> None:
+                                row.clear()
+                                with row:
+                                    for image_path in [p for p in paths if p][:8]:
+                                        ui.image(image_path).classes("mce-gallery-thumb")
 
-                    render_asset_images()
+                            render_asset_images()
+                            if not asset_images:
+                                ui.label("No images generated for this asset.").classes("mce-muted")
 
-                    async def regenerate_asset_images(content=rec_content, ct=rec_ct, wgts=rec_widgets, row=asset_image_row) -> None:
-                        gi = wgts.get("generate_images")
-                        selected = [f for f in (gi.value or []) if f] if gi else []
-                        if not selected:
-                            ui.notify("Pick at least one image format on the content card first.", type="warning")
-                            return
-                        labels = instagram_visual_formats_for_post(selected, None, 5) if ct == "instagram_caption" else selected
-                        pkg = await asyncio.to_thread(
-                            render_generated_visual_package,
-                            content_type=ct,
-                            content=content,
-                            topic=str(campaign_topic or "campaign"),
-                            format_labels=labels,
-                            theme_name=(wgts.get("visual_style").value if wgts.get("visual_style") else "Gothic") or "Gothic",
-                            image_content_type=wgts.get("image_content_type").value if wgts.get("image_content_type") else "",
-                            base_image_path=(wgts.get("base_image").value if wgts.get("base_image") else "") or "",
-                        )
-                        paths = [str(p) for p in pkg.get("paths", [])] if isinstance(pkg, dict) else []
-                        if paths:
-                            render_asset_images(row=row, paths=paths)
-                            ui.notify(f"Regenerated {len(paths)} image(s).", type="positive")
-                        else:
-                            ui.notify((pkg.get("error") if isinstance(pkg, dict) else "") or "No images generated.", type="warning")
+                            async def regenerate_asset_images(content=rec_content, ct=rec_ct, wgts=rec_widgets, row=asset_image_row) -> None:
+                                gi = wgts.get("generate_images")
+                                selected = [f for f in (gi.value or []) if f] if gi else []
+                                if not selected:
+                                    ui.notify("Pick at least one image format on the content card first.", type="warning")
+                                    return
+                                labels = instagram_visual_formats_for_post(selected, None, 5) if ct == "instagram_caption" else selected
+                                pkg = await asyncio.to_thread(
+                                    render_generated_visual_package,
+                                    content_type=ct,
+                                    content=content,
+                                    topic=str(campaign_topic or "campaign"),
+                                    format_labels=labels,
+                                    theme_name=(wgts.get("visual_style").value if wgts.get("visual_style") else "Gothic") or "Gothic",
+                                    image_content_type=wgts.get("image_content_type").value if wgts.get("image_content_type") else "",
+                                    base_image_path=(wgts.get("base_image").value if wgts.get("base_image") else "") or "",
+                                )
+                                paths = [str(p) for p in pkg.get("paths", [])] if isinstance(pkg, dict) else []
+                                if paths:
+                                    render_asset_images(row=row, paths=tuple(paths))
+                                    ui.notify(f"Regenerated {len(paths)} image(s).", type="positive")
+                                else:
+                                    ui.notify((pkg.get("error") if isinstance(pkg, dict) else "") or "No images generated.", type="warning")
 
-                    with ui.row().classes("mce-actions"):
-                        make_secondary_button(
-                            "Download",
-                            lambda c=rec_content, t=rec_title: download_docx(c, t or "campaign_asset"),
-                        )
-                        make_secondary_button(
-                            "Save to Drafts",
-                            lambda c=rec_content, ct=rec_ct, t=rec_title: (
-                                save_draft(title=(t[:90] or ct), content_type=ct, content=c),
-                                ui.notify("Saved to drafts.", type="positive"),
-                            ),
-                        )
-                        if rec_ct in {"instagram_caption", "linkedin_content", "youtube_content", "newsletter_blurb"}:
-                            make_secondary_button(
-                                "Regenerate images",
-                                lambda fn=regenerate_asset_images: asyncio.create_task(fn()),
-                            )
+                            with ui.row().classes("mce-actions"):
+                                make_secondary_button(
+                                    "Download",
+                                    lambda c=rec_content, t=rec_title: download_docx(c, t or "campaign_asset"),
+                                )
+                                make_secondary_button(
+                                    "Save to Drafts",
+                                    lambda c=rec_content, ct=rec_ct, t=rec_title: (
+                                        save_draft(title=(t[:90] or ct), content_type=ct, content=c),
+                                        ui.notify("Saved to drafts.", type="positive"),
+                                    ),
+                                )
+                                if rec_ct in {"instagram_caption", "linkedin_content", "youtube_content", "newsletter_blurb"}:
+                                    make_secondary_button(
+                                        "Regenerate images",
+                                        lambda fn=regenerate_asset_images: fn(),
+                                    )
     campaign_brief_output.value = "\n\n---\n\n".join(all_briefs)
     campaign_path.value = str(saved_path)
     if saved_draft_path is not None:
@@ -2250,8 +2345,9 @@ def build_instagram_format_card(fmt: str, block: dict, image_path: str = "", for
         cta = normalize_selected(block.get("cta"))
         overlay_html = (
             '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;">'
-            f'<div style="font-family:Georgia,serif;font-weight:900;font-size:24px;line-height:1.1;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.6);">{escape(overlay) if overlay != "Not specified" else "Overlay text on image"}</div>'
+            f'<div style="font-family:Georgia,serif;font-weight:900;font-size:24px;line-height:1.1;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.6);">{escape(overlay)}</div>'
             '</div>'
+            if overlay != "Not specified" else ""
         )
         cta_html = (
             f'<div style="position:absolute;left:0;right:0;bottom:14px;text-align:center;color:#fff;font-size:12px;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,.6);">{escape(cta)}</div>'
@@ -2262,7 +2358,8 @@ def build_instagram_format_card(fmt: str, block: dict, image_path: str = "", for
 
     if key == "carousel":
         slides = block.get("slides") or []
-        caption = markdown_to_html(block.get("caption")) if block.get("caption") else "Generate to see the carousel caption."
+        raw_caption = str(block.get("caption") or (slides[0] if slides else "")).strip()
+        caption = markdown_to_html(raw_caption) if raw_caption else ""
         hashtags = escape(normalize_selected(block.get("hashtags"))) if block.get("hashtags") else ""
         total = len(slides)
         if slides:
@@ -2281,9 +2378,13 @@ def build_instagram_format_card(fmt: str, block: dict, image_path: str = "", for
         deck = f'<div style="display:flex;gap:10px;overflow-x:auto;padding:12px;">{slide_cards}</div>'
         caption_area = (
             '<div style="padding:6px 14px 14px;">'
-            f'<div style="font-size:13px;line-height:1.45;white-space:pre-wrap;"><strong>mortalvengeance</strong> {caption}</div>'
-            f'<div style="font-size:12px;color:#2454a6;margin-top:6px;">{hashtags}</div>'
-            '</div>'
+            + (
+                f'<div style="font-size:13px;line-height:1.45;white-space:pre-wrap;"><strong>mortalvengeance</strong> {caption}</div>'
+                if caption
+                else '<div style="font-size:12px;color:#9a8f86;font-style:italic;">Caption preview unavailable for this asset.</div>'
+            )
+            + (f'<div style="font-size:12px;color:#2454a6;margin-top:6px;">{hashtags}</div>' if hashtags else '')
+            + '</div>'
         )
         return f'<div style="width:340px;border-radius:18px;overflow:hidden;background:#fff;border:1px solid rgba(0,0,0,.1);box-shadow:0 14px 30px rgba(61,31,41,.1);">{header}{deck}{caption_area}</div>'
 
@@ -2423,7 +2524,33 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
         formats = safe(fields.get("linkedin_formats"))
         angle = safe(fields.get("linkedin_angle"))
         cta = safe(fields.get("linkedin_cta"))
-        draft = body(fields.get("draft"))
+        scheduled = (escape(str(fields.get("post_date"))) + " · Public") if str(fields.get("post_date") or "").strip() else "Preview · Public"
+        # Split the draft into per-format sections so each LinkedIn deliverable is a
+        # labeled block (badge) — and render document/carousel formats as a slide deck.
+        segments = parse_headed_sections(str(fields.get("draft") or ""), _LINKEDIN_FORMAT_NAMES)
+        blocks_html = ""
+        for seg_label, seg_body in segments:
+            if seg_label:
+                blocks_html += (
+                    f'<div style="display:inline-block;font-size:11px;font-weight:800;color:#0a66c2;'
+                    f'border:1px solid rgba(10,102,194,.3);border-radius:999px;padding:2px 10px;margin:14px 0 6px;">{escape(seg_label)}</div>'
+                )
+            is_deck = ("carousel" in seg_label.lower() or "document" in seg_label.lower()
+                       or bool(re.search(r"(?im)^\s*slide\s*\d", seg_body)))
+            seg_slides = parse_linkedin_slides(seg_body) if is_deck else []
+            if seg_slides:
+                slide_cards = "".join(
+                    '<div style="flex:0 0 auto;width:210px;aspect-ratio:1.91/1;border-radius:10px;'
+                    'background:linear-gradient(160deg,#0a2540,#0a66c2);color:#fff;padding:13px;'
+                    'border:1px solid rgba(0,0,0,.1);overflow:hidden;">'
+                    f'<div style="font-size:10px;font-weight:800;opacity:.75;letter-spacing:.06em;">SLIDE {i} / {len(seg_slides)}</div>'
+                    f'<div style="font-size:12px;line-height:1.4;margin-top:7px;overflow:hidden;">{markdown_to_html(str(slide_text)[:240])}</div>'
+                    '</div>'
+                    for i, slide_text in enumerate(seg_slides, 1)
+                )
+                blocks_html += f'<div style="display:flex;gap:10px;overflow-x:auto;padding:4px 0 8px;">{slide_cards}</div>'
+            elif seg_body.strip():
+                blocks_html += f'<div style="font-size:14px;line-height:1.5;white-space:pre-wrap;margin-bottom:4px;">{markdown_to_html(seg_body)}</div>'
         return f"""
         <div style="max-width:520px;margin:0 auto;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.12);box-shadow:0 18px 40px rgba(61,31,41,.08);overflow:hidden;">
             <div style="padding:16px;display:flex;gap:12px;align-items:center;">
@@ -2431,10 +2558,10 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
                 <div style="flex:1;">
                     <div style="font-weight:800;font-size:14px;">Alejandro Torres De La Rocha</div>
                     <div style="font-size:12px;color:#666;">Author · Mortal Vengeance</div>
-                    <div style="font-size:11px;color:#777;">Now · Public</div>
+                    <div style="font-size:11px;color:#777;">{scheduled}</div>
                 </div>
             </div>
-            <div style="padding:0 16px 14px;font-size:14px;line-height:1.5;white-space:pre-wrap;">{draft}</div>
+            <div style="padding:0 16px 14px;">{blocks_html}</div>
             <div style="aspect-ratio:1.91/1;background:#111;">{image_markup(fields.get("image_path"), "LINKEDIN VISUAL")}</div>
             <div style="padding:12px 16px;border-top:1px solid #eee;color:#666;font-size:12px;">
                 <strong>Angle:</strong> {angle} · <strong>CTA:</strong> {cta} · <strong>Formats:</strong> {formats}
@@ -2449,20 +2576,32 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
         formats = safe(fields.get("youtube_formats"))
         keywords = safe(fields.get("youtube_keywords"))
         link = safe(fields.get("youtube_link"))
-        draft = body(fields.get("draft"))
-        title = escape(first_line(fields.get("draft"), "Mortal Vengeance: A Grim Tale"))
+        scheduled = escape(str(fields.get("post_date"))) if str(fields.get("post_date") or "").strip() else "Preview"
+        # Split the draft into per-deliverable sections (Title / Description / Pinned
+        # comment / Long-form video / ...) so each is a labeled block, not one blob.
+        segments = parse_headed_sections(str(fields.get("draft") or ""), _YOUTUBE_DELIVERABLE_NAMES)
+        title_seg = next((seg_body for (seg_label, seg_body) in segments if seg_label.lower() == "title"), "")
+        title = escape(first_line(title_seg or fields.get("draft"), "Mortal Vengeance: A Grim Tale"))
+        blocks_html = ""
+        for seg_label, seg_body in segments:
+            if seg_label:
+                blocks_html += (
+                    '<div style="display:inline-block;font-size:11px;font-weight:800;color:#8E1F2F;'
+                    'border:1px solid rgba(142,31,47,.3);border-radius:999px;padding:2px 10px;margin:12px 0 6px;">'
+                    f'{escape(seg_label)}</div>'
+                )
+            if seg_body.strip():
+                blocks_html += f'<div style="font-size:13px;line-height:1.45;white-space:pre-wrap;color:#333;margin-bottom:4px;">{markdown_to_html(seg_body)}</div>'
         return f"""
         <div style="max-width:560px;margin:0 auto;border-radius:18px;background:#fff;border:1px solid rgba(0,0,0,.12);box-shadow:0 18px 40px rgba(61,31,41,.08);overflow:hidden;">
-            <div style="aspect-ratio:16/9;background:#111;position:relative;">{image_markup(fields.get("image_path"), "YOUTUBE THUMBNAIL")}
-                <div style="position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.82);color:#fff;border-radius:4px;padding:3px 6px;font-size:12px;">8:42</div>
-            </div>
+            <div style="aspect-ratio:16/9;background:#111;position:relative;">{image_markup(fields.get("image_path"), "YOUTUBE THUMBNAIL")}</div>
             <div style="padding:14px 16px;display:flex;gap:12px;">
                 <div style="width:42px;height:42px;border-radius:50%;background:#8E1F2F;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:23px;">M</div>
                 <div style="flex:1;">
                     <div style="font-size:16px;font-weight:800;line-height:1.3;margin-bottom:5px;">{title}</div>
-                    <div style="font-size:12px;color:#666;margin-bottom:10px;">Mortal Vengeance · 1.2K views · just now</div>
-                    <div style="font-size:13px;line-height:1.45;white-space:pre-wrap;color:#333;">{draft}</div>
-                    <div style="font-size:12px;color:#666;margin-top:10px;"><strong>Formats:</strong> {formats} · <strong>Keywords:</strong> {keywords} · <strong>Link:</strong> {link}</div>
+                    <div style="font-size:12px;color:#666;margin-bottom:10px;">Mortal Vengeance · {scheduled}</div>
+                    {blocks_html}
+                    <div style="font-size:12px;color:#666;margin-top:10px;padding-top:8px;border-top:1px solid #eee;"><strong>Formats:</strong> {formats} · <strong>Keywords:</strong> {keywords} · <strong>Link:</strong> {link}</div>
                 </div>
             </div>
         </div>
@@ -2487,7 +2626,7 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
         return f"""
         <div style="max-width:720px;margin:0 auto;background:#f7f3ea;border:1px solid rgba(44,24,31,.18);box-shadow:0 20px 42px rgba(61,31,41,.14);padding:18px;">
             <div style="border-top:5px solid #1e1b19;border-bottom:2px solid #1e1b19;text-align:center;padding:10px 0 8px;margin-bottom:14px;">
-                <div style="font-family:Georgia,serif;font-size:42px;line-height:1;font-weight:900;letter-spacing:.02em;color:#1d1a18;">THE MYTHOS PRESS</div>
+                <div style="font-family:Georgia,serif;font-size:42px;line-height:1;font-weight:900;letter-spacing:.02em;color:#1d1a18;">THE TELL TALES INK PRESS</div>
                 <div style="display:flex;justify-content:space-between;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#5c524b;margin-top:8px;">
                     <span>FOR IMMEDIATE RELEASE</span><span>{release_date}</span><span>{PRESS_RELEASE_DESTINATION}</span>
                 </div>
@@ -2645,9 +2784,23 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
     """
 
 
+_REFUSAL_RE = re.compile(
+    r"(?i)\b(i'?ll wait|i will wait|until you tell me|once you (?:confirm|tell me|say)|"
+    r"received[,. ].*(?:wait|generate)|as an ai|i (?:cannot|can'?t|am unable to) (?:help|generate|create|produce)|"
+    r"i'?m (?:sorry|unable|happy to help|ready)|let me know when|just say the word|ready to generate|"
+    r"waiting for your|tell me to (?:proceed|generate|start)|provide (?:the|more) (?:details|caption))\b"
+)
+
+
+def looks_like_refusal(value: str) -> bool:
+    """True when a string looks like an LLM acknowledgement/refusal rather than real
+    content — so it never gets selected as quote text and painted onto an image."""
+    return bool(_REFUSAL_RE.search(str(value or "")))
+
+
 def extract_quote_for_graphic(content: str) -> str:
     text = str(content or "").strip()
-    if not text:
+    if not text or looks_like_refusal(text):
         return ""
     # Prefer an explicit on-image text line from the structured output.
     label_match = re.search(
@@ -2671,9 +2824,10 @@ def extract_quote_for_graphic(content: str) -> str:
         if re.match(r"^={2,}.*={2,}$", cleaned):
             continue
         cleaned = label_prefix.sub("", cleaned).strip("#*- ").strip('"“”')
-        if 18 <= len(cleaned) <= 260 and not cleaned.startswith("<"):
+        if 18 <= len(cleaned) <= 260 and not cleaned.startswith("<") and not looks_like_refusal(cleaned):
             return cleaned
-    return label_prefix.sub("", text.strip().splitlines()[0] if text.strip().splitlines() else text)[:260]
+    fallback = label_prefix.sub("", text.strip().splitlines()[0] if text.strip().splitlines() else text)[:260]
+    return "" if looks_like_refusal(fallback) else fallback
 
 
 def clean_quote_candidate(value: str) -> str:
@@ -2706,6 +2860,7 @@ def extract_quote_candidates(content: str, limit: int = 12) -> list[str]:
             18 <= len(cleaned) <= 260
             and not lower.startswith(("caption", "hashtags", "cta", "source", "mood", "character", "image", "alt text"))
             and ":" not in cleaned[:22]
+            and not looks_like_refusal(cleaned)
         ):
             candidates.append(cleaned)
 
@@ -2713,7 +2868,7 @@ def extract_quote_candidates(content: str, limit: int = 12) -> list[str]:
     seen: set[str] = set()
     for candidate in candidates:
         key = re.sub(r"\s+", " ", candidate.lower()).strip()
-        if candidate and key not in seen:
+        if candidate and key not in seen and not looks_like_refusal(candidate):
             seen.add(key)
             unique.append(candidate)
         if len(unique) >= limit:
@@ -2758,6 +2913,61 @@ def parse_instagram_multiformat(draft: str) -> dict[str, dict]:
     for header, segment in zip(iterator, iterator):
         blocks[header.strip().lower()] = parse_block(segment)
     return blocks
+
+
+_LINKEDIN_FORMAT_NAMES = ["Standard post", "Article", "Document / carousel", "Poll", "Newsletter"]
+_YOUTUBE_DELIVERABLE_NAMES = [
+    "Long-form video", "Short", "Community post", "Premiere",
+    "Title", "Description", "Pinned comment", "Talking points", "SEO title set",
+]
+
+
+def _section_heading(line: str, known: set):
+    """Return the heading label if a line is a section heading, else None.
+    Matches '## Heading', '**Heading**', or a bare known section name."""
+    match = re.match(r"^\s{0,3}(?:#{1,6}\s+(.+?)|\*\*(.+?)\*\*)\s*:?\s*$", line)
+    if match:
+        return (match.group(1) or match.group(2) or "").strip().strip(":").strip()
+    bare = line.strip().rstrip(":").strip()
+    return bare if bare.lower() in known else None
+
+
+def parse_headed_sections(draft: str, known_names=()) -> list:
+    """Split a multi-format draft into ``(heading, body)`` segments on markdown/bold
+    headings (or bare known section names). One ``("", draft)`` entry if no headings."""
+    text = str(draft or "").strip()
+    if not text:
+        return []
+    known = {name.lower() for name in known_names}
+    segments: list = []
+    label, buf, found = "", [], False
+    for line in text.splitlines():
+        head = _section_heading(line, known)
+        if head is not None:
+            if label or "\n".join(buf).strip():
+                segments.append((label, "\n".join(buf).strip()))
+            label, buf, found = head, [], True
+        else:
+            buf.append(line)
+    if label or "\n".join(buf).strip():
+        segments.append((label, "\n".join(buf).strip()))
+    if not found:
+        return [("", text)]
+    return [(lbl, body) for (lbl, body) in segments if (lbl or body)]
+
+
+def parse_linkedin_slides(body: str) -> list:
+    """Extract ``Slide N: ...`` blocks from a LinkedIn document/carousel segment."""
+    slides: list = []
+    current = None
+    for line in str(body or "").splitlines():
+        match = re.match(r"(?i)^\s*slide\s*(\d+)\s*(?:\([^)]*\))?\s*[:\-.]?\s*(.*)$", line)
+        if match:
+            current = len(slides)
+            slides.append(match.group(2).strip())
+        elif current is not None and line.strip():
+            slides[current] = (slides[current] + "\n" + line.strip()).strip()
+    return [slide for slide in slides if slide]
 
 
 def extract_speaker_from_content(content: str) -> str:
@@ -3358,12 +3568,15 @@ def campaign_asset_preview_html(asset: dict[str, object]) -> str:
     content = str(asset.get("content") or "")
     style = escape(str(asset.get("style") or "default"))
     quantity_label = escape(str(asset.get("asset_label") or "Asset"))
+    scheduled_date = escape(str(asset.get("post_date") or ""))
     escaped_content = escape(content)
     fields = asset.get("preview_fields") if isinstance(asset.get("preview_fields"), dict) else {}
     quote_graphic = asset.get("quote_graphic") if isinstance(asset.get("quote_graphic"), dict) else {}
+    asset_image_paths = asset.get("image_paths") if isinstance(asset.get("image_paths"), list) else []
+    first_image = str(asset_image_paths[0]) if asset_image_paths else ""
 
     if content_type in {"instagram_caption", "youtube_content", "linkedin_content", "character_spotlight"}:
-        preview = build_preview_html(content_type, {"draft": content, **fields})
+        preview = build_preview_html(content_type, {"draft": content, "image_path": first_image, "post_date": str(asset.get("post_date") or ""), **fields})
     elif content_type in {"quote_post", "review_pull_quote"}:
         quote_text = extract_quote_for_graphic(content)
         preview = build_quote_preview_html(
@@ -3398,7 +3611,7 @@ def campaign_asset_preview_html(asset: dict[str, object]) -> str:
     else:
         preview = f"""
         <div style="border-radius:18px;background:#fff;border:1px solid rgba(44,24,31,.12);box-shadow:0 14px 30px rgba(61,31,41,.07);padding:18px;">
-            <div style="font-size:13px;line-height:1.55;white-space:pre-wrap;color:#2f292b;">{escaped_content}</div>
+            <div style="font-size:13px;line-height:1.55;white-space:pre-wrap;color:#2f292b;">{markdown_to_html(content)}</div>
         </div>
         """
 
@@ -3407,13 +3620,13 @@ def campaign_asset_preview_html(asset: dict[str, object]) -> str:
         <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
             <div>
                 <div style="font-family:Georgia,serif;font-size:22px;font-weight:800;color:#171217;">{label}</div>
-                <div style="font-size:12px;color:#71686a;">{quantity_label} · {style}</div>
+                <div style="font-size:12px;color:#71686a;">{quantity_label} · {style}{(' · 🗓 ' + scheduled_date) if scheduled_date else ''}</div>
             </div>
             <div style="border-radius:999px;background:#f8eceb;color:#8E1F2F;padding:6px 10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">{escape(content_type)}</div>
         </div>
         {preview}
         <details style="margin-top:14px;">
-            <summary style="cursor:pointer;color:#8E1F2F;font-weight:800;">Generated text</summary>
+            <summary style="cursor:pointer;color:#5d3a40;font-weight:700;font-size:13px;list-style:none;display:flex;align-items:center;gap:6px;"><span style="font-size:11px;">▸</span> View generated text</summary>
             <pre style="white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.5;background:#fbf7f4;border:1px solid rgba(44,24,31,.10);border-radius:12px;padding:12px;overflow:auto;">{escaped_content}</pre>
         </details>
     </article>
@@ -3840,8 +4053,9 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
 .mce-hero-chips {
     display: flex;
     gap: 14px;
-    margin-top: 26px;
+    margin-top: 24px;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .mce-hero-chip {
@@ -3973,8 +4187,7 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
 .mce-sticky {
     position: sticky;
     top: 22px;
-    max-height: calc(100vh - 44px);
-    overflow: auto;
+    align-self: start;
 }
 
 .mce-card-title {
@@ -4368,19 +4581,19 @@ html, body, #app, .q-layout, .q-page, .nicegui-content {
 .mce-tip-button {
     margin-top: 26px;
     align-self: flex-start;
-    border: 1px solid #f1dfcf !important;
-    background: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: linear-gradient(135deg, #c61e3c, #97122a) !important;
     border-radius: 16px;
     padding: 12px 24px;
     font-family: var(--font-ui);
     font-weight: 700;
     font-size: 16px;
     text-transform: none;
-    box-shadow: 0 6px 18px rgba(20, 20, 30, 0.06);
+    box-shadow: 0 8px 20px rgba(198, 31, 61, 0.28);
 }
 .mce-tip-button,
 .mce-tip-button .q-btn__content {
-    color: #b01835 !important;
+    color: #ffffff !important;
 }
 /* Card 3 — Content at a glance (white). */
 .mce-glance-card {
@@ -4828,8 +5041,59 @@ def base_image_picker():
     return picker
 
 
-def readonly_input(label: str, value: str = ""):
-    return ui.input(label=label, value=value).props("readonly outlined dense").classes("w-full mce-path-field mce-readonly")
+def attach_podcast_script_toolbox(script_textarea, marker: str) -> None:
+    """Add a 'Sound & performance toolbox' under a podcast script editor: pick a
+    performance cue / emotional tag or a stock transition / sound effect and insert it
+    into the script at the cursor. Performance cues shape ElevenLabs delivery (v3);
+    transitions / SFX / music are producer notes (stripped before TTS)."""
+    script_textarea.classes(add=marker)
+    with ui.expansion("Sound & performance toolbox", icon="graphic_eq", caption="Insert performance cues, transitions & sound effects into the script").classes("mce-expansion"):
+        with ui.column().classes("mce-stack w-full"):
+            ui.label(
+                "Pick a tag and insert it into the script at your cursor. Performance cues shape "
+                "ElevenLabs delivery; transitions and sound effects are producer notes (not spoken)."
+            ).classes("mce-muted")
+            cue_select = apply_field_props(
+                ui.select(PODCAST_PERFORMANCE_CUES, label="Performance cue / emotion", with_input=True).props("clearable")
+            )
+            sfx_select = apply_field_props(
+                ui.select(PODCAST_SOUND_EFFECTS, label="Transition / sound effect", with_input=True).props("clearable")
+            )
+
+            async def insert_tag(tag, own_line: bool) -> None:
+                tag = str(tag or "").strip()
+                if not tag:
+                    ui.notify("Pick a cue or effect first.", type="warning")
+                    return
+                payload = f"\n{tag}\n" if own_line else f"{tag} "
+                new_value = await ui.run_javascript(
+                    "(() => {"
+                    f"  const ta = document.querySelector('.{marker} textarea');"
+                    "  if (!ta) return null;"
+                    "  const s = (ta.selectionStart != null) ? ta.selectionStart : ta.value.length;"
+                    "  const e = (ta.selectionEnd != null) ? ta.selectionEnd : ta.value.length;"
+                    f"  const ins = {json.dumps(payload)};"
+                    "  ta.value = ta.value.slice(0, s) + ins + ta.value.slice(e);"
+                    "  ta.dispatchEvent(new Event('input', {bubbles: true}));"
+                    "  ta.focus();"
+                    "  const p = s + ins.length;"
+                    "  ta.setSelectionRange(p, p);"
+                    "  return ta.value;"
+                    "})()"
+                )
+                if new_value is not None:
+                    script_textarea.value = new_value
+
+            with ui.row().classes("mce-actions"):
+                make_secondary_button("Insert cue", lambda: insert_tag(cue_select.value, False))
+                make_secondary_button("Insert effect", lambda: insert_tag(sfx_select.value, True))
+
+
+def readonly_input(label: str, value: str = "", mono: bool = True):
+    # mono=True keeps the monospace 'path field' look (for file paths); prose status
+    # fields pass mono=False so human-readable text isn't shown in a code font.
+    classes = "w-full mce-readonly" + (" mce-path-field" if mono else "")
+    return ui.input(label=label, value=value).props("readonly outlined dense").classes(classes)
 
 
 def readonly_textarea(label: str, value: str = ""):
@@ -4854,7 +5118,7 @@ def index() -> None:
         with ui.element("div").classes("mce-hero").on(
             "click", lambda: open_generator(default_content_type)
         ):
-            ui.image(dashboard_asset("mortal-vengeance-academy-hero.webp")).classes("mce-banner-img")
+            ui.image(dashboard_asset("telltales-ink-hero.webp")).classes("mce-banner-img")
 
         with ui.row().classes("mce-tabs-wrap items-center"):
             with ui.tabs().classes("mce-tabs") as tabs:
@@ -4863,6 +5127,7 @@ def index() -> None:
                 saved_drafts_tab = ui.tab("Saved Drafts")
                 campaign_tab = ui.tab("Campaign Mode")
                 podcast_tab = ui.tab("Podcast Studio")
+                chapter_promos_tab = ui.tab("Chapter Promos")
 
             dark_mode = ui.dark_mode(value=False)
             dark_state = {"on": False}
@@ -4877,7 +5142,7 @@ def index() -> None:
 
         def open_generator(content_type_name: str | None = None) -> None:
             tabs.value = generator_tab
-            if content_type_name:
+            if content_type_name and content_type_name in generator_content_type_labels:
                 content_type.value = content_type_name
                 apply_visibility(content_type_name)
 
@@ -4886,6 +5151,9 @@ def index() -> None:
 
         def open_podcast() -> None:
             tabs.value = podcast_tab
+
+        def open_chapter_promos() -> None:
+            tabs.value = chapter_promos_tab
 
         def open_drafts() -> None:
             tabs.value = saved_drafts_tab
@@ -4905,8 +5173,27 @@ def index() -> None:
                     fn()
             update_drafts_badge()
 
-        tabs.on_value_change(lambda _event: refresh_dashboard())
+        def _on_tab_change(_event) -> None:
+            refresh_dashboard()
+            ui.run_javascript(
+                'window.scrollTo({top:0,behavior:"smooth"});'
+                'const c=document.querySelector(".nicegui-content")||document.querySelector(".q-page-container");'
+                'if(c)c.scrollTo({top:0,behavior:"smooth"});'
+            )
+
+        tabs.on_value_change(_on_tab_change)
         update_drafts_badge()
+
+        def record_session_draft(content_type_value: str, topic_text: str = "", count: int = 1) -> None:
+            """Record generation activity for the 'This session' card — used by every
+            generation path (generator, campaign, podcast, chapter promos)."""
+            session_stats["drafts"] += max(1, int(count or 1))
+            if content_type_value:
+                session_stats["last_type"] = content_type_label(content_type_value)
+            topic_clean = str(topic_text or "").strip()
+            if topic_clean:
+                session_stats["last_topic"] = topic_clean[:60]
+            refresh_dashboard()
 
         with ui.tab_panels(tabs, value=dashboard_tab).classes("w-full mce-tab-panels"):
             with ui.tab_panel(dashboard_tab).classes("mce-panel"):
@@ -5073,7 +5360,166 @@ def index() -> None:
                     with ui.element("div").classes("mce-bottom-banner").on(
                         "click", lambda: open_generator(default_content_type)
                     ):
-                        ui.image(dashboard_asset("excelsior-banner.webp")).classes("mce-banner-img")
+                        ui.image(dashboard_asset("telltales-ink-bottom-banner.webp")).classes("mce-banner-img")
+
+            with ui.tab_panel(chapter_promos_tab).classes("mce-panel"):
+                with ui.element("section").classes("mce-grid"):
+                    with ui.card().classes("mce-card"):
+                        section_heading(
+                            "Chapter Promos",
+                            "Read a novel chapter, then generate a chapter summary plus promos for Instagram, Blog, LinkedIn, and YouTube.",
+                        )
+                        with ui.column().classes("mce-stack w-full"):
+                            chapter_books = chapter_reader.list_chapter_books()
+                            chapter_book = apply_field_props(
+                                ui.select(
+                                    chapter_books,
+                                    value=(chapter_books[0] if chapter_books else None),
+                                    label="Novel",
+                                ),
+                            )
+                            _initial_chapters = chapter_reader.chapter_options(chapter_books[0]) if chapter_books else {}
+                            chapter_select = apply_field_props(
+                                ui.select(
+                                    _initial_chapters,
+                                    value=next(iter(_initial_chapters), None),
+                                    label="Chapter",
+                                    with_input=True,
+                                ),
+                            )
+                            chapter_platforms = apply_field_props(
+                                ui.select(
+                                    list(CHAPTER_PROMO_PLATFORMS.keys()),
+                                    value=list(CHAPTER_PROMO_PLATFORMS.keys()),
+                                    multiple=True,
+                                    label="Generate promos for",
+                                ),
+                                "outlined dense use-chips clearable",
+                            )
+
+                            def refresh_chapter_options(_event=None) -> None:
+                                options = chapter_reader.chapter_options(chapter_book.value) if chapter_book.value else {}
+                                chapter_select.set_options(options, value=next(iter(options), None))
+
+                            chapter_book.on_value_change(refresh_chapter_options)
+
+                            chapter_status = readonly_input("Status", "Ready", mono=False)
+                            chapter_progress = ui.linear_progress(value=0, show_value=False).classes("w-full")
+                            chapter_progress.visible = False
+                            chapter_progress_label = ui.label("Ready").classes("mce-muted")
+                            chapter_output = ui.textarea(
+                                label="Chapter summary + promos (editable)", value="",
+                            ).props("outlined autogrow").classes("w-full mce-output-textarea")
+                            chapter_saved_path = readonly_input("Saved draft path", "")
+
+                            async def generate_chapter_promos() -> None:
+                                book = chapter_book.value
+                                chapter_id = chapter_select.value
+                                platform_labels = [p for p in (chapter_platforms.value or []) if p]
+                                if not book or not chapter_id:
+                                    chapter_status.value = "Pick a novel and a chapter first."
+                                    ui.notify(chapter_status.value, type="warning")
+                                    return
+                                if not platform_labels:
+                                    chapter_status.value = "Select at least one platform."
+                                    ui.notify(chapter_status.value, type="warning")
+                                    return
+                                chapter = await asyncio.to_thread(chapter_reader.get_chapter, book, chapter_id)
+                                if not chapter:
+                                    chapter_status.value = "That chapter could not be read."
+                                    ui.notify(chapter_status.value, type="warning")
+                                    return
+                                started_at = datetime.now()
+                                chapter_progress.visible = True
+                                total_assets = len(platform_labels) + 1
+                                total_steps = total_assets + 1
+                                done = 0
+                                chapter_status.value = "Reading chapter and summarizing..."
+                                await set_generation_progress(
+                                    progress=chapter_progress, label=chapter_progress_label, status=chapter_status,
+                                    started_at=started_at, completed_steps=done, total_steps=total_steps,
+                                    completed_assets=done, total_assets=total_assets, message="Summarizing chapter...",
+                                )
+                                chapter_text = chapter_reader.chapter_text_for_prompt(chapter)
+                                summary_prompt = (
+                                    f'You are a book-marketing strategist for the novel "{book}".\n'
+                                    f"Read this chapter ({chapter['label']}) and produce a tight, SPOILER-AWARE marketing brief.\n\n"
+                                    f'CHAPTER TEXT:\n"""\n{chapter_text}\n"""\n\n'
+                                    "Return in markdown with these sections:\n"
+                                    "- **Summary:** 3-5 sentences on what happens (no major twist or ending spoilers).\n"
+                                    "- **Key characters:** the characters featured in this chapter.\n"
+                                    "- **Themes & mood:** the core emotional beats and tone.\n"
+                                    "- **Promo hooks:** 3 spoiler-free teaser lines usable on social media.\n"
+                                )
+                                try:
+                                    summary = (await asyncio.to_thread(generate_text, summary_prompt)).strip()
+                                except Exception as exc:
+                                    chapter_status.value = f"Chapter summary failed: {exc}"
+                                    ui.notify(chapter_status.value, type="negative")
+                                    chapter_progress.visible = False
+                                    return
+                                done += 1
+                                combined = f"# {book} — {chapter['label']}\n\n## Chapter Summary\n\n{summary}\n"
+                                empty_platforms: list[str] = []
+                                for platform_label in platform_labels:
+                                    content_type_value = CHAPTER_PROMO_PLATFORMS[platform_label]
+                                    await set_generation_progress(
+                                        progress=chapter_progress, label=chapter_progress_label, status=chapter_status,
+                                        started_at=started_at, completed_steps=done, total_steps=total_steps,
+                                        completed_assets=done, total_assets=total_assets,
+                                        message=f"Generating {platform_label} promo...",
+                                    )
+                                    brief = (
+                                        f"Topic: Promotional {platform_label} content teasing {chapter['label']} of the novel.\n"
+                                        f"Related book/source: {book}\n"
+                                        f"Chapter: {chapter['label']}\n\n"
+                                        f"Chapter marketing brief (internal grounding — summary, characters, themes, hooks):\n{summary}\n\n"
+                                        "Instruction: Create promotional content that teases THIS chapter to build interest in the book. "
+                                        "Stay spoiler-free — do not reveal major twists or the ending. Match the book's dark, literary tone. "
+                                        "Ground every reference in the chapter brief above; do not invent plot details."
+                                    )
+                                    try:
+                                        result = await asyncio.to_thread(run_pipeline, content_type_value, brief)
+                                        generated = str(result.get("generated_content") or "").strip()
+                                        if not generated:
+                                            generated = f"_(No content returned for {platform_label}. Try regenerating.)_"
+                                            empty_platforms.append(platform_label)
+                                    except Exception as exc:
+                                        generated = f"_{platform_label} promo failed: {exc}_"
+                                        empty_platforms.append(platform_label)
+                                    combined += f"\n\n---\n\n## {platform_label} Promo\n\n{generated}"
+                                    done += 1
+                                chapter_output.value = combined
+                                try:
+                                    record = save_draft(
+                                        title=f"{book} — {chapter['label']} promos"[:90],
+                                        content_type="chapter_promo",
+                                        content=combined,
+                                        metadata={"book": book, "chapter": chapter["label"], "platforms": platform_labels},
+                                    )
+                                    chapter_saved_path.value = record["path"]
+                                except Exception:
+                                    pass
+                                await finish_generation_progress(
+                                    progress=chapter_progress, label=chapter_progress_label, status=chapter_status,
+                                    total_assets=total_assets, message="Chapter promos ready.",
+                                )
+                                if empty_platforms:
+                                    ui.notify(
+                                        f"Generated — but no content came back for: {', '.join(empty_platforms)}. Try regenerating.",
+                                        type="warning",
+                                    )
+                                else:
+                                    ui.notify("Chapter promos generated and saved to drafts.", type="positive")
+                                record_session_draft("chapter_promo", f"{book} — {chapter['label']}")
+                                update_drafts_badge()
+
+                            with ui.row().classes("mce-actions"):
+                                make_primary_button("Generate Chapter Promos", generate_chapter_promos)
+                                make_secondary_button(
+                                    "Download (.docx)",
+                                    lambda: download_docx(chapter_output.value, f"{chapter_book.value or 'chapter'} promos"),
+                                )
 
             with ui.tab_panel(generator_tab).classes("mce-panel"):
                 with ui.element("section").classes("mce-grid"):
@@ -5216,7 +5662,7 @@ def index() -> None:
 
                                 async def suggest_instagram_hook() -> None:
                                     set_field_status(instagram_hook_status, "loading", "Suggesting hook…")
-                                    prompt = f"""Suggest one short Instagram hook / first line for Mythos Content Engine.
+                                    prompt = f"""Suggest one short Instagram hook / first line for Tell Tales Ink.
 
 Topic: {topic.value}
 Related book/source: {related_book.value}
@@ -5337,7 +5783,7 @@ Return only the hook. Keep it under 14 words. Make it bookish, specific, and non
 
                                 async def suggest_blog_structure() -> None:
                                     set_field_status(blog_structure_status, "loading", "Suggesting structure…")
-                                    prompt = f"""Suggest a concise blog structure for Mythos Content Engine.
+                                    prompt = f"""Suggest a concise blog structure for Tell Tales Ink.
 
 Topic: {topic.value}
 Related book/source: {related_book.value}
@@ -5598,8 +6044,8 @@ Return only a practical section outline with 5-8 bullets."""
                     with ui.card().classes("mce-card mce-sticky"):
                         section_heading("Output Studio", "Preview the draft, trace artifact paths, and compare against a clean baseline.")
                         with ui.column().classes("mce-stack w-full"):
-                            status = readonly_input("Status", "Ready")
-                            generation_progress = ui.linear_progress(value=0).classes("w-full")
+                            status = readonly_input("Status", "Ready", mono=False)
+                            generation_progress = ui.linear_progress(value=0, show_value=False).classes("w-full")
                             generation_progress.visible = False
                             generation_progress_label = ui.label("Ready").classes("mce-muted")
                             platform_preview = ui.html(
@@ -5675,10 +6121,10 @@ Return only a practical section outline with 5-8 bullets."""
                                     generated_visual_package_path = readonly_input("Generated image package", "")
                                     structured_brief_output = readonly_textarea("Structured brief used for comparison", "")
 
-                            with ui.expansion("Compare Mythos vs ChatGPT", icon="compare_arrows").classes("mce-expansion"):
+                            with ui.expansion("Compare Tell Tales Ink vs ChatGPT", icon="compare_arrows").classes("mce-expansion"):
                                 with ui.column().classes("mce-stack w-full"):
                                     ui.label("Charisma. Uniqueness. Nerve and Talent.").classes("mce-section-title")
-                                    ui.label("Generate a Mythos draft first, then create a fresh baseline from the same selections.").classes("mce-muted")
+                                    ui.label("Generate a Tell Tales Ink draft first, then create a fresh baseline from the same selections.").classes("mce-muted")
                                     chatgpt_model = apply_field_props(
                                         ui.select(
                                             CHATGPT_COMPARISON_MODEL_OPTIONS,
@@ -5686,18 +6132,18 @@ Return only a practical section outline with 5-8 bullets."""
                                             label="ChatGPT model",
                                         )
                                     )
-                                    comparison_status = readonly_input("Comparison status", "Generate a Mythos draft first.")
+                                    comparison_status = readonly_input("Comparison status", "Generate a Tell Tales Ink draft first.", mono=False)
                                     comparison_view = ui.html(comparison_side_by_side_html(), sanitize=False).classes("w-full")
                                     chatgpt_output = readonly_textarea("ChatGPT baseline output", "")
                                     chatgpt_prompt_path = readonly_input("ChatGPT prompt path", "")
                                     chatgpt_draft_path = readonly_input("ChatGPT draft path", "")
                                     comparison_preference = apply_field_props(
-                                        ui.select(["Mythos", "ChatGPT", "Tie / needs revision"], label="Which result do you prefer?")
+                                        ui.select(["Tell Tales Ink", "ChatGPT", "Tie / needs revision"], label="Which result do you prefer?")
                                     )
                                     comparison_notes = apply_field_props(
                                         ui.textarea(
                                             label="Judge notes",
-                                            placeholder="Example: Mythos used the brand world more specifically; ChatGPT was clean but generic.",
+                                            placeholder="Example: Tell Tales Ink used the brand world more specifically; ChatGPT was clean but generic.",
                                         ),
                                         "outlined autogrow",
                                     )
@@ -5852,7 +6298,7 @@ Return only a practical section outline with 5-8 bullets."""
                             for fmt in formats:
                                 make_secondary_button(
                                     f"Regenerate {fmt}",
-                                    lambda f=fmt: asyncio.create_task(regenerate_instagram_format(f)),
+                                    lambda f=fmt: regenerate_instagram_format(f),
                                 )
 
                     def refresh_press_profile_options() -> None:
@@ -6245,10 +6691,7 @@ Return concise angle options with why each is newsworthy."""
                                 generated_visual_path=generated_visual_path,
                                 generated_visual_package_path=generated_visual_package_path,
                             )
-                            session_stats["drafts"] += 1
-                            session_stats["last_type"] = content_type_label(content_type.value)
-                            session_stats["last_topic"] = (str(topic.value or "").strip()[:60] or "—")
-                            refresh_dashboard()
+                            record_session_draft(content_type.value, str(topic.value or ""))
                             refresh_instagram_regen_actions()
                             refresh_generated_images_gallery()
                             completed_assets = 1
@@ -6468,7 +6911,7 @@ Return concise angle options with why each is newsworthy."""
                                 "outlined autogrow",
                             )
                             with ui.element("div").classes("mce-two-col"):
-                                campaign_start_date = apply_field_props(ui.input(label="Start date (optional)").props("type=date"))
+                                campaign_start_date = apply_field_props(ui.input(label="Start date (optional)").props('type=date hint="YYYY-MM-DD"'))
                                 campaign_cadence = apply_field_props(
                                     ui.select(
                                         ["daily", "every 2 days", "twice a week", "weekly"],
@@ -6556,12 +6999,12 @@ Return concise angle options with why each is newsworthy."""
                                 campaign_widgets["podcast"]["format"] = apply_field_props(ui.select(PODCAST_FORMAT_OPTIONS, value=PODCAST_FORMAT_OPTIONS[0], label="Podcast format"))
                                 campaign_widgets["podcast"]["length"] = apply_field_props(ui.select(PODCAST_LENGTH_OPTIONS, value=PODCAST_LENGTH_OPTIONS[0], label="Podcast length"))
                                 campaign_widgets["podcast"]["tone"] = apply_field_props(ui.select(PODCAST_TONE_OPTIONS, value=PODCAST_TONE_OPTIONS[0], label="Podcast delivery tone"))
-                                campaign_widgets["podcast"]["speakers"] = apply_field_props(ui.input(label="Podcast speaker count", placeholder="e.g. 2"))
+                                campaign_widgets["podcast"]["speakers"] = apply_field_props(ui.number(label="Podcast speaker count", value=2, min=1, format="%.0f"))
                                 campaign_widgets["podcast"]["roles"] = apply_field_props(ui.input(label="Speaker roles / names", placeholder="e.g. Host: Maya, Guest: Carlos"))
                                 with ui.expansion("Podcast voice settings (audio)", icon="record_voice_over").classes("mce-expansion"):
                                     with ui.column().classes("mce-stack w-full"):
                                         campaign_widgets["podcast"]["model"] = apply_field_props(ui.select(ELEVENLABS_MODEL_OPTIONS, value=ELEVENLABS_MODEL_OPTIONS[0], label="ElevenLabs model"))
-                                        campaign_podcast_voice_status = readonly_input("Voice library status", "Loading ElevenLabs voices...")
+                                        campaign_podcast_voice_status = readonly_input("Voice library status", "Loading ElevenLabs voices...", mono=False)
                                         campaign_widgets["podcast"]["host_voice"] = apply_field_props(ui.select({}, label="Host voice"))
                                         campaign_widgets["podcast"]["guest_voice"] = apply_field_props(ui.select({}, label="Guest voice"))
                                         campaign_widgets["podcast"]["guest_2_voice"] = apply_field_props(ui.select({}, label="Guest 2 / co-host voice"))
@@ -6693,11 +7136,11 @@ Return concise angle options with why each is newsworthy."""
 
                             campaign_actions = ui.row().classes("mce-actions")
 
-                    with ui.card().classes("mce-card mce-sticky") as campaign_results_card:
-                        section_heading("Campaign Results", "Campaign outputs appear as a bundle with each selected asset separated for review.")
+                    with ui.card().classes("mce-card") as campaign_results_card:
+                        section_heading("Campaign Results", "Each selected content type appears below in its own section with its posts, images, and download.")
                         with ui.column().classes("mce-stack w-full"):
-                            campaign_status = readonly_input("Campaign status", "Ready")
-                            campaign_progress = ui.linear_progress(value=0).classes("w-full")
+                            campaign_status = readonly_input("Campaign status", "Ready", mono=False)
+                            campaign_progress = ui.linear_progress(value=0, show_value=False).classes("w-full")
                             campaign_progress.visible = False
                             campaign_progress_label = ui.label("Ready").classes("mce-muted")
                             campaign_preview = ui.html(build_campaign_preview_html([]), sanitize=False).classes("mce-preview")
@@ -6714,13 +7157,27 @@ Return concise angle options with why each is newsworthy."""
                                 subcard_heading("Podcast audio")
                                 ui.label("Render ElevenLabs audio from a generated campaign podcast script using the voice settings above.").classes("mce-muted")
                                 campaign_podcast_script_select = apply_field_props(ui.select({}, label="Podcast script to render"))
-                                campaign_podcast_audio_status = readonly_input("Audio status", "Generate a campaign with a Podcast asset first.")
-                                campaign_podcast_audio_progress = ui.linear_progress(value=0).classes("w-full")
+                                campaign_podcast_script_editor = ui.textarea(
+                                    label="Podcast script (editable — insert cues / effects below)", value="",
+                                ).props("outlined autogrow").classes("w-full mce-script-textarea")
+                                attach_podcast_script_toolbox(campaign_podcast_script_editor, "mce-podcast-script-campaign")
+
+                                def sync_campaign_podcast_script(_event=None) -> None:
+                                    try:
+                                        i = int(campaign_podcast_script_select.value or "0")
+                                    except (TypeError, ValueError):
+                                        i = 0
+                                    if 0 <= i < len(campaign_podcast_scripts):
+                                        campaign_podcast_script_editor.value = campaign_podcast_scripts[i][1]
+
+                                campaign_podcast_script_select.on_value_change(sync_campaign_podcast_script)
+                                campaign_podcast_audio_status = readonly_input("Audio status", "Generate a campaign with a Podcast asset first.", mono=False)
+                                campaign_podcast_audio_progress = ui.linear_progress(value=0, show_value=False).classes("w-full")
                                 campaign_podcast_audio_progress.visible = False
                                 campaign_podcast_audio_progress_label = ui.label("Ready").classes("mce-muted")
                                 campaign_podcast_audio_player = ui.audio("", controls=True).classes("mce-audio")
-                                campaign_podcast_audio_path = readonly_input("Podcast MP3 path", "")
-                                campaign_podcast_audio_package_path = readonly_input("Audio package path", "")
+                                campaign_podcast_audio_path = readonly_input("Podcast MP3 path", "Not generated yet")
+                                campaign_podcast_audio_package_path = readonly_input("Audio package path", "Not generated yet")
                                 campaign_podcast_audio_actions = ui.row().classes("mce-actions")
                             campaign_podcast_audio_card.set_visibility(False)
                             with ui.expansion("Structured campaign brief", icon="subject").classes("mce-expansion"):
@@ -6731,12 +7188,12 @@ Return concise angle options with why each is newsworthy."""
                                     campaign_chatgpt_model = apply_field_props(
                                         ui.select(CHATGPT_COMPARISON_MODEL_OPTIONS, value=CHATGPT_COMPARISON_MODEL_OPTIONS[0], label="ChatGPT model")
                                     )
-                                    campaign_comparison_status = readonly_input("Comparison status", "Generate a Mythos campaign first.")
+                                    campaign_comparison_status = readonly_input("Comparison status", "Generate a Tell Tales Ink campaign first.", mono=False)
                                     campaign_comparison_view = ui.html(comparison_side_by_side_html(), sanitize=False).classes("w-full")
                                     campaign_chatgpt_output = readonly_textarea("ChatGPT campaign baseline output", "")
                                     campaign_chatgpt_prompt_path = readonly_input("ChatGPT prompt path", "")
                                     campaign_chatgpt_draft_path = readonly_input("ChatGPT draft path", "")
-                                    campaign_preference = apply_field_props(ui.select(["Mythos", "ChatGPT", "Tie / needs revision"], label="Which campaign do you prefer?"))
+                                    campaign_preference = apply_field_props(ui.select(["Tell Tales Ink", "ChatGPT", "Tie / needs revision"], label="Which campaign do you prefer?"))
                                     campaign_notes = apply_field_props(ui.textarea(label="Judge notes", placeholder="What made one campaign stronger, more specific, or less generic?"), "outlined autogrow")
                                     campaign_save_status = readonly_input("Saved judgment status", "")
                                     campaign_vote_path = readonly_input("Saved judgment path", "")
@@ -6777,7 +7234,8 @@ Return concise angle options with why each is newsworthy."""
                     recompute_campaign_quantities()
 
                     async def generate_campaign() -> None:
-                        campaign_section.classes(remove="mce-grid-single")
+                        # Keep the campaign in a single column so results render full-width
+                        # BELOW the form (not crammed into the narrow right sidebar).
                         campaign_results_card.set_visibility(True)
                         campaign_progress.visible = True
                         campaign_status.value = "Generating campaign..."
@@ -6820,10 +7278,13 @@ Return concise angle options with why each is newsworthy."""
                             if campaign_podcast_scripts:
                                 options = {str(i): label for i, (label, _script) in enumerate(campaign_podcast_scripts)}
                                 campaign_podcast_script_select.set_options(options, value="0")
+                                campaign_podcast_script_editor.value = campaign_podcast_scripts[0][1]
                                 campaign_podcast_audio_status.value = f"{len(campaign_podcast_scripts)} podcast script(s) ready to render."
                                 campaign_podcast_audio_card.set_visibility(True)
                             else:
                                 campaign_podcast_audio_card.set_visibility(False)
+                            if str(campaign_output.value or "").strip():
+                                record_session_draft("campaign_mode", str(campaign_topic.value or ""))
                         finally:
                             pass
 
@@ -6837,34 +7298,55 @@ Return concise angle options with why each is newsworthy."""
                         except (TypeError, ValueError):
                             idx = 0
                         idx = max(0, min(idx, len(campaign_podcast_scripts) - 1))
-                        _label, script = campaign_podcast_scripts[idx]
+                        # Render the edited script (with any inserted cues/effects), falling
+                        # back to the originally generated script if the editor is empty.
+                        script = str(campaign_podcast_script_editor.value or "").strip() or campaign_podcast_scripts[idx][1]
                         pod = campaign_widgets["podcast"]
                         campaign_podcast_audio_progress.visible = True
-                        await render_podcast_audio_native(
-                            script=script,
-                            document_name=(str(campaign_name.value or "").strip() or "campaign_podcast"),
-                            voices=campaign_podcast_voices_state,
-                            host_voice=pod["host_voice"].value,
-                            guest_voice=pod["guest_voice"].value,
-                            guest_2_voice=pod["guest_2_voice"].value,
-                            model_id=pod["model"].value,
-                            stability=pod["stability"].value or 0.5,
-                            similarity_boost=pod["similarity"].value or 0.75,
-                            style=pod["style_slider"].value or 0.0,
-                            speed=pod["speed"].value or 1.0,
-                            speaker_boost=bool(pod["speaker_boost"].value),
-                            preview_only=preview,
-                            status=campaign_podcast_audio_status,
-                            audio_player=campaign_podcast_audio_player,
-                            full_audio_path=campaign_podcast_audio_path,
-                            package_path=campaign_podcast_audio_package_path,
-                            progress=campaign_podcast_audio_progress,
-                            progress_label=campaign_podcast_audio_progress_label,
-                        )
+                        try:
+                            await render_podcast_audio_native(
+                                script=script,
+                                document_name=(str(campaign_name.value or "").strip() or "campaign_podcast"),
+                                voices=campaign_podcast_voices_state,
+                                host_voice=pod["host_voice"].value,
+                                guest_voice=pod["guest_voice"].value,
+                                guest_2_voice=pod["guest_2_voice"].value,
+                                model_id=pod["model"].value,
+                                stability=pod["stability"].value or 0.5,
+                                similarity_boost=pod["similarity"].value or 0.75,
+                                style=pod["style_slider"].value or 0.0,
+                                speed=pod["speed"].value or 1.0,
+                                speaker_boost=bool(pod["speaker_boost"].value),
+                                preview_only=preview,
+                                status=campaign_podcast_audio_status,
+                                audio_player=campaign_podcast_audio_player,
+                                full_audio_path=campaign_podcast_audio_path,
+                                package_path=campaign_podcast_audio_package_path,
+                                progress=campaign_podcast_audio_progress,
+                                progress_label=campaign_podcast_audio_progress_label,
+                            )
+                        except Exception as exc:
+                            campaign_podcast_audio_status.value = f"Podcast audio failed: {exc}"
+                            ui.notify(campaign_podcast_audio_status.value, type="negative")
+                            campaign_podcast_audio_progress.visible = False
+
+                    def send_campaign_podcast_to_studio() -> None:
+                        script = str(campaign_podcast_script_editor.value or "").strip()
+                        if not script:
+                            ui.notify("No campaign podcast script yet.", type="warning")
+                            return
+                        podcast_generated_output.value = script
+                        podcast_status.value = "Imported from campaign — review and render audio."
+                        open_podcast()
+                        ui.notify("Script sent to Podcast Studio.", type="positive")
 
                     with campaign_podcast_audio_actions:
-                        make_secondary_button("Generate Audio Preview", lambda: asyncio.create_task(campaign_generate_podcast_audio(True)))
-                        make_secondary_button("Generate Full Podcast", lambda: asyncio.create_task(campaign_generate_podcast_audio(False)))
+                        ui.label(
+                            "Preview renders a short sample; Full Podcast renders the whole script (slower, more ElevenLabs credits)."
+                        ).classes("mce-muted w-full")
+                        make_secondary_button("Generate Audio Preview", lambda: campaign_generate_podcast_audio(True))
+                        make_secondary_button("Generate Full Podcast", lambda: campaign_generate_podcast_audio(False))
+                        make_secondary_button("Send to Podcast Studio", send_campaign_podcast_to_studio)
                         make_secondary_button(
                             "Download MP3",
                             lambda: ui.download(campaign_podcast_audio_path.value) if campaign_podcast_audio_path.value else ui.notify("Generate audio first.", type="warning"),
@@ -6949,7 +7431,8 @@ Return concise angle options with why each is newsworthy."""
                             with ui.card().classes("mce-subcard"):
                                 subcard_heading("Format and metadata")
                                 podcast_format_native = apply_field_props(ui.select(PODCAST_FORMAT_OPTIONS, value=PODCAST_FORMAT_OPTIONS[0], label="Podcast format"))
-                                podcast_speakers_native = apply_field_props(ui.input(label="Podcast speaker count", placeholder="For example: 2"))
+                                podcast_variant_native = apply_field_props(ui.select(style_choices("podcast"), value=default_style("podcast"), label="Style / variant"))
+                                podcast_speakers_native = apply_field_props(ui.number(label="Podcast speaker count", value=2, min=1, format="%.0f"))
                                 podcast_roles_native = apply_field_props(ui.input(label="Speaker roles / names", placeholder="e.g. Host: Maya, Guest: Carlos"))
                                 podcast_tone_native = apply_field_props(ui.select(PODCAST_TONE_OPTIONS, multiple=True, label="Podcast tone"), "outlined dense use-chips clearable")
                                 podcast_length_native = apply_field_props(ui.select(PODCAST_LENGTH_OPTIONS, value=PODCAST_LENGTH_OPTIONS[0], label="Podcast target length"))
@@ -6967,7 +7450,7 @@ Return concise angle options with why each is newsworthy."""
                                         ui.input(label="Resolved voice casting", placeholder="Host=voice_id, Guest=voice_id"),
                                     ).props("readonly outlined dense")
                                     podcast_voice_ids_native.visible = False
-                                    voice_load_status = readonly_input("Voice library status", "Loading ElevenLabs voices...")
+                                    voice_load_status = readonly_input("Voice library status", "Loading ElevenLabs voices...", mono=False)
                                     podcast_host_voice = apply_field_props(ui.select({}, label="Host voice"))
                                     podcast_guest_voice = apply_field_props(ui.select({}, label="Guest voice"))
                                     podcast_guest_2_voice = apply_field_props(ui.select({}, label="Guest 2 / co-host voice"))
@@ -6988,11 +7471,12 @@ Return concise angle options with why each is newsworthy."""
                     with ui.card().classes("mce-card mce-sticky"):
                         section_heading("Podcast Output", "Edit the generated script, preview audio, and download the finished package.")
                         with ui.column().classes("mce-stack w-full"):
-                            podcast_status = readonly_input("Status", "Ready")
-                            podcast_draft_progress = ui.linear_progress(value=0).classes("w-full")
+                            podcast_status = readonly_input("Status", "No script generated yet.", mono=False)
+                            podcast_draft_progress = ui.linear_progress(value=0, show_value=False).classes("w-full")
                             podcast_draft_progress.visible = False
                             podcast_draft_progress_label = ui.label("Ready").classes("mce-muted")
                             podcast_generated_output = ui.textarea(label="Script editor", value="").props("outlined autogrow").classes("w-full mce-script-textarea")
+                            attach_podcast_script_toolbox(podcast_generated_output, "mce-podcast-script-studio")
                             podcast_script_meta = ui.label("0 words · ~0.0 min").classes("mce-muted")
 
                             def update_podcast_script_meta() -> None:
@@ -7004,13 +7488,13 @@ Return concise angle options with why each is newsworthy."""
                             update_podcast_script_meta()
                             podcast_result_actions = ui.row().classes("mce-actions")
                             podcast_audio_status = readonly_input("Audio status / errors", "Generate a preview or full podcast when the script is ready.")
-                            podcast_audio_progress = ui.linear_progress(value=0).classes("w-full")
+                            podcast_audio_progress = ui.linear_progress(value=0, show_value=False).classes("w-full")
                             podcast_audio_progress.visible = False
                             podcast_audio_progress_label = ui.label("Ready").classes("mce-muted")
                             podcast_audio_player = ui.audio("", controls=True).classes("mce-audio")
-                            podcast_audio_path = readonly_input("Podcast MP3 path", "")
-                            podcast_audio_package_path = readonly_input("Audio package path", "")
-                            podcast_audio_saved_draft_path = readonly_input("Saved audio draft", "")
+                            podcast_audio_path = readonly_input("Podcast MP3 path", "Not generated yet")
+                            podcast_audio_package_path = readonly_input("Audio package path", "Not generated yet")
+                            podcast_audio_saved_draft_path = readonly_input("Saved audio draft", "Not generated yet")
                             with ui.expansion("Draft artifacts", icon="inventory_2").classes("mce-expansion"):
                                 with ui.column().classes("mce-stack w-full"):
                                     podcast_filtered_context_path = readonly_input("Filtered context", "")
@@ -7098,7 +7582,7 @@ Return concise angle options with why each is newsworthy."""
                             )
                             await generate_draft_from_fields(
                                 content_type="podcast",
-                                topic=podcast_topic.value,
+                                topic=(f"Podcast style / variant: {podcast_variant_native.value}\n{podcast_topic.value}" if podcast_variant_native.value else podcast_topic.value),
                                 related_book=podcast_related_book.value,
                                 platform=podcast_platform.value,
                                 social_objectives=podcast_social_objectives.value,
@@ -7109,7 +7593,7 @@ Return concise angle options with why each is newsworthy."""
                                 quote_moods="Not applicable",
                                 character_tags="Not applicable",
                                 podcast_format=podcast_format_native.value,
-                                podcast_speakers=podcast_speakers_native.value,
+                                podcast_speakers=(str(int(podcast_speakers_native.value)) if podcast_speakers_native.value else ""),
                                 podcast_roles=podcast_roles_native.value,
                                 podcast_tone=podcast_tone_native.value,
                                 podcast_length=podcast_length_native.value,
@@ -7162,6 +7646,8 @@ Return concise angle options with why each is newsworthy."""
                                 visual_theme_name="",
                                 saved_draft_path=podcast_saved_draft_path,
                             )
+                            if str(podcast_generated_output.value or "").strip():
+                                record_session_draft("podcast", str(podcast_topic.value or ""))
                             await set_generation_progress(
                                 progress=podcast_draft_progress,
                                 label=podcast_draft_progress_label,
@@ -7245,6 +7731,9 @@ Return concise angle options with why each is newsworthy."""
                             pass
 
                     def download_podcast_script() -> None:
+                        if not str(podcast_generated_output.value or "").strip():
+                            ui.notify("Generate a script first.", type="warning")
+                            return
                         download_docx(
                             podcast_generated_output.value,
                             (str(podcast_episode_title_native.value or "").strip() or str(podcast_show_title_native.value or "").strip() or "podcast_script"),
@@ -7257,7 +7746,10 @@ Return concise angle options with why each is newsworthy."""
                         make_secondary_button("Retry / Regenerate Script", generate_podcast_content)
                         make_secondary_button("Download Script", download_podcast_script)
                     with podcast_audio_actions:
-                        ui.label("2. Render audio from the script above:").classes("mce-muted w-full")
+                        ui.label(
+                            "2. Render audio from the script above. Preview renders a short sample; "
+                            "Full Podcast renders the whole script (slower, more ElevenLabs credits)."
+                        ).classes("mce-muted w-full")
                         make_secondary_button("Generate Audio Preview", generate_audio_preview)
                         make_secondary_button("Generate Full Podcast", generate_full_podcast_audio)
                         make_secondary_button("Retry Audio Preview", generate_audio_preview)
@@ -7270,6 +7762,11 @@ Return concise angle options with why each is newsworthy."""
                             "Download Package",
                             lambda: ui.download(podcast_audio_package_path.value) if podcast_audio_package_path.value else ui.notify("Generate audio first.", type="warning"),
                         )
+
+                    # Hide the script/audio action rows until a script actually exists.
+                    _has_script = lambda v: bool(str(v or "").strip())
+                    podcast_result_actions.bind_visibility_from(podcast_generated_output, "value", backward=_has_script)
+                    podcast_audio_actions.bind_visibility_from(podcast_generated_output, "value", backward=_has_script)
 
             with ui.tab_panel(saved_drafts_tab).classes("mce-panel"):
                 with ui.card().classes("mce-card"):
@@ -7397,6 +7894,35 @@ Return concise angle options with why each is newsworthy."""
                         form_fields = metadata.get("form_fields") or {}
                         content = read_saved_draft_content(str(selected_id))
                         draft_type = record.get("content_type") or ""
+
+                        if draft_type == "chapter_promo":
+                            # Chapter promos have their own tab; restore the book/chapter/platforms
+                            # selection and the generated content so it can be edited or regenerated.
+                            open_chapter_promos()
+                            book_value = metadata.get("book")
+                            if book_value:
+                                try:
+                                    chapter_book.value = book_value  # triggers chapter option refresh
+                                except Exception:
+                                    pass
+                            chapter_label = metadata.get("chapter")
+                            if book_value and chapter_label:
+                                options = chapter_reader.chapter_options(book_value)
+                                target_id = next((cid for cid, lbl in options.items() if lbl == chapter_label), None)
+                                if target_id:
+                                    try:
+                                        chapter_select.value = target_id
+                                    except Exception:
+                                        pass
+                            saved_platforms = metadata.get("platforms")
+                            if saved_platforms:
+                                try:
+                                    chapter_platforms.value = saved_platforms
+                                except Exception:
+                                    pass
+                            chapter_output.value = content
+                            ui.notify("Chapter promos loaded — edit or regenerate.", type="positive")
+                            return
 
                         if draft_type == "campaign_mode":
                             open_campaign()
@@ -7562,13 +8088,13 @@ Return concise angle options with why each is newsworthy."""
 
                     render_saved_draft_list()
 
-        # NTH-01: keyboard shortcuts (Cmd/Ctrl+1..5 tabs, Cmd/Ctrl+Enter generate, Cmd/Ctrl+S save).
+        # NTH-01: keyboard shortcuts (Cmd/Ctrl+1..6 tabs, Cmd/Ctrl+Enter generate, Cmd/Ctrl+S save).
         ui.add_body_html(
             """
             <script>
             document.addEventListener('keydown', (e) => {
                 const mod = e.metaKey || e.ctrlKey;
-                if (mod && (e.key === 's' || (e.key >= '1' && e.key <= '5'))) {
+                if (mod && (e.key === 's' || (e.key >= '1' && e.key <= '6'))) {
                     e.preventDefault();
                 }
             }, true);
@@ -7588,6 +8114,7 @@ Return concise angle options with why each is newsworthy."""
                 "3": saved_drafts_tab,
                 "4": campaign_tab,
                 "5": podcast_tab,
+                "6": chapter_promos_tab,
             }
             if key_name in tab_map:
                 tabs.value = tab_map[key_name]

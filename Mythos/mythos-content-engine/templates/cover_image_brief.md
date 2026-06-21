@@ -2,7 +2,7 @@
 
 ## Role
 
-You are writing a creative brief for a book or promotional cover image for Mythos Content Engine, aligned with the brand voice.
+You are writing a creative brief for a book or promotional cover image for Tell Tales Ink, aligned with the brand voice.
 
 ## Knowledge Base Context
 

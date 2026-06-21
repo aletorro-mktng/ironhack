@@ -1,4 +1,4 @@
-"""Compatibility entrypoint for the NiceGUI Mythos Content Engine UI.
+"""Compatibility entrypoint for the NiceGUI Tell Tales Ink UI.
 
 The old Gradio implementation has been retired from this launcher. Keep this
 file as the stable `python src/ui.py` entrypoint, while the actual NiceGUI app

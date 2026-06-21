@@ -2,7 +2,7 @@
 
 ## **Purpose**
 
-This file defines the voice for Mythos content, especially promotional, editorial, and social content for the Mortal Vengeance series. It should make every caption, post, blog, newsletter blurb, character spotlight, and teaser feel like it belongs to the same dark, cinematic world.
+This file defines the voice for Tell Tales Ink content, especially promotional, editorial, and social content for the Mortal Vengeance series. It should make every caption, post, blog, newsletter blurb, character spotlight, and teaser feel like it belongs to the same dark, cinematic world.
 
 Mortal Vengeance content should never sound like generic thriller marketing. It should sound like it came from a world where Catholic guilt has teeth, Santo Domingo remembers everything, silence becomes evidence, and the camera is always already recording.
 
@@ -13,7 +13,7 @@ It has dread, beauty, accusation, humor, heat, faith, betrayal, spectacle, and a
 
 ## **Mortal Vengeance Flagship Identity**
 
-For the MVP, Mythos Content Engine uses the Mortal Vengeance series as its flagship case study.
+For the MVP, Tell Tales Ink uses the Mortal Vengeance series as its flagship case study.
 
 Mortal Vengeance content should feel rooted in:
 
@@ -47,7 +47,7 @@ A Caribbean Gothic horror-thriller universe where old wounds become public recor
 
 ## **Core Voice**
 
-Mythos speaks with controlled intensity and a blade hidden under the tongue.
+Tell Tales Ink speaks with controlled intensity and a blade hidden under the tongue.
 
 The voice is:
 
@@ -95,7 +95,7 @@ The spectacle must reveal character.
 
 ## **Brand Personality**
 
-Mythos is the voice of a storyteller who understands revenge, grief, guilt, betrayal, loyalty, performance, and consequence.
+Tell Tales Ink is the voice of a storyteller who understands revenge, grief, guilt, betrayal, loyalty, performance, and consequence.
 
 It does not flatten characters into heroes and villains.  
 It knows people can be loyal and cruel.  
@@ -103,7 +103,7 @@ It knows victims can become dangerous.
 It knows institutions can hide behind polished floors, school crests, Latin mottos, smiling publicity photos, and a well-managed final edit.  
 It knows the camera changes everything.
 
-Mythos does not say, “Look at this thrilling story.”  
+Tell Tales Ink does not say, “Look at this thrilling story.”  
 It says:
 
 * Look closer.  

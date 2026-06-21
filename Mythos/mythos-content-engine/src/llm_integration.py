@@ -106,7 +106,7 @@ def generate_text_with_image(prompt: str, image_path: str | Path, model: str = D
 
 
 if __name__ == "__main__":
-    test_prompt = "Write one sentence confirming the Mythos Content Engine is working."
+    test_prompt = "Write one sentence confirming the Tell Tales Ink is working."
 
     result = generate_text(test_prompt)
 

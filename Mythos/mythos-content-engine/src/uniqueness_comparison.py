@@ -1,4 +1,4 @@
-"""Create a saved Mythos vs ChatGPT uniqueness comparison."""
+"""Create a saved Tell Tales Ink vs ChatGPT uniqueness comparison."""
 
 from __future__ import annotations
 
@@ -124,7 +124,7 @@ Instructions:
 - {instruction}
 - Make it clear, polished, and ready to use.
 - Use only the topic supplied by the user and general writing knowledge.
-- Do not use the Mythos Content Engine, private knowledge bases, brand documents,
+- Do not use the Tell Tales Ink, private knowledge bases, brand documents,
   manuscript details, review bank, quote bank, or project-specific context.
 - If details are missing, stay general instead of inventing specifics.
 
@@ -164,7 +164,7 @@ show up when the knowledge bases are shaping the output.
 
 {render_counts(chatgpt_counts)}
 
-### Mythos Output Signals
+### Tell Tales Ink Output Signals
 
 {render_counts(mythos_counts)}
 """
@@ -186,7 +186,7 @@ def render_report(
         path = Path(path)
         return path if path.is_absolute() else PROJECT_ROOT / path
 
-    return f"""# Mythos vs ChatGPT Uniqueness Comparison
+    return f"""# Tell Tales Ink vs ChatGPT Uniqueness Comparison
 
 Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
@@ -199,15 +199,15 @@ Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 - ChatGPT baseline prompt: `{display_path(chatgpt_prompt_path)}`
 - ChatGPT baseline output: `{display_path(chatgpt_output_path)}`
-- Mythos filtered context: `{display_path(mythos_result["filtered_context_path"])}`
-- Mythos generation prompt: `{display_path(mythos_result["prompt_path"])}`
-- Mythos draft: `{display_path(mythos_result["draft_path"])}`
+- Tell Tales Ink filtered context: `{display_path(mythos_result["filtered_context_path"])}`
+- Tell Tales Ink generation prompt: `{display_path(mythos_result["prompt_path"])}`
+- Tell Tales Ink draft: `{display_path(mythos_result["draft_path"])}`
 
 ## What This Demonstrates
 
 The ChatGPT baseline is produced from a fresh-chat prompt with no project
-documents, no Mythos knowledge base, and no reusable Mythos templates.
-The Mythos output is produced through the two-stage pipeline: first the app
+documents, no Tell Tales Ink knowledge base, and no reusable Tell Tales Ink templates.
+The Tell Tales Ink output is produced through the two-stage pipeline: first the app
 selects relevant markdown context from the primary and secondary knowledge
 bases, then it generates with the content-type template.
 
@@ -231,7 +231,7 @@ Evidence to look for:
 
 {chatgpt_output}
 
-## Mythos Content Engine Output
+## Tell Tales Ink Output
 
 {mythos_output}
 
@@ -243,9 +243,9 @@ Decision: Pass / Needs revision / Fail
 
 ### Scorecard
 
-| Criterion | ChatGPT Baseline | Mythos Output | Human Notes |
+| Criterion | ChatGPT Baseline | Tell Tales Ink Output | Human Notes |
 |---|---|---|---|
-| Brand specificity |  |  | Does the output sound tied to Mythos/Mortal Vengeance rather than any thriller book? |
+| Brand specificity |  |  | Does the output sound tied to Tell Tales Ink/Mortal Vengeance rather than any thriller book? |
 | Context use |  |  | Does it use knowledge from markdown files without dumping irrelevant context? |
 | Audience fit |  |  | Does it address the selected reader, platform, or media audience? |
 | Format fit |  |  | Does it match the selected content type's real-world format? |
@@ -254,8 +254,8 @@ Decision: Pass / Needs revision / Fail
 
 ### Human Notes
 
-- Where Mythos is more specific:
-- Where Mythos still feels too much like ChatGPT:
+- Where Tell Tales Ink is more specific:
+- Where Tell Tales Ink still feels too much like ChatGPT:
 - Required edits before this evidence is submission-ready:
 """
 
@@ -306,7 +306,7 @@ def run_uniqueness_comparison(
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Compare a fresh ChatGPT response against Mythos Content Engine output "
+            "Compare a fresh ChatGPT response against Tell Tales Ink output "
             "and save a Markdown evidence report for human assessment."
         )
     )
@@ -319,7 +319,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--topic",
         default=DEFAULT_TOPIC,
-        help="Content request to use for both ChatGPT and Mythos outputs.",
+        help="Content request to use for both ChatGPT and Tell Tales Ink outputs.",
     )
     parser.add_argument(
         "--topic-file",
@@ -357,9 +357,9 @@ def main() -> None:
     print(f"Report: {result['report_path']}")
     print(f"ChatGPT baseline prompt: {result['chatgpt_prompt_path']}")
     print(f"ChatGPT baseline output: {result['chatgpt_output_path']}")
-    print(f"Mythos filtered context: {result['mythos_filtered_context_path']}")
-    print(f"Mythos generation prompt: {result['mythos_prompt_path']}")
-    print(f"Mythos draft: {result['mythos_draft_path']}")
+    print(f"Tell Tales Ink filtered context: {result['mythos_filtered_context_path']}")
+    print(f"Tell Tales Ink generation prompt: {result['mythos_prompt_path']}")
+    print(f"Tell Tales Ink draft: {result['mythos_draft_path']}")
 
 
 if __name__ == "__main__":

@@ -796,7 +796,7 @@ Pull at least something from every source that has relevant material. Do not col
 """
 
     return f"""
-You are the context filtering layer for Mythos Content Engine.
+You are the context filtering layer for Tell Tales Ink.
 
 Your task is NOT to write the final content.
 

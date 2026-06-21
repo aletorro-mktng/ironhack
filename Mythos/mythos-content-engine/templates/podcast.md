@@ -180,6 +180,22 @@ Use intro and outro music tags when requested:
 
 `[OUTRO MUSIC: same theme, warmer ending, 12 seconds]`
 
+## Stock Transition and Sound Library
+
+Weave a few transition and sound-design cues into the script at natural beats (scene
+changes, reveals, tension shifts, act breaks). Use them sparingly — a handful per
+episode, not on every line. Draw from this stock library, each on its own line:
+
+- Transitions: `[TRANSITION: hard cut]`, `[TRANSITION: crossfade]`, `[TRANSITION: whoosh]`, `[TRANSITION: riser]`, `[TRANSITION: stinger]`, `[TRANSITION: glitch]`, `[TRANSITION: time jump]`, `[TRANSITION: scene change]`
+- Sound effects: `[SFX: heartbeat]`, `[SFX: footsteps]`, `[SFX: door creak]`, `[SFX: phone buzz]`, `[SFX: camera shutter]`, `[SFX: thunder]`, `[SFX: rain]`, `[SFX: wind howl]`, `[SFX: clock ticking]`, `[SFX: paper rustle]`, `[SFX: glass shatter]`, `[SFX: distant scream]`, `[SFX: vinyl crackle]`, `[SFX: static burst]`, `[SFX: tense drone]`
+- Music: `[INTRO MUSIC: ...]`, `[OUTRO MUSIC: ...]`, `[MUSIC BED: tense underscore]`, `[STINGER: dramatic hit]`
+
+These transition, SFX, and music cues are producer notes. They are not spoken and are
+stripped before TTS rendering — keep them on their own lines so they stay separate from
+spoken text. Performance cues and emotional tags (such as `[laughs]`, `[whispers]`,
+`[nervous]`, `[somber]`) go inline, directly before the line they shape, and may be
+rendered by ElevenLabs v3.
+
 ## ElevenLabs Voice Plan Requirements
 
 For each speaker, include:

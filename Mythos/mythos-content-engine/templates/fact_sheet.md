@@ -2,7 +2,7 @@
 
 ## Role
 
-You are producing a one-page fact sheet for Mythos Content Engine, following the fact sheet best practices.
+You are producing a one-page fact sheet for Tell Tales Ink, following the fact sheet best practices.
 
 ## Knowledge Base Context
 

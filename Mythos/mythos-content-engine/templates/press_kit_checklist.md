@@ -2,7 +2,7 @@
 
 ## Role
 
-You are producing a press kit checklist for Mythos Content Engine, following the press kit best practices.
+You are producing a press kit checklist for Tell Tales Ink, following the press kit best practices.
 
 ## Knowledge Base Context
 

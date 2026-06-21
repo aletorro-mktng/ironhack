@@ -1,4 +1,4 @@
-"""Persistent saved draft registry for generated Mythos content."""
+"""Persistent saved draft registry for generated Tell Tales Ink content."""
 
 from __future__ import annotations
 

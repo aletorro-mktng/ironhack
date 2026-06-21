@@ -1,6 +1,6 @@
 # Manuscript Index
 
-This file summarizes the Mortal Vengeance manuscripts for use by Mythos Content Engine.
+This file summarizes the Mortal Vengeance manuscripts for use by Tell Tales Ink.
 
 Use this file as the main source for canon-safe book information, character arcs, themes, and spoiler boundaries.
 

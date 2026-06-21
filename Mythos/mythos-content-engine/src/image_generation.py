@@ -1,4 +1,4 @@
-"""External image-generation routing for Mythos visual assets."""
+"""External image-generation routing for Tell Tales Ink visual assets."""
 
 from __future__ import annotations
 
@@ -99,7 +99,7 @@ def save_base64_png(encoded: str, output_path: Path) -> Path:
 
 def download_image(url: str, output_path: Path) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    request = urllib.request.Request(url, headers={"User-Agent": "MythosContentEngine/1.0"})
+    request = urllib.request.Request(url, headers={"User-Agent": "TellTalesInk/1.0"})
     with urllib.request.urlopen(request, timeout=120) as response:
         content_type = response.headers.get("content-type", "")
         extension = mimetypes.guess_extension(content_type.split(";")[0].strip()) or output_path.suffix or ".png"
@@ -216,7 +216,7 @@ def build_visual_prompt(
     return "\n".join(
         part
         for part in [
-            f"Create a brand-new Mythos Content Engine visual asset for: {use_case}.",
+            f"Create a brand-new Tell Tales Ink visual asset for: {use_case}.",
             f"Destination format: {format_label}.",
             f"Visual style: {style or 'Gothic, literary, cinematic, premium'}." ,
             f"Topic/context: {topic}".strip(),

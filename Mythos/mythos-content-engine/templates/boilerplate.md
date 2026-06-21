@@ -2,7 +2,7 @@
 
 ## Role
 
-You are writing a reusable author/company boilerplate for Mythos Content Engine, following the boilerplate best practices.
+You are writing a reusable author/company boilerplate for Tell Tales Ink, following the boilerplate best practices.
 
 ## Knowledge Base Context
 

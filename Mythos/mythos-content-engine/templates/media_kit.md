@@ -2,7 +2,7 @@
 
 ## Role
 
-You are producing a one-to-two page author/brand media kit for Mythos Content Engine, aligned with the brand voice and the media & author marketing best practices.
+You are producing a one-to-two page author/brand media kit for Tell Tales Ink, aligned with the brand voice and the media & author marketing best practices.
 
 ## Knowledge Base Context
 

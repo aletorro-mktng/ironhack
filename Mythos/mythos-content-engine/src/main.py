@@ -234,9 +234,9 @@ def collect_brief(content_type):
 
 def main():
     """
-    CLI entry point for Mythos Content Engine.
+    CLI entry point for Tell Tales Ink.
     """
-    print("\nMythos Content Engine")
+    print("\nTell Tales Ink")
     print("=====================")
     print("Generate brand-specific social content using filtered Mortal Vengeance knowledge.")
 

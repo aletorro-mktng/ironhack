@@ -2,7 +2,7 @@
 
 ## Role
 
-You are writing a concise, relevance-first media pitch email for Mythos Content Engine, following the pitch email best practices.
+You are writing a concise, relevance-first media pitch email for Tell Tales Ink, following the pitch email best practices.
 
 ## Knowledge Base Context
 

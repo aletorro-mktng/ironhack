@@ -95,7 +95,7 @@ Here is the optimal setup for the *Mortal Vengeance* backend:
 | :---- | :---- | :---- |
 | **Slot 1** | **Core Subgenre** | dark academia books new adult horror thriller elite boarding school |
 | **Slot 2** | **Setting & Aesthetic** | caribbean gothic horror latin american fiction santo domingo dominican republic |
-| **Slot 3** | **Antagonist & Mythos** | folkloric horror folk monsters psychological slow burn grim cojuelo |
+| **Slot 3** | **Antagonist & Tell Tales Ink** | folkloric horror folk monsters psychological slow burn grim cojuelo |
 | **Slot 4** | **Format & Style** | found footage mystery epistolary fiction mock transcripts recovered archive |
 | **Slot 5** | **Themes & Representation** | lgbtq thriller latino main characters mental health bpd representation |
 | **Slot 6** | **Trope Alignment** | slasher whodunit revenge gone wrong murder mystery campus novel |

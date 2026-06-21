@@ -1,6 +1,6 @@
 # Awards and Recognitions
 
-This file contains verified awards, recognitions, honors, finalist placements, longlist/shortlist mentions, rankings, badges, media selections, festival selections, and other public proof points for the Mortal Vengeance series and related Mythos projects.
+This file contains verified awards, recognitions, honors, finalist placements, longlist/shortlist mentions, rankings, badges, media selections, festival selections, and other public proof points for the Mortal Vengeance series and related Tell Tales Ink projects.
 
 Use this file as the source of truth for award and recognition claims.
 

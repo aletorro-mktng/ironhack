@@ -2,7 +2,7 @@
 
 ## Role
 
-You are writing a sales-page book description for Mythos Content Engine, following the book description best practices.
+You are writing a sales-page book description for Tell Tales Ink, following the book description best practices.
 
 ## Knowledge Base Context
 

@@ -6364,19 +6364,19 @@ Mortal Vengeance
 
 ### Speaker / Source
 
-Alex Herrera
+Melissa Rocha
 
 ### Character Tags
 
-Alex Herrera, Melissa Rocha, Luis Rocha
+Alex Herrera, Melissa Rocha,
 
 ### Mood Tags
 
-snarky
+honest, romantic, 
 
 ### Theme Tags
 
-manipulation, survival, reputation
+mental health, romance, dramatic, emotional, 
 
 ### Spoiler Level
 

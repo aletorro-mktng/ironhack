@@ -25,11 +25,11 @@ Before green‑lighting any content, I require the objective to be written in on
 
 ---
 
-Absolutely. This keeps the strategic spine, but makes it feel like Mythos: sharper, story-first, intent-led, and allergic to “we need content because the calendar is hungry.”
+Absolutely. This keeps the strategic spine, but makes it feel like Tell Tales Ink: sharper, story-first, intent-led, and allergic to “we need content because the calendar is hungry.”
 
 ## 2) Audience & Intent
 
-Mythos plans content around **intent**, not formats.
+Tell Tales Ink plans content around **intent**, not formats.
 
 Formats are chosen only after the intent is clear.
 
@@ -79,7 +79,7 @@ And replaces them with intent-driven decisions like:
 
 **Example:**
 
-A long-form Mythos article about the Grim Cojuelo would not be written for “people interested in monsters.”
+A long-form Tell Tales Ink article about the Grim Cojuelo would not be written for “people interested in monsters.”
 
 That is too vague and frankly, lazy with a little hat on.
 
@@ -97,7 +97,7 @@ It gets everywhere and explains nothing.
 
 ## 3) Editorial Framework: Default Flow
 
-Unless there is a strong reason to deviate, Mythos content follows this structure:
+Unless there is a strong reason to deviate, Tell Tales Ink content follows this structure:
 
 1. **Problem / Tension**
    A real, recognizable pressure point, emotional conflict, mystery, or audience question.
@@ -113,7 +113,7 @@ Unless there is a strong reason to deviate, Mythos content follows this structur
 
 This applies to blog posts, videos, emails, social posts, landing pages, character spotlights, and campaign assets.
 
-For Mythos, the “problem” is not always practical.
+For Tell Tales Ink, the “problem” is not always practical.
 
 Sometimes the problem is:
 
@@ -139,7 +139,7 @@ From connection to action.
 
 ## 4) Channel Strategy
 
-Mythos does not treat channels equally.
+Tell Tales Ink does not treat channels equally.
 
 Each channel has a job.
 
@@ -164,7 +164,7 @@ A blog post is not a post.
 
 It is an asset.
 
-For Mythos, blog content should deepen the world. It should help readers understand why the story matters, why the mythology feels specific, and why the themes have weight beyond the plot.
+For Tell Tales Ink, blog content should deepen the world. It should help readers understand why the story matters, why the mythology feels specific, and why the themes have weight beyond the plot.
 
 Good blog angles include:
 
@@ -230,7 +230,7 @@ Speed and clarity outperform cinematic quality.
 
 The irony is delicious, yes, because the brand is cinematic. But vertical video is not a film festival submission. It is a knife fight in the attention economy, and the knife is the first three seconds.
 
-For Mythos, vertical video should be used when the idea benefits from immediacy:
+For Tell Tales Ink, vertical video should be used when the idea benefits from immediacy:
 
 * Fast premise hooks
 * Character introductions
@@ -242,7 +242,7 @@ For Mythos, vertical video should be used when the idea benefits from immediacy:
 * Award announcements
 * Trailer-style mood cuts
 * Short author commentary
-* Mythos content strategy examples
+* Tell Tales Ink content strategy examples
 
 Good vertical video logic:
 
@@ -268,7 +268,7 @@ Email is not a dumping ground for content.
 
 Every send must earn its place in the inbox.
 
-For Mythos, email should feel like the reader is being invited behind the curtain, not shoved into a sales funnel wearing a fake mustache.
+For Tell Tales Ink, email should feel like the reader is being invited behind the curtain, not shoved into a sales funnel wearing a fake mustache.
 
 Email can be used for:
 
@@ -296,7 +296,7 @@ A reason to stay.
 
 ## 5) Performance & Paid Alignment
 
-Mythos content is created to enable performance, even when it starts organic.
+Tell Tales Ink content is created to enable performance, even when it starts organic.
 
 Organic content is not separate from performance.
 
@@ -376,7 +376,7 @@ Core metrics to track:
 * Content reuse
 * Audience questions and comment themes
 
-**How Mythos uses them:**
+**How Tell Tales Ink uses them:**
 
 Performance is reviewed on a fixed cadence:
 
@@ -436,7 +436,7 @@ Governance decides if it ships.
 
 If it does not meet brand standards, it does not go out.
 
-For Mythos, quality control also means asking:
+For Tell Tales Ink, quality control also means asking:
 
 * Does this sound specific to this world?
 * Does this have a clear audience intent?
@@ -463,14 +463,14 @@ Content is not output.
 
 Content is **strategy made visible**.
 
-For Mythos, content should inform, position, seduce, unsettle, clarify, and move someone to act.
+For Tell Tales Ink, content should inform, position, seduce, unsettle, clarify, and move someone to act.
 
 If it does not deepen the world, sharpen the message, build trust, create desire, or move the audience closer to the next step, it is not finished.
 
 It is just noise in a nice outfit.
 Tone Flexibility: Darkness Can Still Be Fun
 
-Mythos is dark, but it is not joyless.
+Tell Tales Ink is dark, but it is not joyless.
 
 The Mortal Vengeance universe has horror, guilt, grief, revenge, institutional rot, and psychological fallout. It also has sharp jokes, absurd timing, dramatic entrances, petty insults, family chaos, reality-TV energy, social-media spectacle, and characters who use humor because otherwise they would emotionally combust in public.
 
@@ -490,7 +490,7 @@ A pop-culture reference that fits
 A social post with bite
 A caption that knows the situation is terrible and still finds the nerve to smirk
 
-Mythos can be:
+Tell Tales Ink can be:
 
 Dramatic
 Snarky
@@ -546,7 +546,7 @@ If the wound is fresh, do not make it cute.
 
 If the scene is theatrical, social, petty, ironic, or media-driven, let it bite.
 
-Examples of Fun Mythos Voice
+Examples of Fun Tell Tales Ink Voice
 
 Too serious:
 
@@ -602,6 +602,6 @@ If yes, use it.
 
 If no, cut it.
 
-Mythos can smile.
+Tell Tales Ink can smile.
 
 It should just smile like it knows something you do not.
