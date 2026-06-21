@@ -75,6 +75,8 @@ When Book/source is a specific book, select quotes only from entries whose `Book
 
 If the user selects `Mortal Vengeance: A Grim Tale`, select only entries whose `Book` field is `Mortal Vengeance: A Grim Tale`.
 
+If the user selects `Mortal Vengeance II: To Reel or Not Too Real?`, select only entries whose `Book` field is `Mortal Vengeance II: To Reel or Not Too Real?`. If no approved quote-bank entries exist for that book yet, use exact manuscript excerpts as labeled manuscript candidates.
+
 If the user selects `Mortal Vengeance`, select only entries whose `Book` field is `Mortal Vengeance`.
 
 If the user selects `All books`, search across all approved books in the Quote Bank.

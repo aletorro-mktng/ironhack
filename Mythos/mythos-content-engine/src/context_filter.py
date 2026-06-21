@@ -6,6 +6,10 @@ from pathlib import Path
 from document_processor import load_knowledge_base
 from llm_integration import generate_text
 from quote_semantic import query_relevance, quote_entry_id
+from manuscript_semantic import (
+    query_relevance as manuscript_query_relevance,
+    chunk_id as manuscript_chunk_id,
+)
 
 
 MAX_CHUNK_CHARS = 1800
@@ -14,6 +18,10 @@ QUOTE_POST_ENTRY_CAP = 80
 # Weight given to semantic (embedding) similarity when blended into the keyword
 # score, and how strongly a matching mood/category tag boosts an entry.
 SEMANTIC_SCORE_WEIGHT = 30
+# Manuscript chunks are large, so keyword overlap alone can be noisy; weight the
+# embedding-similarity signal higher than the quote-bank blend so genuinely
+# relevant passages surface even with little literal keyword overlap.
+MANUSCRIPT_SEMANTIC_WEIGHT = 80
 MOOD_TAG_MATCH_BOOST = 40
 QUOTE_POST_MANUSCRIPT_CAP = 24
 MANUSCRIPT_CONTEXT_CAP = 18
@@ -28,6 +36,10 @@ BOOK_MANUSCRIPT_FILES = {
     "Mortal Vengeance: A Grim Tale": (
         "mortal_vengeance_a_grim_tale.md",
         "mortalvengeance_agrimtale.md",
+    ),
+    "Mortal Vengeance II: To Reel or Not Too Real?": (
+        "mortal_vengeance_ii_to_reel_or_not_too_real.md",
+        "mortalvengeanceii_toreel_or_not_tooreal.md",
     ),
 }
 
@@ -127,6 +139,18 @@ KNOWN_CHARACTER_ALIASES = {
     "maría gracia": "Sister María Gracia",
     "padre ignacio": "Padre Ignacio",
     "ignacio": "Padre Ignacio",
+    # Mortal Vengeance II: To Reel or Not Too Real?
+    "valeria": "Valeria Viccini",
+    "valeria viccini": "Valeria Viccini",
+    "camila": "Camila Álvarez",
+    "camila alvarez": "Camila Álvarez",
+    "camila álvarez": "Camila Álvarez",
+    "rafa": "Rafael Montero",
+    "rafael": "Rafael Montero",
+    "rafa montero": "Rafael Montero",
+    "rafael montero": "Rafael Montero",
+    "shane": "Shane Harper",
+    "shane harper": "Shane Harper",
 }
 
 
@@ -188,7 +212,11 @@ def requested_books(topic: str) -> list[str]:
         books.extend(extract_requested_line_values(topic, label))
 
     topic_lookup = normalize_lookup(topic)
-    if "mortal vengeance a grim tale" in topic_lookup and "Mortal Vengeance: A Grim Tale" not in books:
+    # Check the more specific titles first: "mortal vengeance ii" and
+    # "...a grim tale" both contain the plain "mortal vengeance" substring.
+    if "mortal vengeance ii" in topic_lookup and "Mortal Vengeance II: To Reel or Not Too Real?" not in books:
+        books.append("Mortal Vengeance II: To Reel or Not Too Real?")
+    elif "mortal vengeance a grim tale" in topic_lookup and "Mortal Vengeance: A Grim Tale" not in books:
         books.append("Mortal Vengeance: A Grim Tale")
     elif "mortal vengeance" in topic_lookup and not books:
         books.append("Mortal Vengeance")
@@ -519,11 +547,25 @@ def build_manuscript_quote_candidates(document: dict, topic: str, keywords: set[
     requested_character_names = requested_characters(topic)
     requested_book_names = requested_books(topic)
     chunks = split_text_into_chunks(document["content"], max_chars=2400)
+
+    # Semantic pre-rank over the manuscript passages themselves: this is what makes
+    # quote discovery a true RAG over the novel text rather than keyword matching.
+    # Returns {} (no effect) when embeddings are unavailable, so keyword retrieval
+    # still works offline.
+    semantic_query = " ".join(
+        part for part in [topic, " ".join(requested_character_names)] if part
+    )
+    semantic_scores = manuscript_query_relevance(semantic_query, chunks)
+
     scored = []
 
     for index, chunk in enumerate(chunks, start=1):
         chunk_lookup = normalize_lookup(chunk)
         score = len(keywords.intersection(tokenize(chunk)))
+
+        cosine = semantic_scores.get(manuscript_chunk_id(chunk), 0.0)
+        if cosine:
+            score += int(round(max(0.0, min(1.0, cosine)) * MANUSCRIPT_SEMANTIC_WEIGHT))
 
         if requested_character_names:
             if any(normalize_lookup(character) in chunk_lookup for character in requested_character_names):
@@ -566,6 +608,15 @@ def build_private_manuscript_context_candidates(document: dict, topic: str, keyw
     requested_character_names = requested_characters(topic)
     topic_lookup = normalize_lookup(topic)
     chunks = split_text_into_chunks(document["content"], max_chars=2600)
+
+    # Semantic pre-rank over manuscript passages so canon grounding, teasers, and
+    # excerpt discovery retrieve the passages that actually match the request's
+    # meaning. Empty (no effect) when embeddings are unavailable.
+    semantic_query = " ".join(
+        part for part in [topic, " ".join(requested_character_names)] if part
+    )
+    semantic_scores = manuscript_query_relevance(semantic_query, chunks)
+
     scored = []
 
     manuscript_intent_terms = {
@@ -578,6 +629,10 @@ def build_private_manuscript_context_candidates(document: dict, topic: str, keyw
         chunk_lookup = normalize_lookup(chunk)
         chunk_tokens = tokenize(chunk)
         score = len(keywords.intersection(chunk_tokens))
+
+        cosine = semantic_scores.get(manuscript_chunk_id(chunk), 0.0)
+        if cosine:
+            score += int(round(max(0.0, min(1.0, cosine)) * MANUSCRIPT_SEMANTIC_WEIGHT))
 
         if requested_character_names:
             if any(normalize_lookup(character) in chunk_lookup for character in requested_character_names):

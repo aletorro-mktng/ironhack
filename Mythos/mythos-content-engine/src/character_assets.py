@@ -9,6 +9,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CHARACTER_NAME_DIR = PROJECT_ROOT / "assets" / "character_names"
 CHARACTER_PORTRAIT_DIR = PROJECT_ROOT / "assets" / "character_portraits" / "book1"
+CHARACTER_PORTRAIT_DIR_BOOK2 = PROJECT_ROOT / "assets" / "character_portraits" / "book2"
 
 
 CHARACTER_NAME_ASSETS = {
@@ -49,6 +50,23 @@ BOOK1_CHARACTER_PORTRAITS = {
 }
 
 
+# Portraits for Mortal Vengeance II: To Reel or Not Too Real? (Book 2). Several
+# characters recur from Book 1 (Alex, Mario, Melissa, Mónika) but get a distinct
+# Book 2 portrait; the rest are new to Book 2.
+BOOK2_CHARACTER_PORTRAITS = {
+    "Alex Herrera": "alex_herrera.png",
+    "Mario Stinga": "mario_stinga.png",
+    "Lucía Salgado": "lucia_salgado.png",
+    "Valeria Viccini": "valeria_viccini.png",
+    "Doña Silvia": "dona_silvia.png",
+    "Camila Álvarez": "camila_alvarez.png",
+    "Rafael Montero": "rafael_montero.png",
+    "Shane Harper": "shane_harper.png",
+    "Melissa Rocha": "melissa_rocha.png",
+    "Mónika Torres": "monika_torres.png",
+}
+
+
 _ASSET_ALIASES = {
     "alex": "Alex Herrera",
     "alex herrera": "Alex Herrera",
@@ -78,6 +96,21 @@ _ASSET_ALIASES = {
     "monica torres": "Mónika Torres",
     "profesora lourdes": "Profesora Lourdes",
     "lourdes": "Profesora Lourdes",
+    # Mortal Vengeance II characters
+    "lucia": "Lucía Salgado",
+    "lucia salgado": "Lucía Salgado",
+    "valeria": "Valeria Viccini",
+    "valeria viccini": "Valeria Viccini",
+    "camila": "Camila Álvarez",
+    "camila alvarez": "Camila Álvarez",
+    "rafa": "Rafael Montero",
+    "rafael": "Rafael Montero",
+    "rafa montero": "Rafael Montero",
+    "rafael montero": "Rafael Montero",
+    "shane": "Shane Harper",
+    "shane harper": "Shane Harper",
+    "dona silvia": "Doña Silvia",
+    "silvia": "Doña Silvia",
 }
 
 
@@ -95,9 +128,18 @@ def canonical_character_name(character_name) -> str:
     text = str(character_name or "").strip()
     if not text:
         return ""
-    if text in CHARACTER_NAME_ASSETS or text in BOOK1_CHARACTER_PORTRAITS:
+    if (
+        text in CHARACTER_NAME_ASSETS
+        or text in BOOK1_CHARACTER_PORTRAITS
+        or text in BOOK2_CHARACTER_PORTRAITS
+    ):
         return text
     return _ASSET_ALIASES.get(normalize_asset_key(text), text)
+
+
+def _is_book2(book) -> bool:
+    """True when the selected book/source refers to Mortal Vengeance II."""
+    return "mortal vengeance ii" in normalize_asset_key(book)
 
 
 def resolve_character_name_asset(character_name) -> Path | None:
@@ -110,22 +152,40 @@ def resolve_character_name_asset(character_name) -> Path | None:
     return path if path.exists() else None
 
 
-def resolve_character_portrait_asset(character_name) -> Path | None:
-    """Return the Book 1 portrait for a selected character, when available."""
+def resolve_character_portrait_asset(character_name, book=None) -> Path | None:
+    """Return the portrait for a selected character, when available.
+
+    When ``book`` refers to Mortal Vengeance II, the Book 2 portrait is preferred
+    (recurring characters have a distinct Book 2 look); otherwise Book 1 is
+    preferred. Either way the other book is used as a fallback, so characters who
+    only have a portrait in one book still resolve regardless of the selection.
+    """
     canonical_name = canonical_character_name(character_name)
-    filename = BOOK1_CHARACTER_PORTRAITS.get(canonical_name)
-    if not filename:
-        return None
-    path = CHARACTER_PORTRAIT_DIR / filename
-    return path if path.exists() else None
+    if _is_book2(book):
+        search = (
+            (BOOK2_CHARACTER_PORTRAITS, CHARACTER_PORTRAIT_DIR_BOOK2),
+            (BOOK1_CHARACTER_PORTRAITS, CHARACTER_PORTRAIT_DIR),
+        )
+    else:
+        search = (
+            (BOOK1_CHARACTER_PORTRAITS, CHARACTER_PORTRAIT_DIR),
+            (BOOK2_CHARACTER_PORTRAITS, CHARACTER_PORTRAIT_DIR_BOOK2),
+        )
+    for mapping, directory in search:
+        filename = mapping.get(canonical_name)
+        if filename:
+            path = directory / filename
+            if path.exists():
+                return path
+    return None
 
 
-def character_asset_note(character_name) -> str:
+def character_asset_note(character_name, book=None) -> str:
     """Human-readable note for prompts and saved metadata."""
     canonical_name = canonical_character_name(character_name)
     if not canonical_name:
         return "No character portrait selected."
-    portrait = resolve_character_portrait_asset(canonical_name)
+    portrait = resolve_character_portrait_asset(canonical_name, book=book)
     name_mark = resolve_character_name_asset(canonical_name)
     parts = [canonical_name]
     if portrait:

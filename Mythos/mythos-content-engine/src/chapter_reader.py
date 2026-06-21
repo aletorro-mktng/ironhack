@@ -26,7 +26,7 @@ CHAPTER_BOOK_FILES: dict[str, tuple[str, ...]] = {
         "mortal_vengeance_a_grim_tale.md",
         "mortalvengeance_agrimtale.md",
     ),
-    "Mortal Vengeance II: To Reel or Not Too Real": (
+    "Mortal Vengeance II: To Reel or Not Too Real?": (
         "mortal_vengeance_ii_to_reel_or_not_too_real.md",
         "mortalvengeanceii_toreel_or_not_tooreal.md",
     ),

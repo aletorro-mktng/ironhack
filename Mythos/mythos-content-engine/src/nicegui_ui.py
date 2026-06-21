@@ -936,7 +936,7 @@ def build_brief(
                 brief_line("Requested quote book/source", quote_book),
                 brief_line("Requested quote mood/category tags", quote_moods),
                 brief_line("Requested character tags", character_tags),
-                brief_line("Available character visual assets", character_asset_note(character_tags)),
+                brief_line("Available character visual assets", character_asset_note(character_tags, book=quote_book)),
             ]
         )
 
@@ -980,7 +980,7 @@ def build_brief(
                 brief_line("Character spotlight angle/focus", cs_focus),
                 brief_line("Character spotlight platform format", cs_platform_format),
                 brief_line("Character spotlight image mode", cs_image_mode),
-                brief_line("Available character visual assets", character_asset_note(cs_character)),
+                brief_line("Available character visual assets", character_asset_note(cs_character, book=related_book)),
             ]
         )
 
@@ -1220,7 +1220,7 @@ def build_campaign_asset_brief(
                 brief_line("Quote character tags", quote_characters),
                 brief_line("Quote image destination formats", quote_graphic_formats),
                 brief_line("Quote image color style", quote_graphic_theme),
-                brief_line("Available character visual assets", character_asset_note(quote_characters)),
+                brief_line("Available character visual assets", character_asset_note(quote_characters, book=quote_book)),
             ]
         )
     elif content_type == "review_pull_quote":
@@ -1247,7 +1247,7 @@ def build_campaign_asset_brief(
                 brief_line("Character spotlight subject", character_subject),
                 brief_line("Character spotlight destination format", character_format),
                 brief_line("Character spotlight image mode", character_image_mode),
-                brief_line("Available character visual assets", character_asset_note(character_subject)),
+                brief_line("Available character visual assets", character_asset_note(character_subject, book=campaign_book)),
             ]
         )
 
@@ -1444,6 +1444,7 @@ async def generate_campaign_from_fields(
                         campaign_topic=str(campaign_topic or "campaign"),
                         asset_number=index,
                         theme_override=post_theme,
+                        book=campaign_book,
                     )
                 # Campaign image generation for image-capable platforms (BUG-IMG-04 + LinkedIn/YouTube/Newsletter).
                 ig_image_paths: list[str] = []
@@ -1474,6 +1475,7 @@ async def generate_campaign_from_fields(
                             theme_name=post_visual_style,
                             image_content_type=widgets.get("image_content_type").value if widgets.get("image_content_type") else "",
                             base_image_path=post_base_image,
+                            book=(widgets.get("book").value if widgets.get("book") else campaign_book),
                         )
                         if isinstance(image_package, dict):
                             ig_image_paths = [str(p) for p in image_package.get("paths", [])]
@@ -1630,6 +1632,7 @@ async def generate_campaign_from_fields(
                                     theme_name=(wgts.get("visual_style").value if wgts.get("visual_style") else "Gothic") or "Gothic",
                                     image_content_type=wgts.get("image_content_type").value if wgts.get("image_content_type") else "",
                                     base_image_path=(wgts.get("base_image").value if wgts.get("base_image") else "") or "",
+                                    book=(wgts.get("book").value if wgts.get("book") else ""),
                                 )
                                 paths = [str(p) for p in pkg.get("paths", [])] if isinstance(pkg, dict) else []
                                 if paths:
@@ -2233,7 +2236,10 @@ def read_real_review_entries() -> list[dict[str, object]]:
 def review_book_options() -> list[str]:
     books = [entry["book"] for entry in read_real_review_entries() if entry.get("book")]
     ordered = list(dict.fromkeys([str(book) for book in books]))
-    return ["All books", *ordered] if ordered else ["All books"]
+    # Always offer every catalog book so each one is selectable here, even before
+    # it has verified reviews. The review source / quote sub-dropdowns stay data-
+    # driven, so they simply stay empty for a book until real reviews are added.
+    return list(dict.fromkeys([*QUOTE_BOOK_OPTIONS, *ordered]))
 
 
 def review_entries_for_book(book_source: str) -> list[dict[str, object]]:
@@ -2685,7 +2691,7 @@ def build_preview_html(content_type: str, fields: dict[str, object]) -> str:
         format_label = text(fields.get("character_format") or fields.get("cs_platform_format"))
         image_mode = text(fields.get("character_image_mode") or fields.get("cs_image_mode"))
         draft_text = text(fields.get("draft"))
-        portrait = resolve_character_portrait_asset(subject) if image_mode != "use uploaded image" else None
+        portrait = resolve_character_portrait_asset(subject, book=fields.get("related_book")) if image_mode != "use uploaded image" else None
         portrait_url = image_data_url(portrait) if portrait else ""
         if image_mode == "text-only highlight image":
             portrait_markup = image_markup("", escape(subject).upper())
@@ -3170,6 +3176,7 @@ def render_generated_visual_package(
     theme_name: str = "",
     image_content_type: str = "",
     base_image_path: str = "",
+    book: str = "",
 ) -> dict[str, object]:
     """Render a basic downloadable image package for visual content workflows."""
     if content_type not in {"quote_post", "review_pull_quote", "character_spotlight", "blog_post", "instagram_caption", "linkedin_content", "youtube_content", "newsletter_blurb"}:
@@ -3279,6 +3286,7 @@ def render_generated_visual_package(
                     character_name=character_name,
                     background_image_path=str(base_image_path),
                     slide_texts=carousel_slide_texts,
+                    book=book,
                 )
             except Exception as exc:
                 return {"error": str(exc), "quote": quote}
@@ -3338,6 +3346,7 @@ def render_generated_visual_package(
             theme_name=theme_name or "Gothic",
             character_name=character_name or extract_speaker_from_content(content),
             slide_texts=carousel_slide_texts,
+            book=book,
         )
     except Exception as exc:
         return {"error": str(exc), "quote": quote}
@@ -3349,6 +3358,7 @@ def render_selected_quote_visual_package(
     attribution: str,
     format_labels=None,
     theme_name: str = "",
+    book: str = "",
 ) -> dict[str, object]:
     """Render a downloadable image package for selected quote candidates."""
     selected_quotes = [clean_quote_candidate(quote) for quote in quotes if clean_quote_candidate(quote)]
@@ -3396,6 +3406,7 @@ def render_selected_quote_visual_package(
                 file_stem=slugify_filename(f"quote_card_{index}_{quote}", f"quote_card_{index}"),
                 theme_name=theme_name or "Gothic",
                 character_name=speaker,
+                book=book,
             )
             all_paths.extend(str(path) for path in package.get("paths", []))
         except Exception as exc:
@@ -3533,6 +3544,7 @@ def render_campaign_quote_graphic(
     campaign_topic: str,
     asset_number: int,
     theme_override: str = "",
+    book: str = "",
 ) -> dict[str, object]:
     quote = extract_quote_for_graphic(content)
     if not quote and content_type in {"character_spotlight", "blog_post"}:
@@ -3541,6 +3553,9 @@ def render_campaign_quote_graphic(
         return {}
     output_dir = PROJECT_ROOT / "outputs" / "campaign_quote_graphics" / datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     file_stem = slugify_filename(f"{content_type}_{asset_number}_{campaign_topic}", "campaign_quote")
+    # Prefer the per-type book widget (quote_post has its own), else the campaign book.
+    book_widget = widgets.get("book")
+    selected_book = normalize_selected(book_widget.value) if book_widget else (book or "")
     try:
         return render_quote_cards(
             quote=quote,
@@ -3550,6 +3565,7 @@ def render_campaign_quote_graphic(
             output_dir=output_dir,
             file_stem=file_stem,
             theme_name=(theme_override or campaign_graphic_theme(content_type, widgets)),
+            book=selected_book,
             character_name=normalize_selected(
                 widgets.get("characters").value
                 if widgets.get("characters")
@@ -3882,6 +3898,7 @@ async def generate_draft_from_fields(
                 else review_image_type if content_type == "review_pull_quote"
                 else ""
             ),
+            book=(review_book if content_type == "review_pull_quote" else related_book),
         )
     )
     if generated_visual_path is not None:
@@ -6058,25 +6075,54 @@ Return only a practical section outline with 5-8 bullets."""
                             # a saved draft and restore it when the draft is re-opened in the
                             # builder. Built from locals() so any field not defined for a content
                             # type is simply skipped (never a NameError).
+                            # Every per-type widget that should survive a draft save/reopen.
+                            # Order matters where a widget's on_value_change resets others:
+                            #  - blog_format resets blog visual defaults (sync_blog_visual_defaults),
+                            #    so it precedes blog_visual_*.
+                            #  - review_book -> review_source -> review_quote cascade, so review_quote
+                            #    is restored last; review_attribution after review_source (which can
+                            #    auto-fill it). Names that aren't live widgets are skipped safely.
                             _generator_field_names = [
                                 "topic", "related_book", "platform", "social_objectives", "audience",
                                 "cta", "constraints",
+                                # Instagram
                                 "instagram_formats", "instagram_carousel_slides", "instagram_hashtags",
-                                "instagram_image_content_type", "instagram_hook", "instagram_visual_style",
+                                "instagram_image_content_type", "instagram_hook",
+                                "instagram_image_formats", "instagram_visual_formats", "instagram_visual_style",
+                                # LinkedIn
                                 "linkedin_formats", "linkedin_angle", "linkedin_cta",
+                                # YouTube
                                 "youtube_formats", "youtube_keywords", "youtube_link",
+                                # Quote post
                                 "quote_book", "quote_moods", "character_tags",
+                                "quote_visual_formats", "quote_visual_style",
+                                # Blog (blog_format before blog_visual_* due to its reset cascade)
                                 "blog_length", "blog_format", "blog_structure_options", "blog_sections",
                                 "blog_seo_keywords", "blog_image_mode",
-                                "cs_character", "cs_focus",
-                                "review_quote_mode", "review_quote",
-                                "newsletter_subject", "newsletter_preview", "newsletter_structure",
+                                "blog_character", "blog_visual_formats", "blog_visual_style",
+                                # Character spotlight
+                                "cs_character", "cs_focus", "cs_platform_format", "cs_image_mode",
+                                # Review / pull quote (review_book->source->quote cascade order)
+                                "review_mode", "review_quote_mode", "review_book", "review_source",
+                                "review_attribution", "review_promo_line", "review_image_type",
+                                "review_instagram_formats", "review_card_style",
+                                "review_visual_formats", "review_visual_style",
+                                "review_manual_quote", "review_quote",
+                                # Newsletter (real widget names are nl_*, not newsletter_*)
+                                "nl_subject", "nl_preview", "nl_structure",
+                                # Press release
+                                "pr_timing", "pr_embargo_date", "pr_release_date", "pr_city", "pr_state",
+                                "pr_contact_name", "pr_contact_title", "pr_organization",
+                                "pr_contact_email", "pr_contact_phone", "pr_website",
+                                "pr_news_angle", "pr_supporting_proof", "pr_quote_source",
+                                "pr_target_media", "pr_required_assets",
                             ]
                             _generator_local_scope = locals()
                             generator_fields = {
                                 name: _generator_local_scope[name]
                                 for name in _generator_field_names
                                 if name in _generator_local_scope
+                                and hasattr(_generator_local_scope[name], "value")
                             }
                             generator_fields_snapshot = lambda: {
                                 name: widget.value for name, widget in generator_fields.items()
@@ -6161,7 +6207,7 @@ Return only a practical section outline with 5-8 bullets."""
                             and "selected character portrait" in str(blog_image_mode.value or "").lower()
                             and blog_character.value
                         ):
-                            portrait = resolve_character_portrait_asset(blog_character.value)
+                            portrait = resolve_character_portrait_asset(blog_character.value, book=related_book.value)
                             if portrait:
                                 return str(portrait)
                         return str(
@@ -6440,6 +6486,7 @@ Return concise angle options with why each is newsworthy."""
                                 attribution=attribution,
                                 format_labels=format_labels,
                                 theme_name=theme,
+                                book=(review_book.value if is_review else quote_book.value),
                             )
                         except Exception as exc:
                             quote_image_status.value = f"Quote image generation failed: {exc}"
@@ -7958,6 +8005,28 @@ Return concise angle options with why each is newsworthy."""
                             apply_campaign_visibility(campaign_formats.value)
                             campaign_output.value = content
                             ui.notify("Campaign loaded into the builder — edit or regenerate.", type="positive")
+                            return
+
+                        if draft_type == "podcast":
+                            # Podcast scripts live in the Podcast Studio tab, not the Generator.
+                            open_podcast()
+                            book_value = metadata.get("related_book")
+                            if book_value and book_value != "Not specified":
+                                try:
+                                    podcast_related_book.value = book_value
+                                except Exception:
+                                    pass
+                            topic_value = str(metadata.get("topic") or metadata.get("query") or "")
+                            # The saved topic may carry a "Podcast style / variant: …" prefix line.
+                            if topic_value.startswith("Podcast style / variant:"):
+                                topic_value = topic_value.split("\n", 1)[1] if "\n" in topic_value else ""
+                            if topic_value:
+                                try:
+                                    podcast_topic.value = topic_value
+                                except Exception:
+                                    pass
+                            podcast_generated_output.value = content
+                            ui.notify("Podcast script loaded into the studio — edit or regenerate.", type="positive")
                             return
 
                         open_generator(draft_type or None)

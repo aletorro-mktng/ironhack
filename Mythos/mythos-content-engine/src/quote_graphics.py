@@ -614,6 +614,7 @@ def render_quote_cards(
     background_image_path=None,
     slide_texts=None,
     show_brand=False,
+    book=None,
 ):
     """
     Render the quote in every requested format and bundle the PNGs into a zip.
@@ -633,7 +634,7 @@ def render_quote_cards(
 
     theme = QUOTE_GRAPHIC_THEMES.get(theme_name, QUOTE_GRAPHIC_THEMES[DEFAULT_THEME])
     character_name_asset = resolve_character_name_asset(character_name)
-    character_portrait_asset = resolve_character_portrait_asset(character_name)
+    character_portrait_asset = resolve_character_portrait_asset(character_name, book=book)
 
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

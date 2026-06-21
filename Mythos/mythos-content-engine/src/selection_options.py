@@ -41,6 +41,7 @@ QUOTE_BOOK_OPTIONS = [
     "All books",
     "Mortal Vengeance",
     "Mortal Vengeance: A Grim Tale",
+    "Mortal Vengeance II: To Reel or Not Too Real?",
 ]
 
 CHARACTER_TAGS = [
@@ -65,6 +66,11 @@ CHARACTER_TAGS = [
     "Don Ramón",
     "Doña Patricia",
     "Elías Sarraff",
+    # Mortal Vengeance II: To Reel or Not Too Real?
+    "Valeria Viccini",
+    "Camila Álvarez",
+    "Rafael Montero",
+    "Shane Harper",
     "Other / unnamed character",
     "Doctora Mateo",
     "Principal Davis Beltrán",
