@@ -22832,3 +22832,1687 @@ Good for posts about reality TV satire, fame, glamour, and chaos.
 
 **SCENE: Pre-season casting session. She is assigning story arcs like a director notes a script.**
 
+# Mortal Vengeance II: To Reel or Not Too Real?
+
+**By Alejandro Torres De la Rocha**
+
+## Character Quote Compendium
+
+**8 characters with scene context**
+
+> Formatting note: quote entries have been renumbered sequentially within each character section. The original pasted source had numbering gaps, so the counts below reflect the quote entries included in this cleaned version.
+
+## At a Glance
+
+| # | Character | Included Quotes |
+|---:|---|---:|
+| 1 | Melissa | 43 |
+| 2 | Mónika | 42 |
+| 3 | Ana Sofía | 31 |
+| 4 | Lucía | 42 |
+| 5 | Doña Silvia | 31 |
+| 6 | Camila | 20 |
+| 7 | Valeria | 26 |
+| 8 | Shane | 32 |
+|  | **Total** | **267** |
+
+## Contents
+
+1. [Melissa](#1-melissa)
+2. [Mónika](#2-mónika)
+3. [Ana Sofía](#3-ana-sofía)
+4. [Lucía](#4-lucía)
+5. [Doña Silvia](#5-doña-silvia)
+6. [Camila](#6-camila)
+7. [Valeria](#7-valeria)
+8. [Shane](#8-shane)
+
+---
+
+## 1. Melissa
+
+**Included quotes:** 43
+
+### 1.1. Ch. 1 — Villa Herrera Opening
+
+> "How could you invite them TONIGHT?!"
+
+**Scene:** Villa Herrera, opening night. Mario has invited the new cast. The original group has had no sleep and no warning.
+
+### 1.2. Ch. 2 — TV Watching Scene
+
+> "Who the fuck is she?"
+
+**Scene:** Watching Lucía's televised debut at the Gabriela Pons event with Alex sitting next to her. The first thing out of her mouth.
+
+### 1.3. Ch. 2 — Argument with Alex
+
+> "You can say she's only a friend to God himself, and still it wouldn't explain how she's suddenly all over your world!"
+
+**Scene:** Confronting Alex about Lucía before he's even processed that she's back in Santo Domingo.
+
+### 1.4. Ch. 11 — Season 3 Opening Credits
+
+> "No, ma'am, and no man tells me what to do. In my life, I call the shots."
+
+**Scene:** Season 3 opening credits. She lowers a pistol, then reloads. The chyron reads: THE SAINT WITH A SHOT.
+
+### 1.5. Ch. 11 — Ext. Altos de Chavón Restaurant
+
+> "Well. Hope we're not late to the reunion."
+
+**Scene:** Arriving at the Altos de Chavón dinner with Alex and their entire group. The table goes silent.
+
+### 1.6. Ch. 12 — Int. Alex's Jeep, Moving
+
+> "Best way to avoid temptation? Give in."
+
+**Scene:** She takes Alex's beer from him while he's driving, drinks it herself, and delivers this as a philosophical statement.
+
+### 1.7. Ch. 12 — Int. Alex's Jeep, Moving
+
+> "(Choking up) Saggy boobs?"
+
+**Scene:** Alex tells her he wants to wake up next to ninety-year-old her and still kiss her. This is her entire response.
+
+### 1.8. Ch. 12 — Villa Herrera, Pre-Proposal
+
+> "God, I love that stupid man."
+
+**Scene:** After Mónika reveals Alex wasn't ghosting her — he was secretly driving back to Santo Domingo to get the ring. Said quietly to herself.
+
+### 1.9. Ch. 12 — The Proposal
+
+> "Yes, stupid, I will marry you."
+
+**Scene:** Alex, on one knee, full proposal, fireworks ready, Luis Miguel impersonator paused mid-lyric. This is her answer.
+
+### 1.10. Ch. 12 — Villa Herrera
+
+> "Snacks? That's what you were going to say? With that face?"
+
+**Scene:** Mario nearly blurts out that Alex bought a ring. He pivots to saying Alex bought 'snacks.' She reads every word on his face.
+
+### 1.11. Ch. 12 — Villa Herrera, Shane Intrusion
+
+> "I don't know — kill me?"
+
+**Scene:** Shane asks what Plan C is after Alex's disappearance and the pregnancy. Melissa says this from the bed.
+
+### 1.12. Ch. 12 — Bedroom Confession to Shane
+
+> "How could Alex do this to me? Abandon me? Doubt me? Leave me like that? I thought he was getting better. I thought the therapy was working. But he's still that impulsive teen who runs when things get hard. That I can't trust — or count on."
+
+**Scene:** Said to Shane in a half-conscious, diazepam-blurred state. She doesn't realize the cameras are rolling.
+
+### 1.13. Ch. 12 — Bedroom Confession to Shane
+
+> "He made me see him. Really see him. His potential. His strength. His warped sense of justice. Somehow it made sense."
+
+**Scene:** Same conversation with Shane. She explains, despite everything, why she fell for Alex.
+
+### 1.14. Ch. 12 — Villa Herrera, Post-Confession
+
+> "Oh, Shane — you're so kind."
+
+**Scene:** Shane delivers a backhanded compliment about her eyes. Melissa's delivery is surgical.
+
+### 1.15. Ch. 12 — Ep. 3, Yacht Jacuzzi
+
+> "Your father asked you to handle business? What business could a twenty-one-year-old child manage?"
+
+**Scene:** Elías claims to be handling family business. She looks at him with total disbelief.
+
+### 1.16. Ch. 12 — Ep. 3, Yacht Jacuzzi
+
+> "Oh. So this isn't about me at all. Your macho Cibaeño pride got bruised. That's the whole tragedy."
+
+**Scene:** After Elías admits he came to get her back to prove Alex didn't beat him.
+
+### 1.17. Ch. 12 — Ep. 3, Yacht Jacuzzi, Confrontation
+
+> "We were never happy, Elías. I was terrified every second — when you were there and when you weren't. Every time you moved your hands — even to point — I flinched. I thought you were going to hit me again."
+
+**Scene:** She stands up in the water. She has been waiting three years to say this out loud.
+
+### 1.18. Ch. 12 — Ep. 3, Yacht Jacuzzi, Confrontation
+
+> "And I wore turtlenecks. IN JULY. In the Caribbean. Do you know how hot that is?"
+
+**Scene:** Continuation of the confrontation. Elías says 'don't sweat it.' This is her response.
+
+### 1.19. Ch. 12 — Ep. 3, Yacht Jacuzzi
+
+> "He never hurt me. Never humiliated me. He respected our relationship. He didn't intervene until Luis begged him to, because he saw the bruises. Because my little brother thought I was going to die."
+
+**Scene:** Defending Alex to Elías — not out of love but out of fact.
+
+### 1.20. Ch. 12 — Ep. 3, Yacht Jacuzzi
+
+> "I will never, EVER be with you again. Not if Alex leaves me. Not if Alex dies tomorrow. It will be a cold day in hell before you and I even speak again."
+
+**Scene:** Elías blocks her path. She stops.
+
+### 1.21. Ch. 12 — Ep. 3, Yacht
+
+> "You want to make me happy? Die. So I can dance on your grave."
+
+**Scene:** He steps closer. She says this.
+
+### 1.22. Ch. 12 — Ep. 3, Yacht
+
+> "¡Machista campuno de mierda!"
+
+**Scene:** He grabs her as she tries to leave. She turns with a champagne flute.
+
+### 1.23. Ch. 12 — Isla Saona
+
+> "I need a drink. No. I need it — but I'm not sure I can."
+
+**Scene:** Ana Sofía offers a drink. This is Melissa's entire response.
+
+### 1.24. Ch. 16 — Int. Villa Herrera, Brunch
+
+> "Our relationship is ours. We don't owe you — the audience, or our parents — the details of how it happened."
+
+**Scene:** At the villa brunch, Shane and Doña Yvelisse push for the origin story. Melissa shuts it down.
+
+### 1.25. Ch. 16 — Int. Villa Herrera, Brunch
+
+> "But our relationship is ours. We don't owe you, the audience, or our parents the details of how it happened."
+
+**Scene:** Alex lifts their joined hands for emphasis as she says this to Shane and both families.
+
+### 1.26. Ch. 23 — Shane's Penthouse, The Harper Files
+
+> "Big mistake. Huge."
+
+**Scene:** She connects Shane's phone to the projector in Shane's penthouse. She says this silently to herself before tapping play.
+
+### 1.27. Ch. 24 — Shane's Penthouse
+
+> "I don't need a man to defend me. I can do it myself."
+
+**Scene:** Alex wants to go after Shane. Melissa stops him.
+
+### 1.28. Ch. 21 — Airport Terminal, Parents' Departure
+
+> "Thank you for everything. Now sashay away."
+
+**Scene:** Sending the parents through airport security. The crowd behind her goes still.
+
+### 1.29. Ch. 21 — Airport Terminal
+
+> "We've got this. We will survive this. But we won't if you stay. You staying makes us targets. You staying makes us hesitate."
+
+**Scene:** The mothers protest. She raises one hand and says this without raising her voice.
+
+### 1.30. Ch. 21 — Airport Terminal
+
+> "You gave us every tool possible to face this. Now step back. Walk through those doors. And let us face the big bad on our own."
+
+**Scene:** The parents are frozen. She holds their gaze one by one.
+
+### 1.31. Ch. 21 — Airport Terminal
+
+> "We have some of the sharpest minds of our generation around us. We'll figure it out. We always do."
+
+**Scene:** After the parents leave. Lucía asks what they do now. This is Melissa's answer.
+
+### 1.32. Ch. 24 — Shane's Penthouse
+
+> "She took advantage of the fact that I was on diazepam. She violated my privacy and told the world I was pregnant. She deserved it."
+
+**Scene:** Explaining why she played The Harper Files. Said with zero apology.
+
+### 1.33. Ch. 25 — Pre-Labor, Conversation with Lucía
+
+> "What if they struggle the way Alex struggled? The way he still struggles sometimes? What if the world is harder for them for reasons that have nothing to do with anything they did?"
+
+**Scene:** To Lucía, the night before the delivery. Her real fear, finally said aloud.
+
+### 1.34. Ch. 29 — Bachelorette Scene
+
+> "I just want the record to show I told them not to pregame before the pregame."
+
+**Scene:** The bachelorette pre-party has already gone off-script before it started.
+
+### 1.35. Ch. 30 — Birth Scene
+
+> "This little bitch. You are not going to sleep while I do all the work."
+
+**Scene:** In the delivery room. To the baby who will not come. Said with total exhaustion and love simultaneously.
+
+### 1.36. Ch. 30 — Birth Scene
+
+> "Nurse. You. Throw water on him. Wake him up. Cold or boiled water, your choice. Whatever works."
+
+**Scene:** Alex has fainted when he sees the babies. Melissa is still in the middle of delivering and gives this instruction.
+
+### 1.37. Ch. 30 — Birth Scene
+
+> "I am not. I'm the nice one. Now splash, splash, Nemo."
+
+**Scene:** The nurse hesitates to douse Alex with water because the hospital won't approve. Melissa says this.
+
+### 1.38. Ch. 30 — Birth Scene
+
+> "Mami. You are going to break so many hearts. As you should. Crush every single one."
+
+**Scene:** Holding her daughter and looking at her fully for the first time.
+
+### 1.39. Ch. 30 — Birth Scene
+
+> "Is that a streak of gray on his head? ¿Y una cara de fresco?"
+
+**Scene:** Seeing her son for the first time. He has Alex's face and already looks like trouble.
+
+### 1.40. Ch. 30 — Birth Scene
+
+> "This is Alex Jr., and this is Alexa Jr."
+
+**Scene:** Names announced to the room. Everyone already knows these won't stick.
+
+### 1.41. Ch. 30 — Birth Scene
+
+> "Just for now, Herrera-Rocha boy and Herrera-Rocha girl."
+
+**Scene:** When Alex protests the names. She overrides him.
+
+### 1.42. Ch. 30 — Finale
+
+> "It's not okay yet. But it will be."
+
+**Scene:** Said to someone who is struggling at the finale. She doesn't offer a timeline. She just states it as fact.
+
+### 1.43. Ch. 30 — Finale
+
+> "Looks like Alex made a friend."
+
+**Scene:** Watching Alex across the room at the finale. She says this to whoever is beside her. She is not jealous. She is amused.
+
+---
+
+## 2. Mónika
+
+**Included quotes:** 42
+
+### 2.1. Ch. 1 — Villa Herrera Opening
+
+> "Go bond yourself."
+
+**Scene:** Mario says he wanted to invite the new cast to 'bond.' This is Mónika's entire response.
+
+### 2.2. Ch. 1 — Villa Herrera Opening
+
+> "For God's sake, grow up ALL of you, DAMN IT!"
+
+**Scene:** The opening chaos has reached critical mass. Everyone is yelling. She cuts through everything.
+
+### 2.3. Ch. 2 — TV Interview Scene
+
+> "If you want to know more — tune in on Fridays."
+
+**Scene:** The TV host asks where Lucía has been. Mónika leans into the frame, steals the segment, and says this.
+
+### 2.4. Ch. 11 — Season 3 Opening Credits
+
+> "A queen serves her people — and this queen bee serves them all the tea they need."
+
+**Scene:** Season 3 opening credits. Her chyron: THE SHOWRUNNER.
+
+### 2.5. Ch. 12 — Bayahibe, Isla Saona
+
+> "But they are on land!"
+
+**Scene:** Shane says there are no sharks in the Isla Saona waters. Mónika smirks at the retreating Shane and says this.
+
+### 2.6. Ch. 12 — Isla Saona
+
+> "She is late, late. Period."
+
+**Scene:** Ana Sofía says Melissa is 'late.' Mónika translates for anyone who hasn't caught up yet.
+
+### 2.7. Ch. 12 — Villa Herrera, Pre-Proposal
+
+> "Alex left his phone at home. Mary called me because she was worried. That's why he wasn't answering — he was driving to Santo Domingo to get everything ready for this."
+
+**Scene:** Melissa was spiraling thinking Alex had abandoned her. Mónika delivers the correction before the fireworks go off.
+
+### 2.8. Ch. 12 — Int. Alex's Jeep, Moving
+
+> "Meli, Enrique recycled that date for YEARS."
+
+**Scene:** After Melissa and Lucía realize they had the same Enrique pier-date experience. Mónika has known this for years and is thoroughly delighted.
+
+### 2.9. Ch. 12 — Isla Saona
+
+> "GoDaddy. It's a great place if you want to buy a web domain."
+
+**Scene:** Alex says 'Go, Daddy!' at Melissa. Mónika immediately, without blinking, redirects this into corporate branding.
+
+### 2.10. Ch. 12 — Isla Saona
+
+> "But Ana Sof, if you need help with that, maybe go ask Mario. I hear he's more versed on that subject these days."
+
+**Scene:** Continuation of the GoDaddy bit. She aims this at Mario without looking at him.
+
+### 2.11. Ch. 10 — Shish Kabab / Group Scene
+
+> "Oh, you poor thing. What, you hated that a man hit you? Imagine how Melissa felt that same night when you slapped her across the face right before we performed — and called me and María whores looking for sugar daddies to pay for our tuition."
+
+**Scene:** Said directly to Elías when he complains about what Alex's people did to him. She lets him finish first. Then this.
+
+### 2.12. Ch. 10 — Group Scene
+
+> "And that wasn't the first time you hit her. Or humiliated her. Or broke her down until she didn't even recognize herself. But we all know when it was the last time."
+
+**Scene:** Continuation. She does not raise her voice.
+
+### 2.13. Ch. 10 — Group Scene
+
+> "Before we did our livestream, calling you out. And then, during the school soccer tournament against your school, when our team beat you like the little bitch you were."
+
+**Scene:** She names the exact moment the last time he ever touched Melissa was.
+
+### 2.14. Ch. 10 — Group Scene
+
+> "Baby, I have it on video. Do you want me to release it to the world? Let's see if I'm lying."
+
+**Scene:** Elías says bullshit. She holds up her phone.
+
+### 2.15. Ch. 22 — Shane's Penthouse, Confrontation with Mario
+
+> "Mario, you fucking idiot."
+
+**Scene:** The most concise character assessment in the novel. Mario has just accused Alex and Mónika of being murderers.
+
+### 2.16. Ch. 22 — Shane's Penthouse
+
+> "You talk about Alex like he's the devil, but what you can't stand is that he changed. That he did the work. That he's not the same broken boy you left behind. And it kills you, doesn't it? Because if he can change, then you have no excuse for staying the same."
+
+**Scene:** She lets him finish his entire accusation. Then she takes this apart.
+
+### 2.17. Ch. 22 — Shane's Penthouse
+
+> "You hide behind your pain to appear virtuous. But you're not brave, Mario. You're pathetic."
+
+**Scene:** The final sentence of the speech to Mario. She does not walk away after. She stays standing.
+
+### 2.18. Ch. 22 — Shane's Penthouse
+
+> "You thought he was going to do it, yet you did nothing to stop him or warn her. Plus, Shane isn't his friend, and Shane didn't save his life. So don't you dare compare them."
+
+**Scene:** Mario accuses her of inconsistency. She closes the comparison.
+
+### 2.19. Ch. 22 — Shane's Penthouse
+
+> "You're a coward, Mario. And I pity you."
+
+**Scene:** The last thing she says to him before turning away.
+
+### 2.20. Ch. 10 — Shish Kabab
+
+> "And our former, in-recovery sociopath."
+
+**Scene:** She introduces Alex to a group as 'our sociopath.' He clears his throat. She adds this.
+
+### 2.21. Ch. 16 — Int. Melissa's Bedroom, Breakdown
+
+> "I can't lose this, Meli. I really can't. I've worked hard for this."
+
+**Scene:** Mónika breaks down in Melissa's bedroom. The mascara streams. The first genuinely unguarded moment she has in the novel.
+
+### 2.22. Ch. 16 — Int. Melissa's Bedroom, Breakdown
+
+> "Without this, I have nothing."
+
+**Scene:** Said quietly, looking at her lap. Melissa is the only person she would say this to.
+
+### 2.23. Ch. 16 — Int. Melissa's Bedroom
+
+> "I hate pudding."
+
+**Scene:** Melissa says the proof is in the pudding. Mónika hears this and says this through tears.
+
+### 2.24. Ch. 16 — Int. Melissa's Bedroom, Breakdown
+
+> "Because I'm gone with the wind fabulous!"
+
+**Scene:** Melissa makes her do it right. She twirls. Full Beyoncé. She's been crying for twenty minutes.
+
+### 2.25. Ch. 22 — Shane's Penthouse, Attack on Shane
+
+> "You know what's sharper than the Grim Cojuelo's scythe, Shane?"
+
+**Scene:** She holds up ten perfectly manicured nails, red. Then: 'And since you're a bitch, you're gonna get bitch-slapped.'
+
+### 2.26. Ch. 22 — Shane's Penthouse
+
+> "NOW BLEED."
+
+**Scene:** The slap snaps Shane's head sideways. The nails drag. This is what she says.
+
+### 2.27. Ch. 22 — Shane's Penthouse
+
+> "So go ahead. Make the call. I dare you."
+
+**Scene:** Shane threatens to use her network connection to destroy Mónika's career. Mónika reveals her own leverage: Randy.
+
+### 2.28. Ch. 22 — Shane's Penthouse, Bathroom
+
+> "You're not a bitch. You just play one in real life."
+
+**Scene:** Said to her own reflection in Shane's bathroom, scrubbing blood off her hands under scalding water.
+
+### 2.29. Ch. 22 — Shane's Penthouse, Bar Scene
+
+> "And this bitch thinks it's cute to jump out and boo us? Boo hoo, you whore."
+
+**Scene:** After processing Paco's death, Shane performed a prank on them. Mónika circles back to this.
+
+### 2.30. Ch. 22 — Shane's Penthouse, Bar Scene
+
+> "I don't regret what I did to her. I warned her. Don't mess with Lucía. Don't mess with my friends. She didn't listen."
+
+**Scene:** Alex asks if she's okay with what happened to Shane. This is her answer.
+
+### 2.31. Ch. 14 — Flashback, L'Alliance Française
+
+> "Say you're sorry. Not to me, imbeciles. To him."
+
+**Scene:** Ten-year-old Mónika. Two bullies have just cornered Fernando at the Alliance Française. She breaks both their noses. Then she holds their faces and says this.
+
+### 2.32. Ch. 14 — Flashback, L'Alliance Française
+
+> "I don't speak comic books."
+
+**Scene:** Fernando calls her X-23 after she destroys the bullies. She says this.
+
+### 2.33. Ch. 12 — Villa Herrera
+
+> "And if I find out you made her worse for a fucking sound bite — you and I are going to have a very different conversation. Without cameras."
+
+**Scene:** Shane says she helped. Mónika steps closer.
+
+### 2.34. Ch. 10 — Shish Kabab
+
+> "Operation: Let Shane Know Shame is on."
+
+**Scene:** She places her hand in the center of the Shish Kabab table. Lucía and Alex join.
+
+### 2.35. Ch. 10 — Shish Kabab
+
+> "Alright, people — the second we get to the villa, the cameras go on. So we put our best foot forward, take Shane down — and let's start the show."
+
+**Scene:** She raises her Presidente at the Shish Kabab and closes the planning meeting.
+
+### 2.36. Ch. 12 — Int. Alex's Jeep
+
+> "Alex, you're going to make me cry with those things you say and I am going to ruin my mascara."
+
+**Scene:** Alex has just made a deeply sincere declaration. Mónika is emotionally compromised but will not admit it.
+
+### 2.37. Ch. 30 — Finale, Conversation with Randy
+
+> "I don't need a man to protect me. I've been taking care of myself since I was six. I don't need anyone."
+
+**Scene:** Said to Randy when he asks why she can't be with him. The wall goes up immediately.
+
+### 2.38. Ch. 30 — Finale, Conversation with Randy
+
+> "I love you too. But I don't know how to keep loving you and hating you at the same time. I don't know how to live with the fear that you already broke me once and could do it again."
+
+**Scene:** Randy says he loves her. She says this.
+
+### 2.39. Ch. 30 — Finale
+
+> "FYI: my rate and everyone else's went up by 30%."
+
+**Scene:** Said to the network executive in passing. She is not negotiating. She is informing.
+
+### 2.40. Ch. 30 — Finale
+
+> "Now you can go back to your office on Park Avenue and forget about us. Forget about me."
+
+**Scene:** She's pushed Randy away. She's told him to leave. But this sentence is a door left one inch open.
+
+### 2.41. Ch. 20 — Int. Melissa's Bedroom, Packing
+
+> "María, I command you to let her go, in the name of GOD!"
+
+**Scene:** She is waving an empty water bottle around Melissa like holy water after Melissa produces two guns from under her mattress. She is convinced María is possessing her.
+
+### 2.42. Ch. 20 — Int. Melissa's Bedroom, Packing
+
+> "That is exactly the kind of shit María would've done."
+
+**Scene:** After laughing until she cries. Then the tears become real.
+
+---
+
+## 3. Ana Sofía
+
+**Included quotes:** 31
+
+### 3.1. Ch. 11 — Ext. Altos de Chavón Restaurant
+
+> "Really? Quoting Joey from Friends? You're ever so original and current."
+
+**Scene:** Elías greets Melissa with 'How you doing?' from Friends. Ana Sofía intercepts immediately.
+
+### 3.2. Ch. 11 — Villa Herrera, Night
+
+> "Good night, you two! Don't do anything that I would do!"
+
+**Scene:** Shouted after Alex and Melissa as they head to the jacuzzi. Emphasis on the inversion.
+
+### 3.3. Ch. 12 — Confessional
+
+> "That's baby soup right there."
+
+**Scene:** Confessional about the Villa Herrera jacuzzi after Alex and Melissa use it. She refuses to go near it.
+
+### 3.4. Ch. 12 — Int. Elías's Jeep, Moving
+
+> "That's a shitty way to be, Mario."
+
+**Scene:** Mario tells Elías he's sitting in the jeep next to him specifically to hurt Alex. She says this from the backseat without decoration.
+
+### 3.5. Ch. 12 — Villa Herrera, Bathroom
+
+> "Dios mío. Si a tu tía no le da un infarto con esto, ella te va a matar."
+
+**Scene:** After the confirmation. She is already thinking about Doña Yvelisse's face.
+
+### 3.6. Ch. 12 — Villa Herrera, Bathroom
+
+> "I asked production to get you a pregnancy test. Por las cámaras. You didn't want to ask yourself, so."
+
+**Scene:** Melissa comes to the bathroom. Ana Sofía hands her the test. She says this preemptively.
+
+### 3.7. Ch. 12 — Villa Herrera, Panic
+
+> "Wait? Pray? Hire a PI? Or a hitman. What? Options."
+
+**Scene:** The group is panicking about Alex's whereabouts. She contributes this to the brainstorm.
+
+### 3.8. Ch. 12 — Villa Herrera
+
+> "Then we hire the sicario or the PI, kill Alex, and Weekend at Bernie's him."
+
+**Scene:** Mónika says they still have company coming. Ana Sofía solves the Alex disappearance logistically.
+
+### 3.9. Ch. 12 — Villa Herrera
+
+> "No. Not a word, not a syllable, not a vowel."
+
+**Scene:** Shane asks if there's any word from Alex. This is Ana Sofía's exact answer.
+
+### 3.10. Ch. 12 — Ext. Bayahibe
+
+> "Camila — are you insane?! You do NOT know how to drive! You got your license from a cereal box!"
+
+**Scene:** Camila volunteers to drive the jeep back from Bayahibe. Ana Sofía reacts.
+
+### 3.11. Ch. 12 — Villa Herrera
+
+> "Honey, I am home!"
+
+**Scene:** Returns to the villa after a long absence. Announces herself like she owns the place.
+
+### 3.12. Ch. 12 — Ext. Bayahibe Production Camp
+
+> "I'm not one of these kids, anyway. I'm like you. A cool auntie. So don't worry about my needs. I can take care of them."
+
+**Scene:** Shane tries to flirt with her. She blocks the advance with this, delivered with complete ease.
+
+### 3.13. Ch. 12 — Ep. 3, Yacht Jacuzzi
+
+> "We'd rather you didn't."
+
+**Scene:** Elías slides into the yacht jacuzzi between her and Melissa without asking. She says this without looking at him.
+
+### 3.14. Ch. 12 — Ep. 3, Yacht Jacuzzi
+
+> "And the pathetic part where you keep following Melissa around? What's that about? A little viralata stray fantasy?"
+
+**Scene:** To Elías in the jacuzzi, before he says 'facts are facts.'
+
+### 3.15. Ch. 12 — Ep. 3, Yacht Jacuzzi
+
+> "And femicide never happens in the DR? How many women died last year, Elías? Do you even know the number?"
+
+**Scene:** Elías tells Melissa she was his to 'tame.' Ana Sofía responds to this before Melissa does.
+
+### 3.16. Ch. 12 — Villa Herrera, Pre-Proposal
+
+> "HOW DARE YOU."
+
+**Scene:** Alex asks Melissa if the baby is his. Three words. Out loud. In front of everyone.
+
+### 3.17. Ch. 12 — The Proposal
+
+> "¡COÑO!"
+
+**Scene:** Alex proposes. Fireworks explode. This is what comes out of her.
+
+### 3.18. Ch. 12 — Ext. Bayahibe Yacht
+
+> "I look like I own a yacht."
+
+**Scene:** Said while boarding the yacht on the way to Isla Saona. Delivered as simple fact.
+
+### 3.19. Ch. 12 — Villa Herrera Brunch
+
+> "An orphan is a child without a parent, not the other way around."
+
+**Scene:** Someone makes a confused statement about orphans. She corrects this.
+
+### 3.20. Ch. 12 — Int. Elías's Jeep
+
+> "Aw. You're so grounded. And so in touch with the Dominican people."
+
+**Scene:** Elías delivers what he believes is an empathetic statement about class in the jeep. She responds with this completely straight.
+
+### 3.21. Ch. 12 — Villa Herrera
+
+> "I believe branding matters."
+
+**Scene:** Someone asks why she called Alex and Melissa 'pareja' when they weren't yet engaged. This is her explanation.
+
+### 3.22. Ch. 12 — Villa Herrera Pre-Proposal
+
+> "Go, Daddy, go. Que mommy viene por ahí."
+
+**Scene:** To Alex when he's about to propose and Melissa is approaching. She has not been told the plan. She figured it out.
+
+### 3.23. Ch. 22 — Cap Cana, Morning Scene
+
+> "¡Hostia, tío! Ese plan mola mogollón, ja tu saps."
+
+**Scene:** Luis suggests they go get breakfast during a panic spiral. She reacts in full Catalan-inflected Spanish.
+
+### 3.24. Ch. 30 — Finale
+
+> "He's gone. Humberto is really gone. His aunt is really upset. She told me. She is not happy. He was the only person who ever made me feel like I wasn't too much."
+
+**Scene:** At the finale. She says this in a corner where she thinks nobody is listening.
+
+### 3.25. Ch. 30 — Finale
+
+> "Why do you get your happy ending and I don't even get a funeral?"
+
+**Scene:** To the group. Around her, couples are reuniting and celebrating. She is grieving someone the world considers a villain.
+
+### 3.26. Ch. 30 — Finale
+
+> "It's not fair."
+
+**Scene:** Said twice. Once crying. Once in controlled fury.
+
+### 3.27. Ch. 30 — Finale
+
+> "I talked to her — to his aunt. She's not happy. She is not done. She says this isn't over. And I — I can't stop her."
+
+**Scene:** She is the only person who has a direct line to Sister María Gracia's next move. She delivers this information and its weight at the same time.
+
+### 3.28. Ch. 9 — Villa Herrera
+
+> "Come on, girls, join us. It's Alex Appreciation Day!"
+
+**Scene:** Shouted across the villa during a group gathering. Unprompted. Completely sincere.
+
+### 3.29. Ch. 10 — Group Scene
+
+> "Oh, please. Yes, Alex definitely hates Santiagueros. That's exactly why he's dating one."
+
+**Scene:** Someone accuses Alex of Santiago prejudice based on the Elías situation. She shuts this down.
+
+### 3.30. Ch. 12 — Villa Herrera Panic
+
+> "What? Options."
+
+**Scene:** After suggesting they hire a hitman. Someone looks at her. She says this.
+
+### 3.31. Ch. 30 — Finale
+
+> "Luis just confessed his love to Alex."
+
+**Scene:** She delivers this to the group at the finale completely straight. The room goes silent.
+
+---
+
+## 4. Lucía
+
+**Included quotes:** 42
+
+### 4.1. Ch. 11 — Season 3 Opening Credits
+
+> "You don't want me to raise my voice. My whispers are weapons of mass destruction."
+
+**Scene:** Season 3 opening credits. Her chyron: THE ORACLE.
+
+### 4.2. Ch. 2 — TV Interview with Mariasela
+
+> "Yes. Imagine going around the block, and when you come back, it's like stepping into another universe. I can't claim to have been Fernando's closest friend. But hearing what happened, what he and Marcos did — I could not, and maybe still can't, accept it in my head. That's not the Fernando I knew. And yet — it happened. And I'm sorry."
+
+**Scene:** Her first televised statement after three years missing. The Chévere Nights interview. Her voice is steady.
+
+### 4.3. Ch. 12 — Ep. 3, Int. Villa Girls' Room
+
+> "Yeah — we're never making it to Bayahibe."
+
+**Scene:** The girls are in a full Vogue editorial runway fantasy in the villa getting dressed. She says this from her chair, deadpan.
+
+### 4.4. Ch. 12 — Int. Alex's Jeep, Moving
+
+> "I'm team Melissa. Alex, you're putting us at risk. Yo estaría más tranquila si dejaras de beber."
+
+**Scene:** Mónika defends Alex having a beer while driving. Lucía does not.
+
+### 4.5. Ch. 12 — Int. Alex's Jeep, Moving
+
+> "Print that on a bumper sticker."
+
+**Scene:** After Melissa says 'yo te dejo beber, pero no te dejo morirte conmigo en el asiento.'
+
+### 4.6. Ch. 12 — Int. Alex's Jeep, Moving
+
+> "Oh — Meli and I actually share a past lover."
+
+**Scene:** Said casually while snapping her fingers. The jeep goes from tender to chaos.
+
+### 4.7. Ch. 12 — Int. Alex's Jeep, Moving
+
+> "Some of my best work."
+
+**Scene:** Alex says to tell Melissa how Lucía ripped him apart after La Posada. She says this without a hint of regret.
+
+### 4.8. Ch. 12 — Ep. 3, Yacht Upper Deck
+
+> "Alex. Don't Hulk out. Let Melissa handle this. She has agency. Let her use it."
+
+**Scene:** Alex is on the upper deck, white-knuckling the railing, watching Elías crowd Melissa in the jacuzzi. Lucía grabs him.
+
+### 4.9. Ch. 12 — Villa Herrera, Bathroom
+
+> "Don't you EVER say that again. Last I checked, conception requires two people. Unless Alex has discovered immaculate participation, he doesn't get to make you the villain of his own choices. ¿Me oíste?"
+
+**Scene:** Melissa says she ruined everything. Lucía looks at her directly.
+
+### 4.10. Ch. 12 — Villa Herrera, Bathroom
+
+> "Tough love is still love."
+
+**Scene:** Said immediately after the above. She does not soften the delivery.
+
+### 4.11. Ch. 14 — Int. Jumbo Supermarket
+
+> "I am Lucía-Bot 2.0. I obey the Church."
+
+**Scene:** Alex asks if Sister María Gracia beat the free will out of her. She says this robotically.
+
+### 4.12. Ch. 14 — Int. Jumbo Supermarket
+
+> "Oh, PERFECT. Naming the baby after Amazon's favorite spyware. Alexa, stop crying."
+
+**Scene:** Alex suggests 'Alexa Jr.' She immediately changes her voice to imitate Alexa.
+
+### 4.13. Ch. 14 — Int. Jumbo Supermarket
+
+> "Things don't happen according to our schedule. They happen according to His. And you know she loves you. She'll come around — she always does."
+
+**Scene:** Alex is nervous about Doña Silvia's reaction to the pregnancy. She says this in the supermarket aisle.
+
+### 4.14. Ch. 12 — Confronting Ricardo
+
+> "He was the nurse that killed Julián. The one who sedated me. The one who helped Sister María Gracia put me in that hospital. It was him. It was him for sure."
+
+**Scene:** Said through sobs. She pushes through them to finish.
+
+### 4.15. Ch. 12 — Post-Confrontation
+
+> "I need to call Doña Gabriela Pons. And I need to go to Santo Domingo. Right now."
+
+**Scene:** After the identification. She is already thinking about the next step before anyone else has absorbed the first one.
+
+### 4.16. Ch. 13 — Gabriela Pons Speech
+
+> "Good evening. My name is Lucía Salgado. I attended the former prestigious Excelsior Academy."
+
+**Scene:** The first words of her public speech at the Gabriela Pons event. The room does not know yet what is about to happen.
+
+### 4.17. Ch. 13 — Gabriela Pons Speech
+
+> "This happened in front of everyone. Students recorded it. Teachers saw it. The administration knew. And nothing was done."
+
+**Scene:** She plays the video of Profesora Lourdes humiliating Julián. Then she says this.
+
+### 4.18. Ch. 13 — Gabriela Pons Speech
+
+> "THESE ARE THE CRIMES COMMITTED BY EXCELSIOR ACADEMY."
+
+**Scene:** The title card she clicks. It towers behind her on the screen.
+
+### 4.19. Ch. 16 — TikTok Livestream from Bedroom
+
+> "God, forgive them, because they don't know what they are doing. As you can see, yes, I'm alive and well — not well. I'm still shook, but that too shall pass."
+
+**Scene:** Opening of her TikTok livestream from her bedroom, wet-haired, after the mob at PUCMM. Bruised but recording.
+
+### 4.20. Ch. 16 — TikTok Livestream
+
+> "A mob also condemned Jesus. Hung Him on a cross. A mob like the one that wanted to lynch me today. I'm not afraid of you, of any of you."
+
+**Scene:** Continuation of the livestream. Her voice steadies as she says this.
+
+### 4.21. Ch. 16 — TikTok Livestream
+
+> "First, I will not make it easy for you. I'm going to fight back. And the second one: you won't keep me quiet. I've already denounced your evils, publicly and to both local and international authorities. You will be stopped. You will face justice regardless if I live or die. Your time is up. Good night and good luck."
+
+**Scene:** The close of the livestream. She ends it immediately after.
+
+### 4.22. Ch. 16 — Int. Lucía's House, Night
+
+> "As your lawyer — who knows that I am one — you should've noticed I didn't say they were. Not as fact. I said, who may be."
+
+**Scene:** Alex says she should have said 'allegedly.' She makes the legal distinction.
+
+### 4.23. Ch. 16 — Bedroom, Pre-Livestream
+
+> "Burn it all down, Lu."
+
+**Scene:** She says this to herself before tapping the live button on her phone. She is the only one in the room.
+
+### 4.24. Ch. 19 — Lucía and Mario, Guest Bedroom Conversation
+
+> "You needed him to be the monster. So you could feel better than him."
+
+**Scene:** Said to Mario. This is the distillation of Lucía's analysis of the entire Mario-Alex conflict.
+
+### 4.25. Ch. 19 — Guest Bedroom Conversation
+
+> "The cameras act like an accountability witness. If you didn't like how you were portrayed on the show, maybe you should stop acting like that."
+
+**Scene:** Mario says the WatchMojo clip made him look bad. She does not soften this.
+
+### 4.26. Ch. 19 — Guest Bedroom Conversation
+
+> "If you want to blame everything on your family situation, go ahead. But it's late, and I need to wake up early to own up to my own mistakes."
+
+**Scene:** Mario keeps using his losses to justify his behavior toward Alex. She names what she sees.
+
+### 4.27. Ch. 19 — Guest Bedroom Conversation
+
+> "Okay. That's a healthy first step."
+
+**Scene:** Mario admits he can't blame it all on his family. She says this matter-of-factly.
+
+### 4.28. Ch. 19 — Guest Bedroom Conversation
+
+> "Wow. Just — wow."
+
+**Scene:** After she finishes her speech to Mario. He responds with 'wow.' She echoes it back.
+
+### 4.29. Ch. 19 — Guest Bedroom Conversation
+
+> "No. Go to sleep."
+
+**Scene:** Last thing she says to him in that conversation.
+
+### 4.30. Ch. 29 — V.O.
+
+> "We can't fix what was broken. We can't force something back into the shape it had before. We can only accept what changed, honor what was lost, and decide what we do next."
+
+**Scene:** Voice-over. Said over footage of the group together near the end of the series.
+
+### 4.31. Ch. 29 — V.O.
+
+> "We didn't come here to mourn Excelsior Academy. We came to free ourselves from it."
+
+**Scene:** Continuation of the voice-over.
+
+### 4.32. Ch. 29 — Pre-Courthouse Statement
+
+> "Today, we go into that courtroom and continue shining light on the systems and institutions that failed us. I did not pick this fight. It picked me. And mark my words — I will end it. Thank you for your time."
+
+**Scene:** Her statement before the courthouse doors open. Cameras everywhere. She looks directly into one lens.
+
+### 4.33. Ch. 30 — Finale V.O.
+
+> "Truth is usually hidden. Buried. Darkness covers everything in its path, but one tiny crack can let in the light. Last year, I was that crack."
+
+**Scene:** V.O. during the finale montage.
+
+### 4.34. Ch. 30 — Finale Speech
+
+> "For years, no one spoke up for me. No one stood up for me. And the truth is, you cannot sit around waiting for heroes to arrive. Be your own hero. Fight. One person may not bring a system down. But one person can make a crack. And that crack can grow. Once the light gets in, they never control the darkness the same way again."
+
+**Scene:** The full finale speech. Said directly to camera.
+
+### 4.35. Ch. 21 — Airport Arrivals Terminal
+
+> "I'm still left-handed. And I'm still here."
+
+**Scene:** To the little girl at the airport who pulls up her sleeve to show matching scars. Lucía rolls up her own sleeve first.
+
+### 4.36. Ch. 29 — Bachelorette
+
+> "Tonight onstage — Melissa had Alex. Mónika had Randy. You have Mario. And I had the staff member."
+
+**Scene:** To Melissa at the bachelorette. Said with absolute self-awareness and a rueful laugh.
+
+### 4.37. Ch. 29 — Bachelorette
+
+> "I'm all alone. I have no one. I never have. I see all of you moving on, and I'm still here. Old virgin Lu."
+
+**Scene:** She says this quietly at the bachelorette when she thinks people aren't listening. They are.
+
+### 4.38. Ch. 25 — Pre-Labor Conversation
+
+> "If he can do it, anyone can. I just really hope we don't stop with the montages. I'm a fan of that coping mechanism."
+
+**Scene:** Said immediately after. Melissa's fear is met with evidence and then a joke.
+
+### 4.39. Ch. 25 — Pre-Labor Conversation
+
+> "Honestly? Both. Just don't enroll them at Excelsior."
+
+**Scene:** Melissa asks if she's nervous or excited about the birth. Lucía's answer.
+
+### 4.40. Ch. 29 — Bachelorette Pre-Party
+
+> "He didn't tell you? He's not doing one. He doesn't have any guy friends."
+
+**Scene:** About Alex's non-existent bachelor party. Said with complete accuracy.
+
+### 4.41. Ch. 25 — Pre-Labor Conversation
+
+> "I was going to say homeschooling. But I think you've been marinating this for a while."
+
+**Scene:** Melissa says she wants to open a school. Lucía's response reveals she already guessed the conclusion.
+
+### 4.42. Ch. 30 — Finale
+
+> "You got the girl."
+
+**Scene:** Said to Alex during the finale. Three words that contain the entire series.
+
+---
+
+## 5. Doña Silvia
+
+**Included quotes:** 31
+
+### 5.1. Ch. 11 — Season 3 Opening Credits
+
+> "Come for my family, and we can take you. Come for my Aperol Spritz — and I will take you down."
+
+**Scene:** Season 3 opening credits. She pours Aperol into crystal on the beat. Her chyron: THE MATRIARCH.
+
+### 5.2. Ch. 1 — Villa Herrera Opening
+
+> "Since you're already taking out the trash, you might as well coger la de ese zafacón también."
+
+**Scene:** Said to Alex while he deals with the new cast members at the villa. Delivered with her back turned.
+
+### 5.3. Ch. 1 — Villa Herrera
+
+> "Bread and circus! Fuck the celiacs — they're intolerant."
+
+**Scene:** Said in the middle of chaos at the villa. She is watching everyone argue and delivering commentary.
+
+### 5.4. Ch. 16 — Villa Herrera Arrival
+
+> "Remind me — in my next life, I'm adopting. Adopted children tend to be more loving."
+
+**Scene:** Alex has not come out to greet her. She announces this loudly in the hallway.
+
+### 5.5. Ch. 16 — Villa Herrera
+
+> "WHO DID THIS?! WHO. DID. THIS. ¿QUIÉN FUE EL MALDITO ASESINO?!"
+
+**Scene:** Continuation. She is still processing the pregnancy announcement. The word 'asesino' is not metaphorical to her.
+
+### 5.6. Ch. 16 — Villa Herrera
+
+> "Un momentico, niñas. Does anyone bother to explain this empty jug? Or where in the world is Alex in San Diego? Because I'm about to become an orphan."
+
+**Scene:** She is simultaneously processing the empty Aperol jug and Alex's absence. She has conflated these into one crisis.
+
+### 5.7. Ch. 16 — Mothers' Prayer Scene
+
+> "That monster killed a priest. A PRIEST. In a church. There's no sanctuary left if that thing can walk into a house of God and — Our children are out there. They're reckless, they're young, they think they're invincible. But we know better. We know what's hunting them."
+
+**Scene:** To the other mothers at the prayer vigil. She has never been more serious.
+
+### 5.8. Ch. 16 — Mothers' Prayer Scene
+
+> "So, yes. We came to ask the Virgin to protect them. Because we've tried everything else, and this — this is all we have left."
+
+**Scene:** Continuation of the above. She doesn't apologize for the theology.
+
+### 5.9. Ch. 16 — Basílica Scene
+
+> "Many times. I should know how this works. When Alex was less than a year old, he had seizures. My mother called me crying, begging me to come home."
+
+**Scene:** She is at the Basílica de Altagracia, explaining to Doña Yvelisse why she knows exactly how to pray here.
+
+### 5.10. Ch. 16 — Basílica Scene
+
+> "Well — más o menos. Have you MET Alex? I'm not entirely convinced esa cabecita está bien puesta — but he's alive. He's here. And for that, I thank her. And I'm asking her again. Please. Keep him safe. Keep all of them safe."
+
+**Scene:** She catches herself mid-devotion and inserts an honest assessment of her son.
+
+### 5.11. Ch. 16 — Villa Herrera, Brunch
+
+> "When a stupid young boy loves a girl — apparently more than his own mother — and ignores her many warnings not to sleep together and to wear protection — and this girl, this lovely girl that he loves, sleeps with him anyway — sometimes the stupid young boy plants a seed in the girl that promises to derail their entire future. Because he is so eco-friendly and hates latex and apparently has never even heard of the pull-out method."
+
+**Scene:** At the brunch. She explains the situation to Doña Yvelisse as if filing a police report.
+
+### 5.12. Ch. 16 — Villa Herrera, Brunch
+
+> "So you proposed — without telling your mother, your father, or the bride's parents. No permission. No heads-up."
+
+**Scene:** To Alex, after watching the proposal footage. She is not angry. She is making a record.
+
+### 5.13. Ch. 16 — Villa Herrera, Brunch
+
+> "Yvelisse, mi amor — when a stupid young boy loves a girl."
+
+**Scene:** She starts the explanation again. For Doña Yvelisse. From the top.
+
+### 5.14. Ch. 16 — Villa Herrera, Brunch Grace
+
+> "Señor Dios, te damos gracias por los alimentos que vamos a disfrutar y por las manos que los prepararon. Te rogamos, Señor, que ante estos momentos de incertidumbre, donde parece que el Grim Cojuelo — esa sombra que cayó sobre nuestras familias hace tres años — se acerca otra vez — te ruego, Señor Dios, que cuides a nuestros hijos, y a todos los inocentes."
+
+**Scene:** The grace she says at the villa brunch. She inserts the Grim Cojuelo into the prayer. Nobody interrupts her.
+
+### 5.15. Ch. 16 — Villa Herrera, Brunch Grace
+
+> "I beg you, Lord — forgive Alex and Melissa's sin and let their marriage and their baby be a blessing upon both families."
+
+**Scene:** The private petition inside the grace. She has already pivoted.
+
+### 5.16. Ch. 16 — Villa Herrera
+
+> "¿Qué mami ni qué mami? Tú sabes lo que hiciste."
+
+**Scene:** Alex tries to call her 'mami' to soften her. She does not allow it.
+
+### 5.17. Ch. 16 — Villa Herrera
+
+> "Well, it won't bring back our lost ones — but we can't cry over spilled milk, can we?"
+
+**Scene:** After processing the pregnancy news. She is already pivoting to what comes next.
+
+### 5.18. Ch. 16 — Villa Herrera, Kitchen
+
+> "Can you check if we have an oxygen tank back there? Mario is here and he loves your cooking."
+
+**Scene:** Said to Mary in the kitchen. She is not joking.
+
+### 5.19. Ch. 30 — Post-Cathedral Press Scene
+
+> "I am still processing things. I hope, for the lives lost and the families waiting for news, we can have a little consideration and not bring unnecessary pain to them."
+
+**Scene:** Said to a reporter asking her to react to the cathedral events. She is immovable and precise.
+
+### 5.20. Ch. 30 — Post-Cathedral Press Scene
+
+> "We are already as close as a mother and son can be. We do not need to grow closer. And if we did, not like this."
+
+**Scene:** A reporter asks if a crisis brings her closer to Alex. She answers with this.
+
+### 5.21. Ch. 30 — Post-Cathedral Press Scene
+
+> "No. I thought, God, kill me now, because if I survive this and have to deal with reporters trying to milk my suffering for a headline, I am going to rip someone's spine out through their back. ¿Me entiendes, querida?"
+
+**Scene:** The reporter asks if she was frightened during the ambulance incident. She answers with total honesty.
+
+### 5.22. Ch. 30 — Post-Cathedral Press Scene
+
+> "Now, to give you something juicy, yes. I recognized him. I tried to act casual. Follow me."
+
+**Scene:** She leads the reporter to the spot. She has already decided what she will and won't say.
+
+### 5.23. Ch. 30 — Post-Cathedral Scene
+
+> "If they have a right to know, then they have an obligation to care. Now move."
+
+**Scene:** Someone tells her the public has a right to the story. She agrees on principle and redirects instantly.
+
+### 5.24. Ch. 30 — Post-Cathedral Scene
+
+> "That's it. Ropa vieja went on clearance."
+
+**Scene:** Unexpected domestic comment dropped into a high-stakes moment. Nobody knows what this means in context. She knows exactly what it means.
+
+### 5.25. Ch. 30 — Viral Bar Scene
+
+> "Put a little spritz in your life with your Auntie Silvia's Aperol. Cuntie Spritz. It's only offensive if you don't drink."
+
+**Scene:** Her Aperol bar moment at El Patio 86, now viral. She names the product while standing on the bar.
+
+### 5.26. Ch. 30 — Viral Bar Scene
+
+> "Now remember to drink responsibly. And now, my children — As your Lady of Aperol — come here. ¡Vengan! Come and be baptized!"
+
+**Scene:** She pours directly from the jug onto the upraised glasses of the crowd below her.
+
+### 5.27. Ch. 25 — Cap Cana, 2am
+
+> "She does have my back. Which means Alex is still TeamMother."
+
+**Scene:** Said alone in the Cap Cana house at 2am after watching Melissa slap Alex at the finale. She is making Aperol Spritz.
+
+### 5.28. Ch. 22 — Phone Call with Ricardo
+
+> "I'm sorry — was I asking for your permission?"
+
+**Scene:** Ricardo tries to stop her from flying back to Santo Domingo from Punta Cana. She says this.
+
+### 5.29. Ch. 22 — Phone Call with Ricardo
+
+> "You might be a zaddy and all that, Ricardo, but you are not my zaddy. Please. Some humility."
+
+**Scene:** Continuation. She keeps her tone absolutely sweet.
+
+### 5.30. Ch. 18 — Int. Villa Herrera, Morning After
+
+> "Staying alive, staying alive! Ah ah ah, bah, staying aliiiiive!"
+
+**Scene:** She announces she's coming with Alex to school. She sings this to justify it.
+
+### 5.31. Ch. 18 — Int. Villa Herrera, Hallway
+
+> "Explain to me again how, after three years of school and an excellent GPA, missing one lousy presentation is going to get you expelled. Alex, what did you do?"
+
+**Scene:** She follows Alex down the hallway and shouts this at his closed bedroom door.
+
+---
+
+## 6. Camila
+
+**Included quotes:** 20
+
+### 6.1. Ch. 11 — Season 3 Opening Credits
+
+> "Hard at work or hardly working? Baby, I'm always working it."
+
+**Scene:** Season 3 opening credits. She freezes mid-pose for a camera flash. Chyron: THE INFLUENCER.
+
+### 6.2. Ch. 6 — Pre-Season Casting Scene
+
+> "Is that kosher, though? Ah, fuck it. Let's make Bambi snap, crackle, and pop."
+
+**Scene:** Shane suggests she push Lucía's Catholic guilt until she snaps on camera. Camila asks the ethical question and then immediately abandons it.
+
+### 6.3. Ch. 12 — Int. Elías's Jeep, Moving
+
+> "Hey. I'm here in the car with you, Mario. You're not alone. And I see what's really bothering you — beyond you needing him to be the monster."
+
+**Scene:** In the jeep to Bayahibe. Mario is hostile to everyone. She leans forward and says this.
+
+### 6.4. Ch. 12 — Int. Elías's Jeep, Moving
+
+> "You want to know why Mario's acting like this? Little-known fact — Mario and I don't come from glamorous backgrounds."
+
+**Scene:** She decides to explain. Out loud. In the car. With Elías driving.
+
+### 6.5. Ch. 12 — Int. Elías's Jeep, Moving
+
+> "We weren't born with silver spoons. Hell — we were lucky if there was anything to eat with a spoon. Rice and beans on a good day. Only rice on a bad one."
+
+**Scene:** The speech begins. Her voice is completely level.
+
+### 6.6. Ch. 12 — Int. Elías's Jeep, Moving
+
+> "For whatever reason, we both ended up surrounded by people who can walk into a store and buy whatever they want without ever checking a price tag. Meanwhile, we — If I drop something in a store, if I smudge it wrong — if I can't afford to replace it — suddenly I'm back to hand-me-downs, fourth-hand shops, trash bags as raincoats, and my mom crying because she can't afford to send me to school looking like everyone else."
+
+**Scene:** Continuation. Elías's knuckles whiten on the steering wheel.
+
+### 6.7. Ch. 12 — Int. Elías's Jeep, Moving
+
+> "We're always the outsiders. Looking in."
+
+**Scene:** Her voice cracks slightly on 'outsiders.'
+
+### 6.8. Ch. 12 — Int. Elías's Jeep, Moving
+
+> "And when we finally get inside? There's always a checkout time. A pat-down. A side-eye from the guard who thinks you're stealing. Teachers assume we're there on scholarship. Friends' parents asking where we 'really' live."
+
+**Scene:** Continuation. She is listing things that have happened to her.
+
+### 6.9. Ch. 12 — Int. Elías's Jeep, Moving
+
+> "And sometimes it's easier to hate one person with a face and a name than to hate a system that's invisible. Alex becomes the villain because you can fight him. You can't fight — this."
+
+**Scene:** She gestures at everything outside the jeep window.
+
+### 6.10. Ch. 12 — Int. Elías's Jeep, Moving
+
+> "And for once — only once — we want things to go our way. We want to reach the same level. But you — you keep getting everything. Everything and more. And somehow, we're supposed to smile and say 'thank you.'"
+
+**Scene:** Said to Elías directly through the rearview mirror.
+
+### 6.11. Ch. 12 — Ext. Bayahibe
+
+> "Well, looks like I'm driving."
+
+**Scene:** Said when everyone else refuses to drive back from Bayahibe
+
+### 6.12. Ch. 12 — Ext. Bayahibe
+
+> "Relax, mujer. I know how to drive. Pues salió buena la caja."
+
+**Scene:** Ana Sofía screams at her about the cereal box license. She does not slow down.
+
+### 6.13. Ch. 16 — Villa Herrera, Brunch
+
+> "Perhaps if schools — especially Catholic schools — would actually teach Sex Ed and stop opposing contraception because it's anti-natura, a lot of unwanted or untimely pregnancies could be prevented."
+
+**Scene:** Said at the brunch while the mothers are processing the pregnancy. She is the only cast member who says anything true.
+
+### 6.14. Ch. 30 — Bachelorette / Finale Scene
+
+> "I will answer once you pull me out of the bus Lucía just threw me under."
+
+**Scene:** Lucía answers a question for her. She says this immediately after.
+
+### 6.15. Ch. 29 — Bachelorette Pre-Party
+
+> "I regret nothing. Except my choices."
+
+**Scene:** Said at the bachelorette pre-party, stomach turning, completely committed.
+
+### 6.16. Ch. 29 — Bachelorette Pre-Party
+
+> "I gotta puke."
+
+**Scene:** Said during the bachelorette pre-party. She has pregamed the pregame.
+
+### 6.17. Ch. 30 — Finale
+
+> "I've tried not to meddle. Mario and I are working on things too. All I know is he's zen. A publishing house found his tell-all, made an offer, and paid an advance. Now he's typing like a man with a deadline and something to prove."
+
+**Scene:** Providing an update on Mario to Melissa at the finale. She chooses her words carefully.
+
+### 6.18. Ch. 11 — Ext. Elías's Villa, Night
+
+> "No, poor thing. He's exhausted trying to rein in his dad."
+
+**Scene:** Rafa asks if Mario is joining them at the jacuzzi. She says this.
+
+### 6.19. Ch. 12 — Villa Herrera, Pre-Proposal
+
+> "ALEX, DID YOU CHEAP OUT ON THE ELECTRIC BILL?!"
+
+**Scene:** The villa goes dark. She screams this into the blackout before the fireworks start.
+
+### 6.20. Ch. 28 — Cathedral/Shane's Final Scene
+
+> "Guys — whenever you're done making sure you'll both be the villain in the Lifetime movie about her life."
+
+**Scene:** Alex and Shane are having their final confrontation. Camila says this from the doorway.
+
+---
+
+## 7. Valeria
+
+**Included quotes:** 26
+
+### 7.1. Ch. 11 — Season 3 Opening Credits
+
+> "Life's full of free sweet treats to enjoy — when you say it's your birthday."
+
+**Scene:** Season 3 opening credits. She forks food at a restaurant, winks. Chyron: THE SOCIAL ALCHEMIST.
+
+### 7.2. Ch. 12 — Ext. Bayahibe Highway
+
+> "¡MIERDA! ¡PAREN! ¡REGRESEN — SE ME QUEDARON LOS TAMPONES!"
+
+**Scene:** The jeeps have already peeled out for Bayahibe. She realizes this from Jeep Three.
+
+### 7.3. Ch. 11 — Int. Elías's Villa, Morning After
+
+> "Oh my God, only Mario is dumb enough to bring his dad to crash the party."
+
+**Scene:** Recapping the Don Rolando situation in Elías's villa bedroom the morning after.
+
+### 7.4. Ch. 11 — Int. Elías's Villa, Morning After
+
+> "That was very disturbing."
+
+**Scene:** After the laughter about Don Rolando settles. She adds this soberly.
+
+### 7.5. Ch. 10 — Group Scene
+
+> "If it were up to you, you'd canonize him one week and crucify him the next."
+
+**Scene:** Said to Mario about his relationship with Alex. Nobody argues with this.
+
+### 7.6. Ch. 23 — Shane's Penthouse, Video Review
+
+> "Trust me. She's not a good actress. You should see her trying to fake an orgasm."
+
+**Scene:** About Isabela in the penultimate episode footage. Everyone stares. She is completely sincere.
+
+### 7.7. Ch. 23 — Shane's Penthouse
+
+> "That terror was genuine."
+
+**Scene:** Continuation. Her defense of Elías and Isabela's authenticity in the footage.
+
+### 7.8. Ch. 12 — Villa Herrera Arrival
+
+> "Huh? No one's greeting us? Dios mío, esta casa está muy venida a menos. Hello party people! ¡La fiesta está en casa!"
+
+**Scene:** The new cast arrives at Villa Herrera and nobody comes out. She announces herself.
+
+### 7.9. Ch. 12 — Villa Herrera
+
+> "BOO. You're boring."
+
+**Scene:** Melissa is quietly sitting alone. Valeria greets her with this.
+
+### 7.10. Ch. 12 — Villa Herrera
+
+> "Have you SEEN her eyes? She's been crying."
+
+**Scene:** To the arriving cast about Melissa. Said loudly enough for everyone to hear.
+
+### 7.11. Ch. 12 — Villa Herrera, Pre-Proposal
+
+> "WHAT THE FUCK IS HAPPENING?!"
+
+**Scene:** The villa goes dark. Fireworks explode. The Luis Miguel impersonator appears. She screams this.
+
+### 7.12. Ch. 21 — Shane's Penthouse, Survival Arc Scene
+
+> "Camila María Bernarda Eusebio."
+
+**Scene:** She opens with a full government name. Nothing that follows will be good.
+
+### 7.13. Ch. 21 — Shane's Penthouse, Survival Arc Scene
+
+> "Yes, Camila Etcétera, I am leaving you behind. There is a lunatic out there killing people, and I am joining a survivor ark."
+
+**Scene:** She is performing the departure with maximum production value.
+
+### 7.14. Ch. 21 — Shane's Penthouse
+
+> "Ew. No. Why? You're poor. Stay behind and die. But don't worry — I'll tell everyone our tragic love story the next time I see a camera."
+
+**Scene:** Camila says she's coming too. Valeria rejects her with full Bravo villain energy.
+
+### 7.15. Ch. 21 — Police Station
+
+> "Spotted. The prodigal man and the saint with a shot. Seen at the airport, trying to sneak out of the country — on Grandma's dime, obviously."
+
+**Scene:** She pulls out her phone and reads this like a Gossip Girl blast while Mario is standing right there.
+
+### 7.16. Ch. 21 — Police Station
+
+> "Makes you wonder where Lonely Boy is."
+
+**Scene:** Continuation. She doesn't look at Mario when she says this.
+
+### 7.17. Ch. 25 — Rafa's Car, Night
+
+> "You hate yourself. You're insecure, desperate to stand out, and still convinced your pain matters more than everyone else's. So you humiliate people until they feel small enough for you to feel powerful."
+
+**Scene:** Said to Shane in Rafa's car in the rain after everything. She is not performing. This is an accurate diagnosis.
+
+### 7.18. Ch. 25 — Rafa's Car, Night
+
+> "You're not being a producer. You're being a reaper. A grim, Jewish, vegan, lesbian, liberal, smoker reaper."
+
+**Scene:** Continuation. She watched The Harper Files. She is using Shane's own words.
+
+### 7.19. Ch. 12 — Ep. 3, Confessional
+
+> "Oops — I did it again. Sorry, Mario. I guess I'm also in my Britney era."
+
+**Scene:** After realizing she mocked Mario's financial situation in a confessional that the entire group has now watched.
+
+### 7.20. Ch. 12 — Ep. 3, Yacht
+
+> "Ana Sofía is crazy. But God, I love her."
+
+**Scene:** After Ana Sofía throws the pineapple at Elías on the yacht.
+
+### 7.21. Ch. 12 — Confessional
+
+> "Mario is living in his Britney era."
+
+**Scene:** Confessional about Mario's behavior toward Alex. She is not wrong.
+
+### 7.22. Ch. 23 — Shane's Penthouse
+
+> "Before you tell Melissa to hold your earrings and attack our host again like some classless gata salvaje — please. I beg you. My friend is in danger."
+
+**Scene:** Mónika is about to attack Shane again. Valeria steps between them.
+
+### 7.23. Ch. 30 — Police Station Waiting Room
+
+> "Coño, ¿cuándo nos van a atender? Estoy sudada, cansada, asqueada con la vida, con la muerte, con la gente. Coño, enough is enough."
+
+**Scene:** At the police station waiting room after the cathedral. She is still in her event dress with dried blood on her hands.
+
+### 7.24. Ch. 30 — Police Station Waiting Room
+
+> "I need to wash the blood of my dead friend off of me."
+
+**Scene:** An old woman asks her to be patient. She says this.
+
+### 7.25. Ch. 28 — Cathedral, Restraints Scene
+
+> "Hurry, Alex."
+
+**Scene:** In the cathedral, Alex is cutting her restraints. She is still partially bound and something is moving in the fog.
+
+### 7.26. Ch. 9 — Villa Scene
+
+> "Exactly — why are you all hovering around Alex instead of me? It's my birthday weekend."
+
+**Scene:** Said during a moment when the entire cast has gathered around something Alex-related on her birthday.
+
+---
+
+## 8. Shane
+
+**Included quotes:** 32
+
+### 8.1. Ch. 11 — Season 3 Opening Credits
+
+> "Latinos love drama. And I love Latin-ass."
+
+**Scene:** Season 3 opening credits. She stands center stage with white wine catching the projector light. Chyron: THE PRODUCER.
+
+### 8.2. Ch. 24 — The Harper Files
+
+> "My name is Shane Harper. I'm Jewish. Liberal. Lesbian. Feminist. Smoker. Rum-loving. And — spoiler alert — I'm also a vegan. And yes, let's bring down the patriarchy. And makeup companies."
+
+**Scene:** The Harper Files college diary, played by Melissa on the penthouse projector. Shane at 22, on camera for the first time. The Harper Files, continued. She is explaining herself to the camera before she knows who she'll become.
+
+### 8.3. Ch. 24 — The Harper Files
+
+> "She's flamboyant. I'm tolerant. It's a system."
+
+**Scene:** About her roommate Chris. Said with the ease of someone who has lived with this person for years.
+
+### 8.4. Ch. 24 — The Harper Files
+
+> "You love me. She absolutely loves me."
+
+**Scene:** Trish walks out after seeing Shane in fairy wings and a strap-on. Shane speaks into the camera, unbothered.
+
+### 8.5. Ch. 24 — The Harper Files
+
+> "Same thing. I'm a producer."
+
+**Scene:** Chris says Shane would never run for office but would get the most random person elected. Trish adds 'she's a producer.' Shane confirms.
+
+### 8.6. Ch. 24 — The Harper Files, Subway Scene
+
+> "I get it — down there in your third-world countries, you may not have modern infrastructure or manners — but here in America, we let people out first before we go in."
+
+**Scene:** Said on a New York City subway to tourists blocking the exit. The Dominican guys behind her listen. The irony of who she becomes plays out from this moment.
+
+### 8.7. Ch. 24 — The Harper Files, Bar Scene
+
+> "I am a lioness. And these are my gazelles."
+
+**Scene:** At a lesbian bar, filming herself. She pans slowly across the crowd while saying this.
+
+### 8.8. Ch. 12 — Ext. Bayahibe Production Camp
+
+> "Oh no, sweetie. It's an upgrade — considering someone in this cast considered poisoning me, and the one person who could've warned me didn't do shit."
+
+**Scene:** Said to Elías at the Bayahibe production camp when he asks if she's their babysitter now.
+
+### 8.9. Ch. 12 — Villa Herrera, Shane Arrival
+
+> "Hola, chica bonita! I hear there's trouble in paradise."
+
+**Scene:** She arrives at the villa post-yacht disaster. This is her entrance.
+
+### 8.10. Ch. 12 — Villa Herrera, Bedroom Scene
+
+> "Alright. Let's call that Plan A. It's obvious you skipped Plan B. So — what's Plan C?"
+
+**Scene:** To a half-conscious Melissa while she is on diazepam. Said like a network executive identifying a story gap.
+
+### 8.11. Ch. 12 — Villa Herrera, Post-Conversation
+
+> "I know, right? I care."
+
+**Scene:** Melissa says 'Oh, Shane — you're so kind.' Shane says this without a hint of irony.
+
+### 8.12. Ch. 12 — Villa Herrera
+
+> "Relax. I helped."
+
+**Scene:** Mónika confronts her about the Melissa conversation. Said with total confidence.
+
+### 8.13. Ch. 12 — Villa Herrera
+
+> "Too bad you didn't bring your glam team. You look great, but we need to cover those puffy eyes."
+
+**Scene:** To Melissa after she's been crying. Delivered as practical production advice.
+
+### 8.14. Ch. 12 — Ext. Bayahibe Production Camp
+
+> "I have the sicario on speed dial, bebé. Please don't make me use it."
+
+**Scene:** Continuation. She is not entirely joking.
+
+### 8.15. Ch. 20 — Police Station, Internal
+
+> "Happiness doesn't trend. People don't tune in to see others living better than them."
+
+**Scene:** Internal monologue after Ricardo watches the proposal footage and thanks her. She cannot say this to his face.
+
+### 8.16. Ch. 14 — Shane's Production Office
+
+> "Someone's been watching too much Succession."
+
+**Scene:** Her response to Alex's 'well, well, well' and the imaginary white cat.
+
+### 8.17. Ch. 14 — Shane's Production Office
+
+> "You fucking devils."
+
+**Scene:** After Alex's full legal case, the Harper Files, and the phone evidence spread across her desk.
+
+### 8.18. Ch. 22 — Shane's Penthouse
+
+> "I can end you. One call. I'll burn your career."
+
+**Scene:** Said to Mónika from the floor of her penthouse. She is bleeding.
+
+### 8.19. Ch. 20 — Police Station
+
+> "What are the gloves for? Are you giving me a pap smear? Because if that's the plan, I would prefer that cute little cadet. It would make me much more cooperative."
+
+**Scene:** Ricardo puts on forensic gloves to handle the USB. She says this.
+
+### 8.20. Ch. 20 — Police Station, Alone
+
+> "Oh. I forgot about you, little darling."
+
+**Scene:** Alone in Ricardo's office, she finds the hidden camera still blinking in her glasses frame. She says this to it.
+
+### 8.21. Ch. 20 — Police Station, Alone
+
+> "Is this who I am now? Do I even like who I am?"
+
+**Scene:** The question she asks herself while looking at the blinking camera. The answer the novel doesn't give her.
+
+### 8.22. Ch. 20 — Police Station, USB Footage
+
+> "Ese es mi Paquito."
+
+**Scene:** Said quietly when Paco's voice comes through clearly in the beach video footage. She forgets Ricardo is in the room.
+
+### 8.23. Ch. 21 — Police Station
+
+> "This is not television. This is a crime scene."
+
+**Scene:** Ricardo says this to her. She is the only person in the novel who looks genuinely affected when he says it.
+
+### 8.24. Ch. 21 — Police Station
+
+> "More content — sorry. More safety for everyone."
+
+**Scene:** She starts to say 'more content' when thinking about keeping the group at her penthouse. She catches herself.
+
+### 8.25. Ch. 22 — Shane's Penthouse
+
+> "BOO!"
+
+**Scene:** She and Valeria jump out from behind the kitchen island when the group arrives at the penthouse. For context: three people survived an assassination attempt hours before.
+
+### 8.26. Ch. 25 — Rafa's Car, Night
+
+> "I'm going to kill that Melissa."
+
+**Scene:** She finds out Melissa played The Harper Files to the entire group.
+
+### 8.27. Ch. 20 — Police Station Exterior
+
+> "Relax, Rafa. Soon we'll know who gets axed and who doesn't. And from those survivors, we'll see who gets cast for the killer season."
+
+**Scene:** Rafa asks about his future on the show. She delivers this completely straight. He goes white.
+
+### 8.28. Ch. 20 — Police Station Exterior
+
+> "Oh my God, Rafa, I'm joking. Yes, thank you for your availability. Don't call me, I'll call you."
+
+**Scene:** Rafa freezes. She rolls her eyes.
+
+### 8.29. Ch. 21 — Police Station
+
+> "Wouldn't it be better if we all stayed at my penthouse? One location. Controlled access. Security spread thicker, not thinner."
+
+**Scene:** Said to Ricardo at the station. She smiles. Vicious. Pleased with herself.
+
+### 8.30. Ch. 21 — Police Station
+
+> "I thrive on control, not chaos."
+
+**Scene:** She says this with total sincerity as Ricardo stares at her.
+
+### 8.31. Ch. 13 — Shane's Office, Alone
+
+> "She's going to ruin everything."
+
+**Scene:** Alone in her office, reading about Lucía's growing platform. Said to her phone screen.
+
+### 8.32. Ch. 6 — Pre-Season Casting Scene
+
+> "Mario's desperate for validation. Rafa, you're both ambitious — bond over that, then stab him in the back on camera. Valeria, you and Camila give me a love triangle with Mario."
+
+**Scene:** Pre-season casting session. She is assigning story arcs like a director notes a script.
