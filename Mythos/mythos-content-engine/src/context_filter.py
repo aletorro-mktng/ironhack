@@ -23,6 +23,17 @@ SEMANTIC_SCORE_WEIGHT = 30
 # relevant passages surface even with little literal keyword overlap.
 MANUSCRIPT_SEMANTIC_WEIGHT = 80
 MOOD_TAG_MATCH_BOOST = 40
+# Two-tier source authority: primary (brand voice, playbook, canon, quote bank) is
+# authoritative and outweighs secondary reference material (market/competitor/platform
+# research) when ranking retrieved context. Other layers are neutral.
+PRIMARY_LAYER_WEIGHT = 0.70
+SECONDARY_LAYER_WEIGHT = 0.30
+LAYER_WEIGHTS = {"primary": PRIMARY_LAYER_WEIGHT, "secondary": SECONDARY_LAYER_WEIGHT}
+
+
+def layer_weight(layer: str) -> float:
+    """Authority multiplier for a knowledge-base layer (primary > secondary)."""
+    return LAYER_WEIGHTS.get(str(layer or "").lower(), 0.5)
 QUOTE_POST_MANUSCRIPT_CAP = 24
 MANUSCRIPT_CONTEXT_CAP = 18
 MANUSCRIPT_SOURCE_CHAR_CAP = 24000
@@ -745,7 +756,9 @@ def build_candidate_chunks(content_type: str, topic: str) -> list[dict]:
 
             for index, chunk in enumerate(chunks, start=1):
                 chunk_tokens = tokenize(chunk)
-                score = len(keywords.intersection(chunk_tokens))
+                # Weight by source authority so primary (authoritative) context ranks
+                # ahead of secondary (reference) context for equal keyword relevance.
+                score = len(keywords.intersection(chunk_tokens)) * layer_weight(layer_name)
 
                 candidates.append({
                     "layer": layer_name,

@@ -24,6 +24,8 @@ if str(SRC_DIR) not in sys.path:
 os.chdir(PROJECT_ROOT)
 
 import chapter_reader
+import chapter_promo_prompts as cpp
+import outputs_browser
 from content_pipeline import create_generation_prompt, run_pipeline, save_output
 from context_filter import select_relevant_context
 from draft_store import (
@@ -5145,6 +5147,8 @@ def index() -> None:
                 campaign_tab = ui.tab("Campaign Mode")
                 podcast_tab = ui.tab("Podcast Studio")
                 chapter_promos_tab = ui.tab("Chapter Promos")
+                gallery_tab = ui.tab("Gallery")
+                library_tab = ui.tab("Library")
 
             dark_mode = ui.dark_mode(value=False)
             dark_state = {"on": False}
@@ -5190,8 +5194,21 @@ def index() -> None:
                     fn()
             update_drafts_badge()
 
+        # (tab, [render_fn, ...]) — re-render the lazy Gallery/Library tabs on activation
+        # so newly generated content shows without a manual Refresh.
+        tab_render_hooks: list = []
+
         def _on_tab_change(_event) -> None:
             refresh_dashboard()
+            current = getattr(_event, "value", None)
+            for tab_obj, hooks in tab_render_hooks:
+                tab_name = getattr(tab_obj, "_props", {}).get("name") if hasattr(tab_obj, "_props") else None
+                if current is tab_obj or current == tab_obj or (tab_name and str(current) == tab_name):
+                    for hook in hooks:
+                        try:
+                            hook()
+                        except Exception:
+                            pass
             ui.run_javascript(
                 'window.scrollTo({top:0,behavior:"smooth"});'
                 'const c=document.querySelector(".nicegui-content")||document.querySelector(".q-page-container");'
@@ -5200,6 +5217,75 @@ def index() -> None:
 
         tabs.on_value_change(_on_tab_change)
         update_drafts_badge()
+
+        def build_comparison_section(*, content_type_label: str, get_mythos, get_brief) -> None:
+            """Reusable 'Compare Tell Tales Ink vs ChatGPT' expansion for any tab.
+
+            ``get_mythos``/``get_brief`` are zero-arg callables read at click time so the
+            section can live anywhere and still see the tab's latest output and brief.
+            """
+            with ui.expansion("Compare Tell Tales Ink vs ChatGPT", icon="compare_arrows").classes("mce-expansion"):
+                with ui.column().classes("mce-stack w-full"):
+                    ui.label("Charisma. Uniqueness. Nerve and Talent.").classes("mce-section-title")
+                    ui.label(
+                        "Generate a Tell Tales Ink draft first, then create a fresh ChatGPT baseline from the same brief."
+                    ).classes("mce-muted")
+                    cmp_model = apply_field_props(
+                        ui.select(
+                            CHATGPT_COMPARISON_MODEL_OPTIONS,
+                            value=CHATGPT_COMPARISON_MODEL_OPTIONS[0],
+                            label="ChatGPT model",
+                        )
+                    )
+                    cmp_status = readonly_input("Comparison status", "Generate a Tell Tales Ink draft first.", mono=False)
+                    cmp_view = ui.html(comparison_side_by_side_html(), sanitize=False).classes("w-full")
+                    cmp_output = readonly_textarea("ChatGPT baseline output", "")
+                    cmp_prompt_path = readonly_input("ChatGPT prompt path", "")
+                    cmp_draft_path = readonly_input("ChatGPT draft path", "")
+                    cmp_pref = apply_field_props(
+                        ui.select(["Tell Tales Ink", "ChatGPT", "Tie / needs revision"], label="Which result do you prefer?")
+                    )
+                    cmp_notes = apply_field_props(
+                        ui.textarea(
+                            label="Judge notes",
+                            placeholder="Example: Tell Tales Ink grounded it in the book; ChatGPT was clean but generic.",
+                        ),
+                        "outlined autogrow",
+                    )
+                    cmp_save_status = readonly_input("Saved judgment status", "")
+                    cmp_vote_path = readonly_input("Saved judgment path", "")
+
+                    async def run_cmp() -> None:
+                        await generate_chatgpt_comparison(
+                            content_type=content_type_label,
+                            structured_brief=get_brief(),
+                            mythos_content=get_mythos(),
+                            model=cmp_model.value,
+                            comparison_status=cmp_status,
+                            comparison_view=cmp_view,
+                            chatgpt_output=cmp_output,
+                            chatgpt_prompt_path=cmp_prompt_path,
+                            chatgpt_draft_path=cmp_draft_path,
+                        )
+
+                    def save_cmp() -> None:
+                        save_comparison_preference(
+                            preference=cmp_pref.value,
+                            notes=cmp_notes.value,
+                            content_type=content_type_label,
+                            structured_brief=get_brief(),
+                            mythos_content=get_mythos(),
+                            chatgpt_model=cmp_model.value,
+                            chatgpt_content=cmp_output.value,
+                            chatgpt_draft_path=cmp_draft_path.value,
+                            chatgpt_prompt_path=cmp_prompt_path.value,
+                            comparison_save_status=cmp_save_status,
+                            comparison_vote_path=cmp_vote_path,
+                        )
+
+                    with ui.row().classes("mce-actions"):
+                        make_secondary_button("Generate ChatGPT Baseline", run_cmp)
+                        make_secondary_button("Save Judgment", save_cmp)
 
         def record_session_draft(content_type_value: str, topic_text: str = "", count: int = 1) -> None:
             """Record generation activity for the 'This session' card — used by every
@@ -5404,6 +5490,30 @@ def index() -> None:
                                     with_input=True,
                                 ),
                             )
+                            chapter_mode = apply_field_props(
+                                ui.select(
+                                    cpp.CHAPTER_PROMO_MODES,
+                                    value=cpp.CHAPTER_PROMO_MODES[0],
+                                    label="Mode",
+                                ),
+                            )
+                            chapter_genre = apply_field_props(
+                                ui.select(
+                                    cpp.GENRE_OPTIONS,
+                                    value=cpp.default_genre_for_book(chapter_books[0] if chapter_books else ""),
+                                    label="Genre / tone",
+                                ),
+                            )
+                            chapter_pillar = apply_field_props(
+                                ui.select(
+                                    cpp.TEASER_PILLAR_OPTIONS,
+                                    value="One-Sentence Plot + Consequence",
+                                    label="Teaser pillar (primary format)",
+                                ),
+                            )
+                            chapter_pillar.bind_visibility_from(
+                                chapter_mode, "value", lambda v: v == "Teaser / Promo"
+                            )
                             chapter_platforms = apply_field_props(
                                 ui.select(
                                     list(CHAPTER_PROMO_PLATFORMS.keys()),
@@ -5413,10 +5523,15 @@ def index() -> None:
                                 ),
                                 "outlined dense use-chips clearable",
                             )
+                            chapter_platforms.bind_visibility_from(
+                                chapter_mode, "value", lambda v: v == "Teaser / Promo"
+                            )
 
                             def refresh_chapter_options(_event=None) -> None:
                                 options = chapter_reader.chapter_options(chapter_book.value) if chapter_book.value else {}
                                 chapter_select.set_options(options, value=next(iter(options), None))
+                                # Default the genre to the selected novel's genre (overridable).
+                                chapter_genre.value = cpp.default_genre_for_book(chapter_book.value or "")
 
                             chapter_book.on_value_change(refresh_chapter_options)
 
@@ -5428,16 +5543,22 @@ def index() -> None:
                                 label="Chapter summary + promos (editable)", value="",
                             ).props("outlined autogrow").classes("w-full mce-output-textarea")
                             chapter_saved_path = readonly_input("Saved draft path", "")
+                            with ui.expansion("Structured brief used for comparison", icon="inventory_2").classes("mce-expansion"):
+                                chapter_brief_output = readonly_textarea("Brief", "")
 
                             async def generate_chapter_promos() -> None:
                                 book = chapter_book.value
                                 chapter_id = chapter_select.value
-                                platform_labels = [p for p in (chapter_platforms.value or []) if p]
+                                mode = chapter_mode.value or cpp.CHAPTER_PROMO_MODES[0]
+                                genre = chapter_genre.value or cpp.default_genre_for_book(book or "")
+                                teaser_pillar = chapter_pillar.value or "One-Sentence Plot + Consequence"
+                                is_teaser = mode == "Teaser / Promo"
+                                platform_labels = [p for p in (chapter_platforms.value or []) if p] if is_teaser else []
                                 if not book or not chapter_id:
                                     chapter_status.value = "Pick a novel and a chapter first."
                                     ui.notify(chapter_status.value, type="warning")
                                     return
-                                if not platform_labels:
+                                if is_teaser and not platform_labels:
                                     chapter_status.value = "Select at least one platform."
                                     ui.notify(chapter_status.value, type="warning")
                                     return
@@ -5458,15 +5579,11 @@ def index() -> None:
                                     completed_assets=done, total_assets=total_assets, message="Summarizing chapter...",
                                 )
                                 chapter_text = chapter_reader.chapter_text_for_prompt(chapter)
-                                summary_prompt = (
-                                    f'You are a book-marketing strategist for the novel "{book}".\n'
-                                    f"Read this chapter ({chapter['label']}) and produce a tight, SPOILER-AWARE marketing brief.\n\n"
-                                    f'CHAPTER TEXT:\n"""\n{chapter_text}\n"""\n\n'
-                                    "Return in markdown with these sections:\n"
-                                    "- **Summary:** 3-5 sentences on what happens (no major twist or ending spoilers).\n"
-                                    "- **Key characters:** the characters featured in this chapter.\n"
-                                    "- **Themes & mood:** the core emotional beats and tone.\n"
-                                    "- **Promo hooks:** 3 spoiler-free teaser lines usable on social media.\n"
+                                summary_prompt = cpp.build_summary_prompt(
+                                    novel_title=book,
+                                    chapter_label=chapter["label"],
+                                    chapter_text=chapter_text,
+                                    genre=genre,
                                 )
                                 try:
                                     summary = (await asyncio.to_thread(generate_text, summary_prompt)).strip()
@@ -5476,58 +5593,81 @@ def index() -> None:
                                     chapter_progress.visible = False
                                     return
                                 done += 1
-                                combined = f"# {book} — {chapter['label']}\n\n## Chapter Summary\n\n{summary}\n"
+                                combined = f"# {book} — {chapter['label']}\n\n{summary}\n"
+                                # Fair brief for the ChatGPT comparison: same task + chapter grounding, no brand KB.
+                                _brief_lines = [
+                                    f"Task: produce a chapter {'summary plus platform teasers' if is_teaser else 'summary'} "
+                                    f"for \"{chapter['label']}\" of the novel \"{book}\".",
+                                    f"Genre / tone: {genre}",
+                                ]
+                                if is_teaser:
+                                    _brief_lines.append(f"Teaser pillar (primary format): {teaser_pillar}")
+                                    _brief_lines.append(f"Platforms: {', '.join(platform_labels)}")
+                                _brief_lines.append("Spoiler policy: stay spoiler-free; do not reveal the ending or major twists.")
+                                _brief_lines.append("")
+                                _brief_lines.append("Chapter grounding (summary of the actual chapter):")
+                                _brief_lines.append(summary)
+                                chapter_brief_output.value = "\n".join(_brief_lines)
                                 empty_platforms: list[str] = []
                                 for platform_label in platform_labels:
-                                    content_type_value = CHAPTER_PROMO_PLATFORMS[platform_label]
                                     await set_generation_progress(
                                         progress=chapter_progress, label=chapter_progress_label, status=chapter_status,
                                         started_at=started_at, completed_steps=done, total_steps=total_steps,
                                         completed_assets=done, total_assets=total_assets,
-                                        message=f"Generating {platform_label} promo...",
+                                        message=f"Generating {platform_label} teaser...",
                                     )
-                                    brief = (
-                                        f"Topic: Promotional {platform_label} content teasing {chapter['label']} of the novel.\n"
-                                        f"Related book/source: {book}\n"
-                                        f"Chapter: {chapter['label']}\n\n"
-                                        f"Chapter marketing brief (internal grounding — summary, characters, themes, hooks):\n{summary}\n\n"
-                                        "Instruction: Create promotional content that teases THIS chapter to build interest in the book. "
-                                        "Stay spoiler-free — do not reveal major twists or the ending. Match the book's dark, literary tone. "
-                                        "Ground every reference in the chapter brief above; do not invent plot details."
+                                    teaser_prompt = cpp.build_teaser_prompt(
+                                        platform=platform_label,
+                                        novel_title=book,
+                                        chapter_label=chapter["label"],
+                                        chapter_text=chapter_text,
+                                        summary=summary,
+                                        genre=genre,
+                                        teaser_pillar=teaser_pillar,
                                     )
                                     try:
-                                        result = await asyncio.to_thread(run_pipeline, content_type_value, brief)
-                                        generated = str(result.get("generated_content") or "").strip()
+                                        generated = (await asyncio.to_thread(generate_text, teaser_prompt)).strip()
                                         if not generated:
                                             generated = f"_(No content returned for {platform_label}. Try regenerating.)_"
                                             empty_platforms.append(platform_label)
                                     except Exception as exc:
-                                        generated = f"_{platform_label} promo failed: {exc}_"
+                                        generated = f"_{platform_label} teaser failed: {exc}_"
                                         empty_platforms.append(platform_label)
                                     combined += f"\n\n---\n\n## {platform_label} Promo\n\n{generated}"
                                     done += 1
                                 chapter_output.value = combined
+                                title_suffix = "promos" if is_teaser else "summary"
                                 try:
                                     record = save_draft(
-                                        title=f"{book} — {chapter['label']} promos"[:90],
+                                        title=f"{book} — {chapter['label']} {title_suffix}"[:90],
                                         content_type="chapter_promo",
                                         content=combined,
-                                        metadata={"book": book, "chapter": chapter["label"], "platforms": platform_labels},
+                                        metadata={
+                                            "book": book,
+                                            "chapter": chapter["label"],
+                                            "platforms": platform_labels,
+                                            "mode": mode,
+                                            "genre": genre,
+                                            "teaser_pillar": teaser_pillar,
+                                        },
                                     )
                                     chapter_saved_path.value = record["path"]
                                 except Exception:
                                     pass
+                                finish_message = "Chapter promos ready." if is_teaser else "Chapter summary ready."
                                 await finish_generation_progress(
                                     progress=chapter_progress, label=chapter_progress_label, status=chapter_status,
-                                    total_assets=total_assets, message="Chapter promos ready.",
+                                    total_assets=total_assets, message=finish_message,
                                 )
                                 if empty_platforms:
                                     ui.notify(
                                         f"Generated — but no content came back for: {', '.join(empty_platforms)}. Try regenerating.",
                                         type="warning",
                                     )
-                                else:
+                                elif is_teaser:
                                     ui.notify("Chapter promos generated and saved to drafts.", type="positive")
+                                else:
+                                    ui.notify("Chapter summary generated and saved to drafts.", type="positive")
                                 record_session_draft("chapter_promo", f"{book} — {chapter['label']}")
                                 update_drafts_badge()
 
@@ -5537,6 +5677,11 @@ def index() -> None:
                                     "Download (.docx)",
                                     lambda: download_docx(chapter_output.value, f"{chapter_book.value or 'chapter'} promos"),
                                 )
+                            build_comparison_section(
+                                content_type_label="chapter_promo",
+                                get_mythos=lambda: chapter_output.value,
+                                get_brief=lambda: chapter_brief_output.value,
+                            )
 
             with ui.tab_panel(generator_tab).classes("mce-panel"):
                 with ui.element("section").classes("mce-grid"):
@@ -7548,7 +7693,13 @@ Return concise angle options with why each is newsworthy."""
                                     podcast_prompt_path = readonly_input("Generation prompt", "")
                                     podcast_draft_path = readonly_input("Draft output", "")
                                     podcast_saved_draft_path = readonly_input("Saved podcast draft", "")
+                                    podcast_brief_output = readonly_textarea("Structured brief used for comparison", "")
                             podcast_audio_actions = ui.row().classes("mce-actions")
+                            build_comparison_section(
+                                content_type_label="podcast",
+                                get_mythos=lambda: podcast_generated_output.value,
+                                get_brief=lambda: podcast_brief_output.value,
+                            )
 
                     podcast_voices_state: list[dict] = []
 
@@ -7689,6 +7840,7 @@ Return concise angle options with why each is newsworthy."""
                                 prompt_path=podcast_prompt_path,
                                 draft_path=podcast_draft_path,
                                 generated_output=podcast_generated_output,
+                                structured_brief_output=podcast_brief_output,
                                 visual_format_labels=None,
                                 visual_theme_name="",
                                 saved_draft_path=podcast_saved_draft_path,
@@ -7967,6 +8119,25 @@ Return concise angle options with why each is newsworthy."""
                                     chapter_platforms.value = saved_platforms
                                 except Exception:
                                     pass
+                            # Restore mode/genre/pillar after the book (which resets genre to its default).
+                            saved_mode = metadata.get("mode")
+                            if saved_mode:
+                                try:
+                                    chapter_mode.value = saved_mode
+                                except Exception:
+                                    pass
+                            saved_genre = metadata.get("genre")
+                            if saved_genre:
+                                try:
+                                    chapter_genre.value = saved_genre
+                                except Exception:
+                                    pass
+                            saved_pillar = metadata.get("teaser_pillar")
+                            if saved_pillar:
+                                try:
+                                    chapter_pillar.value = saved_pillar
+                                except Exception:
+                                    pass
                             chapter_output.value = content
                             ui.notify("Chapter promos loaded — edit or regenerate.", type="positive")
                             return
@@ -8157,13 +8328,275 @@ Return concise angle options with why each is newsworthy."""
 
                     render_saved_draft_list()
 
-        # NTH-01: keyboard shortcuts (Cmd/Ctrl+1..6 tabs, Cmd/Ctrl+Enter generate, Cmd/Ctrl+S save).
+            with ui.tab_panel(gallery_tab).classes("mce-panel"):
+                with ui.card().classes("mce-card"):
+                    section_heading(
+                        "Gallery",
+                        "Every generated image, browsable by content type, format, and date.",
+                    )
+                    with ui.column().classes("mce-stack w-full"):
+                        try:
+                            _gallery_type_options = ["All types", *outputs_browser.image_content_types()]
+                        except Exception:
+                            _gallery_type_options = ["All types"]
+                        with ui.row().classes("items-center w-full").style("gap:12px;flex-wrap:wrap;"):
+                            gallery_type = apply_field_props(
+                                ui.select(_gallery_type_options, value="All types", label="Content type"),
+                            )
+                            gallery_sort = apply_field_props(
+                                ui.select(["Newest first", "Oldest first"], value="Newest first", label="Sort"),
+                            )
+                            gallery_search = apply_field_props(
+                                ui.input(placeholder="Search by topic or filename...").props("clearable"),
+                            )
+                            gallery_count = ui.label("").classes("mce-muted")
+                        gallery_grid = ui.row().classes("w-full").style("flex-wrap:wrap;gap:14px;")
+
+                        def open_image_detail(img: dict) -> None:
+                            with ui.dialog() as image_dialog, ui.card().classes("mce-card").style("max-width:760px;width:90vw;"):
+                                with ui.row().classes("w-full").style("gap:18px;flex-wrap:wrap;align-items:flex-start;"):
+                                    ui.image(img["path"]).style("width:320px;max-width:100%;border-radius:10px;object-fit:contain;")
+                                    with ui.column().classes("mce-stack").style("flex:1;min-width:220px;"):
+                                        ui.label(img["topic"]).style("font-weight:700;font-size:18px;")
+                                        for detail_label, detail_value in [
+                                            ("Content type", img["type_label"]),
+                                            ("Format", img["format"] or "—"),
+                                            ("Aspect", img["aspect"]),
+                                            ("Generated", img["date"]),
+                                            ("File size", f"{img['size_kb']} KB"),
+                                            ("Filename", img["filename"]),
+                                        ]:
+                                            with ui.row().style("gap:8px;"):
+                                                ui.label(f"{detail_label}:").classes("mce-muted").style("width:96px;flex:0 0 96px;")
+                                                ui.label(str(detail_value)).style("font-size:13px;word-break:break-all;")
+                                        with ui.row().classes("mce-actions"):
+                                            make_primary_button("Download", lambda i=img: ui.download(i["path"], i["filename"]))
+                                            make_secondary_button("Close", image_dialog.close)
+                            image_dialog.open()
+
+                        def build_gallery_card(img: dict) -> None:
+                            ratio = img["aspect"].replace(":", "/") if ":" in img["aspect"] else "4/5"
+                            with ui.card().style("width:200px;padding:0;overflow:hidden;cursor:pointer;").on(
+                                "click", lambda i=img: open_image_detail(i)
+                            ):
+                                ui.image(img["path"]).style(f"width:100%;aspect-ratio:{ratio};object-fit:cover;display:block;")
+                                with ui.column().style("padding:9px 10px;gap:3px;"):
+                                    ui.label(img["topic"]).style(
+                                        "font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+                                    )
+                                    ui.label(f"{img['type_label']} · {img['aspect']}").classes("mce-muted").style("font-size:11px;")
+                                    ui.label(img["date"]).classes("mce-muted").style("font-size:11px;")
+
+                        gallery_render_cap = 150
+
+                        def render_gallery() -> None:
+                            try:
+                                items = outputs_browser.load_gallery_images(
+                                    gallery_type.value or "All types", gallery_sort.value or "Newest first"
+                                )
+                            except Exception as exc:
+                                gallery_grid.clear()
+                                with gallery_grid:
+                                    ui.label(f"Could not load images: {exc}").classes("mce-muted")
+                                return
+                            query = str(gallery_search.value or "").strip().lower()
+                            if query:
+                                items = [
+                                    i for i in items
+                                    if query in i["topic"].lower() or query in i["filename"].lower()
+                                ]
+                            total = len(items)
+                            shown = items[:gallery_render_cap]
+                            note = f"{total} image(s)"
+                            if total > len(shown):
+                                note += f" · showing newest {len(shown)} (filter to narrow)"
+                            gallery_count.set_text(note)
+                            gallery_grid.clear()
+                            with gallery_grid:
+                                if not shown:
+                                    ui.label("No images yet. Generate visuals in the Generator or Campaign tabs.").classes("mce-muted")
+                                for img in shown:
+                                    build_gallery_card(img)
+
+                        gallery_type.on_value_change(lambda _e: render_gallery())
+                        gallery_sort.on_value_change(lambda _e: render_gallery())
+                        gallery_search.on_value_change(lambda _e: render_gallery())
+                        with ui.row().classes("mce-actions"):
+                            make_secondary_button("Refresh", render_gallery)
+                        render_gallery()
+                        tab_render_hooks.append((gallery_tab, [render_gallery]))
+
+            with ui.tab_panel(library_tab).classes("mce-panel"):
+                with ui.card().classes("mce-card"):
+                    section_heading(
+                        "Library",
+                        "Browse all generated documents and rendered podcast audio.",
+                    )
+                    with ui.tabs().classes("mce-tabs") as library_subtabs:
+                        library_docs_tab = ui.tab("Documents")
+                        library_audio_tab = ui.tab("Audio")
+                    with ui.tab_panels(library_subtabs, value=library_docs_tab).classes("w-full"):
+                        with ui.tab_panel(library_docs_tab):
+                            def _doc_records() -> list:
+                                try:
+                                    return list_saved_drafts(500)
+                                except Exception:
+                                    return []
+
+                            def _doc_book(record) -> str:
+                                meta = record.get("metadata") or {}
+                                return str(meta.get("book") or meta.get("related_book") or "").strip()
+
+                            def _doc_type_label(content_type) -> str:
+                                return str(content_type or "content").replace("_", " ").title()
+
+                            _initial_docs = _doc_records()
+                            _doc_type_options = ["All types", *sorted({_doc_type_label(r.get("content_type")) for r in _initial_docs})]
+                            _doc_book_options = ["All books", *sorted({b for b in (_doc_book(r) for r in _initial_docs) if b and b != "Not specified"})]
+                            with ui.row().classes("w-full").style("gap:18px;align-items:flex-start;flex-wrap:wrap;"):
+                                with ui.column().style("width:300px;flex:0 0 300px;gap:10px;"):
+                                    library_doc_search = apply_field_props(ui.input(placeholder="Search by title...").props("clearable"))
+                                    library_doc_type = apply_field_props(ui.select(_doc_type_options, value="All types", label="Content type"))
+                                    library_doc_book = apply_field_props(ui.select(_doc_book_options, value="All books", label="Book"))
+                                    library_doc_count = ui.label("").classes("mce-muted")
+                                    library_doc_list = ui.column().classes("w-full mce-saved-list").style("max-height:560px;overflow:auto;gap:4px;")
+                                with ui.column().style("flex:1;min-width:280px;gap:10px;"):
+                                    library_prev_title = ui.label("Select a document").style("font-weight:700;font-size:18px;")
+                                    library_prev_meta = ui.row().classes("mce-muted").style("gap:10px;flex-wrap:wrap;font-size:12px;")
+                                    library_prev_body = ui.markdown("").classes("w-full").style("max-height:520px;overflow:auto;border-top:1px solid rgba(0,0,0,.1);padding-top:10px;")
+                                    library_prev_actions = ui.row().classes("mce-actions")
+
+                            def load_doc_preview(record) -> None:
+                                library_prev_title.set_text(record.get("title") or "Untitled draft")
+                                library_prev_meta.clear()
+                                with library_prev_meta:
+                                    ui.label(_doc_type_label(record.get("content_type")))
+                                    book_name = _doc_book(record)
+                                    if book_name:
+                                        ui.label("· " + book_name)
+                                    ui.label("· " + str(record.get("updated_at") or record.get("created_at") or ""))
+                                try:
+                                    content = read_saved_draft_content(str(record.get("id") or ""))
+                                except Exception:
+                                    content = ""
+                                library_prev_body.set_content(content or "_(empty draft)_")
+                                library_prev_actions.clear()
+                                with library_prev_actions:
+                                    make_primary_button(
+                                        "Download .md",
+                                        lambda r=record: ui.download(str(r.get("path") or ""), Path(str(r.get("path") or "draft.md")).name),
+                                    )
+                                    make_secondary_button(
+                                        "Download .docx",
+                                        lambda r=record: download_docx(read_saved_draft_content(str(r.get("id") or "")), r.get("title") or "draft"),
+                                    )
+                                    make_secondary_button(
+                                        "Open in builder",
+                                        lambda r=record: open_draft_in_builder(str(r.get("id") or "")),
+                                    )
+
+                            def render_library_docs() -> None:
+                                records = _doc_records()
+                                query = str(library_doc_search.value or "").strip().lower()
+                                type_filter = library_doc_type.value or "All types"
+                                book_filter = library_doc_book.value or "All books"
+                                filtered = []
+                                for record in records:
+                                    if type_filter != "All types" and _doc_type_label(record.get("content_type")) != type_filter:
+                                        continue
+                                    if book_filter != "All books" and _doc_book(record) != book_filter:
+                                        continue
+                                    if query and query not in str(record.get("title") or "").lower():
+                                        continue
+                                    filtered.append(record)
+                                library_doc_count.set_text(f"{len(filtered)} of {len(records)} documents")
+                                library_doc_list.clear()
+                                with library_doc_list:
+                                    if not filtered:
+                                        ui.label("No documents match.").classes("mce-muted")
+                                    for record in filtered:
+                                        with ui.card().style("padding:9px 11px;cursor:pointer;gap:2px;").on(
+                                            "click", lambda rec=record: load_doc_preview(rec)
+                                        ):
+                                            ui.label(record.get("title") or "Untitled draft").style(
+                                                "font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+                                            )
+                                            ui.label(
+                                                f"{_doc_type_label(record.get('content_type'))} · {str(record.get('updated_at') or record.get('created_at') or '')[:16]}"
+                                            ).classes("mce-muted").style("font-size:11px;")
+
+                            library_doc_search.on_value_change(lambda _e: render_library_docs())
+                            library_doc_type.on_value_change(lambda _e: render_library_docs())
+                            library_doc_book.on_value_change(lambda _e: render_library_docs())
+                            with ui.row().classes("mce-actions"):
+                                make_secondary_button("Refresh", render_library_docs)
+                            render_library_docs()
+
+                        with ui.tab_panel(library_audio_tab):
+                            with ui.row().classes("items-center mce-actions").style("gap:12px;"):
+                                library_audio_sort = apply_field_props(
+                                    ui.select(["Newest first", "Oldest first"], value="Newest first", label="Sort"),
+                                )
+                                library_audio_count = ui.label("").classes("mce-muted")
+                            library_audio_grid = ui.column().classes("w-full").style("gap:14px;")
+
+                            def open_manifest_dialog(episode: dict) -> None:
+                                try:
+                                    manifest_text = (
+                                        Path(episode["manifest_path"]).read_text(encoding="utf-8", errors="ignore")
+                                        if episode.get("manifest_path") else "No manifest found."
+                                    )
+                                except Exception:
+                                    manifest_text = "Manifest could not be read."
+                                with ui.dialog() as manifest_dialog, ui.card().classes("mce-card").style("max-width:640px;width:90vw;"):
+                                    ui.label("Audio manifest").style("font-weight:700;")
+                                    ui.markdown(f"```\n{manifest_text}\n```").classes("w-full").style("max-height:60vh;overflow:auto;")
+                                    with ui.row().classes("mce-actions"):
+                                        make_secondary_button("Close", manifest_dialog.close)
+                                manifest_dialog.open()
+
+                            def build_audio_card(episode: dict) -> None:
+                                with ui.card().classes("mce-card").style("padding:16px;gap:8px;"):
+                                    ui.label(episode["title"]).style("font-weight:700;font-size:15px;")
+                                    ui.label(
+                                        f"{episode['mode']} · {episode['model']} · {episode['segments']} segments · {episode['size_mb']} MB · {episode['date']}"
+                                    ).classes("mce-muted").style("font-size:12px;")
+                                    ui.audio(episode["mp3_path"], controls=True).classes("mce-audio w-full")
+                                    with ui.row().classes("mce-actions"):
+                                        make_primary_button(
+                                            "Download MP3",
+                                            lambda e=episode: ui.download(e["mp3_path"], Path(e["mp3_path"]).name),
+                                        )
+                                        if episode.get("manifest_path"):
+                                            make_secondary_button("View manifest", lambda e=episode: open_manifest_dialog(e))
+
+                            def render_library_audio() -> None:
+                                try:
+                                    episodes = outputs_browser.load_audio_episodes(library_audio_sort.value or "Newest first")
+                                except Exception as exc:
+                                    library_audio_grid.clear()
+                                    with library_audio_grid:
+                                        ui.label(f"Could not load audio: {exc}").classes("mce-muted")
+                                    return
+                                library_audio_count.set_text(f"{len(episodes)} episode(s)")
+                                library_audio_grid.clear()
+                                with library_audio_grid:
+                                    if not episodes:
+                                        ui.label("No podcast audio yet. Render audio in the Podcast Studio or Campaign tabs.").classes("mce-muted")
+                                    for episode in episodes:
+                                        build_audio_card(episode)
+
+                            library_audio_sort.on_value_change(lambda _e: render_library_audio())
+                            render_library_audio()
+                    tab_render_hooks.append((library_tab, [render_library_docs, render_library_audio]))
+
+        # NTH-01: keyboard shortcuts (Cmd/Ctrl+1..8 tabs, Cmd/Ctrl+Enter generate, Cmd/Ctrl+S save).
         ui.add_body_html(
             """
             <script>
             document.addEventListener('keydown', (e) => {
                 const mod = e.metaKey || e.ctrlKey;
-                if (mod && (e.key === 's' || (e.key >= '1' && e.key <= '6'))) {
+                if (mod && (e.key === 's' || (e.key >= '1' && e.key <= '8'))) {
                     e.preventDefault();
                 }
             }, true);
@@ -8184,6 +8617,8 @@ Return concise angle options with why each is newsworthy."""
                 "4": campaign_tab,
                 "5": podcast_tab,
                 "6": chapter_promos_tab,
+                "7": gallery_tab,
+                "8": library_tab,
             }
             if key_name in tab_map:
                 tabs.value = tab_map[key_name]
