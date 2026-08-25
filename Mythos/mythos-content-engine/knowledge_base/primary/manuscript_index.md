@@ -3580,3 +3580,884 @@ Do not reveal:
 ## Approved Excerpts / Style Samples
 
 [Paste selected passages.]
+
+# Mortal Vengeance II: To Reel or Not Too Real? 
+## # Mortal Vengeance Book Information
+
+This file contains verified book information for the Mortal Vengeance series. Use this file as the source of truth for titles, order, positioning, genres, descriptions, spoiler boundaries, and public-safe marketing angles.
+
+## Series Name
+
+Mortal Vengeance
+
+## Author Name
+
+Alejandro Torres De la Rocha
+
+## Series Positioning
+
+The Mortal Vengeance series blends psychological suspense, revenge, Caribbean Gothic atmosphere, Dominican folklore, dark academia, media spectacle, institutional corruption, and morally complicated characters.
+
+The series should not be described as generic horror, generic YA thriller, or simple revenge fantasy.
+
+The series is best positioned as a psychologically driven thriller-horror saga set in the Dominican Republic, where personal revenge, institutional silence, social performance, folklore, and moral rot collide.
+
+Core series elements include:
+
+- Elite Dominican school culture
+- Jesuit and Catholic institutional pressure
+- Dominican folklore, especially the Grim Cojuelo
+- Revenge as both emotional release and moral corruption
+- The difference between justice, punishment, and spectacle
+- Class privilege, reputation management, and silence
+- Teen trauma, survivor guilt, and public voyeurism
+- Media exploitation and reality-TV spectacle
+- Morally gray characters making catastrophic choices
+- Dark humor, sharp dialogue, and cinematic slasher tension
+
+---
+
+# Book 1: Mortal Vengeance
+
+## Full Title
+
+Mortal Vengeance
+
+## Series Position
+
+Book 1
+
+## Genre Positioning
+
+- Dark YA psychological thriller
+- Slasher thriller
+- Revenge thriller
+- Caribbean Gothic horror
+- Whodunnit slasher
+- Dominican Gothic thriller
+
+## Short Description
+
+At an elite school in Santo Domingo, a cruel teacher’s humiliation sparks a revenge plot among students. But what begins as payback spirals into a masked nightmare when the legend of the Grim Cojuelo turns personal guilt, buried secrets, and teenage cruelty into a blood-soaked reckoning.
+
+## Long Description
+
+Mortal Vengeance begins with rage in a suffocating classroom, where Profesora Lourdes’ cruelty pushes a group of students toward revenge. Alex, Marcos, Mario, and Manuel believe they are planning a lesson their teacher will never forget. But at Excelsior Academy, revenge has a way of mutating.
+
+As jealousy, betrayal, social pressure, and old wounds spread through the group, the line between prank, punishment, and violence begins to collapse. The students’ friendships become weapons. Their secrets become liabilities. Their school becomes a pressure cooker built on fear, silence, and reputation.
+
+Then the Grim Cojuelo enters the story.
+
+Inspired by Dominican folklore and twisted into something darker, the masked figure transforms the students’ private grudges into a public nightmare. What follows is a slasher whodunnit about guilt, complicity, performance, and the terrifying question at the heart of revenge: once punishment begins, who gets to decide when it ends?
+
+## Key Characters
+
+- Alex Herrera
+- Marcos Pérez
+- Mario Stinga
+- Manuel Freites
+- Fernando Pepino
+- Enrique Hartling
+- Melissa Rocha
+- Mónika Torres
+- María García
+- Profesora Lourdes Salazar
+- Lieutenant Ricardo García
+- The Grim Cojuelo
+
+## Key Themes
+
+- Revenge versus justice
+- Teenage cruelty and emotional escalation
+- Institutional silence
+- Complicity and bystander behavior
+- Social hierarchy and class pressure
+- Jealousy, obsession, and control
+- Friendship, betrayal, and group loyalty
+- Folklore as moral punishment
+- Trauma turned into spectacle
+- The birth of survivor guilt
+- Violence as performance
+- The danger of confusing punishment with accountability
+
+## Public-Safe Marketing Angles
+
+- A Dominican-set slasher thriller with psychological bite.
+- A revenge story where the punishment becomes worse than the crime.
+- A Caribbean Gothic whodunnit built around the legend of the Grim Cojuelo.
+- For readers who like teen ensemble thrillers, morally gray characters, school secrets, and masked-killer suspense.
+- A story about what happens when bullied, angry, privileged, wounded teens decide they deserve to play judge, jury, and executioner.
+- A slasher with sharp dialogue, messy friendships, social tension, dark humor, and emotional carnage.
+- The beginning of the Mortal Vengeance saga and the first appearance of the Grim Cojuelo as a terrifying force of reckoning.
+
+## Spoiler Boundaries
+
+Do not reveal:
+
+- The killer identity.
+- The full explanation of who is behind the Grim Cojuelo mask.
+- The complete death order.
+- The ending reveal.
+- The final survivor lineup.
+- The full truth behind the school’s role in enabling the violence.
+- Any late-book twist involving who knew what, who helped whom, or who manipulated events.
+- How Book 1 directly sets up Book 2.
+
+---
+
+# Book 0: Mortal Vengeance: A Grim Tale
+
+## Full Title
+
+Mortal Vengeance: A Grim Tale
+
+## Series Position
+
+Prequel / Book 0
+
+## Genre Positioning
+
+- Caribbean Gothic horror
+- Dark academia horror
+- Psychological thriller
+- Dominican folklore horror
+- Institutional horror
+- Religious trauma thriller
+- Psychological dark academia
+
+## Short Description
+
+Eighteen months before the killings at Excelsior Academy, Julián Díaz begins his final descent through guilt, shame, religious abuse, and institutional cruelty. Mortal Vengeance: A Grim Tale reveals how the legend of the Grim Cojuelo became more than folklore, and how monsters are made long before they wear masks.
+
+## Long Description
+
+Mortal Vengeance: A Grim Tale is the prequel to Mortal Vengeance and the howdunnit behind the nightmare.
+
+Set before the massacre, the novel follows Julián Díaz, a haunted senior at Excelsior Academy whose life is shaped by guilt, Catholic pressure, academic cruelty, social isolation, and the suffocating silence of a prestigious institution determined to protect itself at any cost.
+
+Excelsior Academy presents itself as disciplined, moral, and elite. Beneath the polished marble, religious iconography, and academic reputation, something rotten has been growing for years. Students are humiliated. Abuse is hidden. Whispers replace accountability. The adults entrusted with protecting children protect the institution instead.
+
+Against this backdrop, the Grim Cojuelo, the limping devil of Dominican folklore, becomes something darker: a hunter of guilt, a symbol of everything the school refuses to confess. Through Julián, Lucía, the younger students, the teachers, and the corrupt figures surrounding Excelsior, the prequel shows how trauma and silence can become mythology, and how mythology can become violence.
+
+This is not simply the story of what happened before Mortal Vengeance. It is the story of why the horror became inevitable.
+
+## Key Characters
+
+- Julián Díaz
+- Lucía Salgado
+- Alex Herrera
+- Fernando Pepino
+- Enrique Hartling
+- María García
+- Marcos Pérez
+- Melissa Rocha
+- Mónika Torres
+- Mario Stinga
+- Manuel Freites
+- Profesora Lourdes
+- Padre Ignacio
+- Father Ángel / Padre Ángel
+- Sister María Gracia
+- Principal Davis Beltrán
+- Lieutenant Ricardo
+- Elías Sarraff
+- The Grim Cojuelo
+- Doña Silvia
+- Don Ramón
+
+## Key Themes
+
+- Institutional abuse
+- Religious trauma
+- Grooming and predatory authority
+- Guilt as inheritance
+- Silence as complicity
+- The making of monsters
+- Dominican folklore as psychological horror
+- Dark academia and school corruption
+- Class pressure and reputation management
+- Shame, fear, and moral performance
+- The cost of speaking truth
+- The failure of adults to protect children
+- How trauma becomes legend
+- How institutions create the evil they later condemn
+
+## Public-Safe Marketing Angles
+
+- The origin story behind the Grim Cojuelo.
+- The prequel that reveals the institutional rot beneath Excelsior Academy.
+- A Caribbean Gothic dark academia thriller about guilt, silence, and the monsters institutions create.
+- A standalone psychological thriller that deepens the horror of Mortal Vengeance without requiring readers to start there.
+- The “howdunnit” behind the Mortal Vengeance universe.
+- For readers interested in religious trauma, elite-school horror, folklore, psychological suspense, and institutional corruption.
+- A Dominican Gothic story about what happens when a school teaches children obedience instead of truth.
+
+## Spoiler Boundaries
+
+Do not reveal:
+
+- The final sequence of Julián’s arc.
+- The exact way the Grim Cojuelo mythology connects to the later killings.
+- The full meaning of “the moment the mask became my face.”
+- The complete evidence trail uncovered by Lucía.
+- The full scope of Father Ángel’s actions and consequences.
+- The exact role of Sister María Gracia and other school authorities in the cover-up.
+- The ending reveal.
+- The final fates of major characters.
+- Any details that would remove the mystery of how Excelsior’s corruption leads into Book 1.
+
+---
+
+# Book 2: Mortal Vengeance II: To Reel or Not Too Real?
+
+## Full Title
+
+Mortal Vengeance II: To Reel or Not Too Real?
+
+## Series Position
+
+Book 2 / Direct sequel to Mortal Vengeance
+
+## Genre Positioning
+
+- Thriller
+- Slasher thriller
+- Media satire
+- Reality-TV thriller
+- Caribbean Gothic horror
+- Psychological suspense
+- Dark comedy thriller
+- Post-trauma ensemble thriller
+- Dominican media satire
+- Sequel thriller with whodunnit elements
+
+## Short Description
+
+Three years after the Excelsior Academy scandal, the survivors have become reality-TV stars. But when Lucía Salgado returns, old wounds reopen, cameras keep rolling, and a new wave of vengeance turns trauma into entertainment and entertainment into a crime scene.
+
+## Long Description
+
+Mortal Vengeance II: To Reel or Not Too Real? follows the aftermath of the Excelsior Academy massacre, where survival has become content, grief has become branding, and trauma has become must-see television.
+
+Three years after the events of Mortal Vengeance, Excelsior Academy has closed, reputations have collapsed, and the surviving students are trying to rebuild their lives under the glare of The Real Scholars of Excelsior Academy. The show promises healing, confession, glamour, and closure. What it delivers is surveillance, manipulation, public judgment, and emotional warfare with better lighting.
+
+Alex, Melissa, Mónika, Mario, Ricardo, and the others are no longer just survivors. They are cast members, public figures, suspects, symbols, and products. When Lucía Salgado returns after years of absence, her presence threatens the fragile narrative everyone has been selling themselves and the audience.
+
+Behind the cameras, executive producer Shane Harper understands one brutal truth: stable people make boring television. If the survivors refuse to unravel on their own, production can always help. But the past is not done with them. Father Ángel remains a shadow over the story. Excelsior’s old corruption refuses to stay buried. New cast members bring fresh chaos. Old grief sharpens. New violence rises.
+
+As reality TV, Dominican media culture, institutional cover-ups, survivor trauma, and the legend of the Grim Cojuelo collide, the question becomes more dangerous than ever: are the cameras exposing the truth, or creating the next bloodbath?
+
+## Key Characters
+
+- Alex Herrera
+- Melissa Rocha
+- Mónika Torres
+- Mario Stinga
+- Lucía Salgado
+- Lieutenant Ricardo García
+- Shane Harper
+- Ana Sofía
+- Valeria Viccini
+- Camila Álvarez
+- Rafa Santos
+- Elías Sarraff
+- Doña Silvia de Herrera
+- Humberto Salazar
+- Father Ángel / Padre Ángel
+- Sister María Gracia
+- Principal Davis Beltrán
+- Profesor Máximo
+- Don Rolando Stinga
+- Don Ramón
+- Doña Yvelisse de Rocha
+- Luis Rocha
+- The Grim Cojuelo
+
+
+## Key Themes
+
+- Media exploitation
+- Trauma as entertainment
+- Reality TV as emotional warfare
+- Survivor guilt
+- Unresolved grief
+- Public morality versus private corruption
+- Institutional accountability
+- Dominican class politics
+- Fame, infamy, and reputation
+- Narrative control
+- Editing as manipulation
+- The commodification of youth suffering
+- Revenge as legacy
+- Family grief and chosen family
+- Love, jealousy, and emotional damage
+- Performance versus truth
+- The audience as accomplice
+- The return of buried sins
+- Whether survival is healing or simply a longer kind of haunting
+
+## Public-Safe Marketing Angles
+
+- A slasher sequel where the survivors are trapped inside a reality show.
+- Caribbean Gothic meets Bravo-style media spectacle.
+- A thriller about what happens when trauma gets ratings.
+- The next chapter of the Mortal Vengeance saga, built around cameras, confessionals, scandal, and blood.
+- A darkly funny, emotionally brutal sequel about survivors who escaped the massacre but not the narrative.
+- For readers who enjoy ensemble thrillers, reality-TV satire, morally gray characters, post-trauma drama, and masked-killer suspense.
+- A Dominican media thriller about public grief, institutional rot, and the cost of turning people’s worst moments into entertainment.
+- A sequel that can still be followed by new readers because it fills in the core aftermath while rewarding returning readers with deeper consequences.
+- The book asks: when everyone is watching, who is really responsible for what happens next?
+
+## Spoiler Boundaries
+
+Do not reveal:
+
+- The Book 2 killer identity.
+- Whether there is one killer, multiple killers, or a different kind of Grim Cojuelo operating.
+- The ending reveal.
+- The final fate of Shane Harper.
+- The final fate of Alex, Melissa, Mónika, Mario, Lucía, Ricardo, or other major characters.
+- Major late-book deaths.
+- Major late-book twists involving Humberto, Father Ángel, Sister María Gracia, Don Rolando, or the wider Excelsior fallout.
+- The full meaning of the Grim Cojuelo’s return.
+- Whether the horror is supernatural, psychological, symbolic, or some combination of all three.
+- The final outcome of The Real Scholars of Excelsior Academy.
+- Any reveal that explains how far Alex is willing to go.
+- Any final scene or epilogue setup for the next book.
+
+# **Mortal Vengeance II: To Reel or Not Too Real?**
+
+## **Book Position**
+
+Book 2 / Sequel
+
+*Mortal Vengeance II: To Reel or Not Too Real?* is the second main installment in the *Mortal Vengeance* series. It continues the consequences of *Mortal Vengeance* while also drawing heavily from the institutional revelations, emotional fallout, and character histories established in *Mortal Vengeance: A Grim Tale*.
+
+Where *Mortal Vengeance* centers on complicity, revenge, and the collapse of an elite Catholic school environment, Book 2 moves the horror into a new arena: media spectacle. The sequel asks what happens after survival becomes a brand, trauma becomes content, and the public begins consuming the pain of real people as entertainment.
+
+---
+
+## **Core Premise**
+
+Three years after the collapse of Excelsior Academy, the surviving alumni of the Grim Cojuelo murders are no longer just former students. They are public figures, trauma symbols, gossip subjects, moral battlegrounds, and, most dangerously, television properties.
+
+After the scandal that destroyed Excelsior Academy, the school’s reputation disintegrated. Families withdrew their children, admissions collapsed, and the institution eventually closed its doors. The crimes, however, did not disappear with the school. They became headlines, archive footage, public arguments, social media discourse, and eventually the raw material for *The Real Scholars of Excelsior Academy*, a reality television series built around the survivors and the national obsession surrounding them.
+
+At the center of the new nightmare is Shane Harper, a ruthless executive producer who understands that the survivors’ pain is valuable only if it can be edited into conflict. Shane does not see Alex, Melissa, Mónika, Mario, Lucía, or the others as people trying to rebuild their lives. She sees story arcs, villains, redemption edits, romantic tension, reunion specials, confessionals, and awards potential. Her production turns private trauma into public performance, and her cameras create a new form of captivity: one where the survivors are not locked inside a school, but inside a narrative they no longer control.
+
+The return of Lucía Salgado changes everything. Once a missing figure tied to the evidence that helped bring down Excelsior Academy, Lucía comes back to Santo Domingo carrying truth, trauma, and unresolved history. Her reappearance threatens to expose old wounds that powerful people would rather leave buried, while also turning her into the kind of television gold Shane Harper cannot resist. The show wants Lucía’s secrets. The audience wants her confession. The survivors want answers. Lucía wants control over a story that has already been taken from her.
+
+As the show grows more successful, the line between reality and performance begins to collapse. The cast is encouraged to exaggerate their worst qualities, revisit their most painful memories, and weaponize their unresolved conflicts for the camera. Old grief becomes promotional material. Old relationships become plotlines. Old guilt becomes an episode hook. Meanwhile, a new threat emerges from the shadows, and the symbol of the Grim Cojuelo returns to a world where every act of violence can be recorded, edited, monetized, and replayed.
+
+*Mortal Vengeance II: To Reel or Not Too Real?* is a dark psychological thriller, slasher sequel, reality television satire, and media critique about exploitation, survival, narrative control, fame, trauma, and the grotesque pleasure of watching damaged people fall apart in high definition. The horror remains physical and psychological, but the sequel’s sharpest blade is cultural: it asks who profits from the story, who controls the edit, and what happens when the survivors become the show.
+
+---
+
+## **Main Characters**
+
+## **Alex Herrera**
+
+Alex Herrera enters Book 2 as someone who has survived the original nightmare but has not escaped its narrative. Three years after the events that destroyed Excelsior Academy, he is trying to build a future that feels respectable, controlled, and larger than the worst things he has done. His decision to pursue law is significant because it reflects his desire to master consequence, language, power, and public judgment. He wants to understand the systems that once nearly swallowed him, but he also wants to stand inside them as someone important.
+
+That desire for reinvention is immediately complicated by *The Real Scholars of Excelsior Academy*. Reality television is almost surgically designed to exploit Alex’s most dangerous traits. He is charismatic, funny, reactive, intelligent, emotionally intense, jealous, defensive, theatrical, and painfully aware of how others perceive him. In a private life, those qualities might be managed, challenged, or healed. On camera, they become content. Shane Harper recognizes him as someone audiences can read in multiple ways: bad boy, survivor, villain, romantic lead, unreliable witness, legal prodigy, emotional disaster, or guilty conscience in a designer jacket.
+
+Alex’s central conflict in Book 2 is not simply whether he has changed. It is whether change is possible when everyone around him benefits from the idea that he has not. The show repeatedly tempts him to become the version of himself that is easiest to package: arrogant, volatile, seductive, manipulative, and always one bad decision away from trending. His public reputation turns into a prison, and every attempt to assert control risks proving the audience right.
+
+His relationships carry the emotional weight of the sequel. With Melissa, Alex is caught between longing, guilt, intimacy, and the terror of rejection. With Lucía, he finds intellectual and emotional recognition that complicates the narrative others have built around him. With Mónika, he shares loyalty and history, but also the strain of being part of a survivor group that is no longer allowed to heal privately. With Mario, he is forced to confront the softer moral consequences of the past: the damage done not only by violence, but by selfishness, silence, and emotional neglect.
+
+Alex functions as one of the novel’s central examinations of self-mythology. He understands storytelling, but that does not mean he controls his own. In Book 1, Alex’s intelligence and charm helped set terrible things in motion. In Book 2, those same qualities are harvested by a media machine that knows exactly how to turn human weakness into an episode arc.
+
+---
+
+## **Melissa Rocha**
+
+Melissa Rocha begins the sequel as one of the most publicly legible survivors of the original murders. To the audience, she is the Final Girl, the beautiful survivor, the valedictorian who stood before the public after bloodshed and represented resilience. That image is powerful, but it is also suffocating. Melissa has become a symbol before she has been allowed to fully decide who she is.
+
+In the years after Excelsior Academy’s collapse, Melissa has attempted to rebuild her life with dignity. She is composed, socially graceful, emotionally intelligent, and far stronger than the idealized version of her that others project onto her. The problem is that Book 2 places her inside a machine that has no interest in her complexity. Reality television does not want Melissa as a whole person. It wants her as an archetype: the grieving beauty, the romantic center, the betrayed woman, the survivor who cries at the right time, forgives at the right time, and delivers catharsis on schedule.
+
+Melissa’s arc explores the difference between being admired and being understood. Many characters claim to care about her, but their care is often tangled with projection. Alex sees her through longing, regret, and emotional dependency. Rafa sees her as an opportunity to become relevant. Shane sees her as prestige trauma with ratings potential. The public sees her as proof that horror can produce something inspirational. Melissa, meanwhile, is still trying to own her life without becoming trapped in everyone else’s version of it.
+
+Her relationship with Alex remains one of the emotional engines of the sequel because it carries both tenderness and danger. There is genuine history between them, but there is also exhaustion, unresolved hurt, and the constant interference of cameras that turn every private hesitation into public interpretation. Book 2 makes their dynamic more adult and more complicated. The issue is no longer simply whether they love each other. The issue is whether love can survive surveillance, resentment, guilt, and the pressure of being watched by people who want romance only if it produces drama.
+
+Melissa also represents the novel’s critique of how women survivors are consumed by media. She is expected to be brave but not angry, vulnerable but not messy, desirable but not complicated, forgiving but not too passive, strong but not too hard. Her arc asks what it costs a woman to be turned into a public emblem of survival while still carrying private grief.
+
+---
+
+## **Mónika Torres**
+
+Mónika Torres understands cameras better than almost anyone else in the survivor group, which makes her both powerful and vulnerable in Book 2\. She is stylish, sharp, glamorous, socially fluent, and naturally theatrical, but the sequel refuses to reduce her to surface. Mónika’s relationship with performance is more intelligent than vanity. She knows that image can protect, distract, seduce, intimidate, and expose. In a novel about media control, she is one of the few characters who understands the weapon before it is pointed at her.
+
+Her loyalty is one of the defining emotional forces of the sequel. In the cold open, she refuses to let Shane exclude Mario from the show, making it clear that the survivors are either cast together or not at all. That moment establishes Mónika not merely as a breakout reality personality, but as someone who understands collective survival. The show may try to isolate them into individual storylines, but Mónika recognizes that their shared history is the only thing keeping them from being fully devoured by the machine.
+
+Mónika’s bond with Lucía is especially important. Lucía’s return could easily become a spectacle of confession and breakdown, but Mónika serves as her anchor. She knows when to protect her, when to push her, and when to step between her and a predatory audience. Their relationship gives the sequel one of its clearest emotional counterweights to Shane’s exploitation. Where Shane sees Lucía as content, Mónika sees her as a person.
+
+In thematic terms, Mónika represents performance used defensively rather than exploitatively. She can play the reality television game, but she is not naïve about it. She understands glamour as armor and wit as strategy. Her arc depends on whether she can keep using the tools of spectacle without becoming consumed by spectacle herself.
+
+---
+
+## **Lucía Salgado**
+
+Lucía Salgado enters Book 2 as a living rupture in the story everyone thought they understood. For years, she existed as an absence: the missing girl, the source of the dead man’s switch, the person whose evidence helped expose Excelsior Academy’s corruption, and the unresolved question hovering over both the original scandal and its aftermath. Her return to Santo Domingo makes her impossible to mythologize safely. She is no longer a rumor, symbol, or tragic footnote. She is present, speaking, watching, remembering, and deciding what she will reveal.
+
+Lucía’s presence destabilizes the reality show because she carries the kind of truth that cannot be neatly edited without consequence. Shane immediately recognizes her value because Lucía is connected to the collapse of the school, the buried evidence, the institutional abuse, and the emotional history of characters who have spent years trying to move forward. Yet Lucía is not simply a source of plot information. She is a survivor of a different kind of horror: institutional betrayal, disappearance, erasure, and the burden of knowing too much.
+
+Her internal conflict is rooted in control. Lucía once had to weaponize information because silence protected predators. In Book 2, she faces the opposite danger: a media environment that wants to force disclosure before she is ready. The show demands confession, but confession under coercion is just another form of extraction. Lucía’s arc explores the difference between telling the truth and being harvested for truth.
+
+Her relationship with Mónika is central because Mónika becomes one of the few people who understands that Lucía’s story belongs to Lucía first. Her relationship with Alex complicates the emotional landscape because Alex recognizes something in her that others may not immediately see: a mind shaped by strategy, pain, and survival. Her presence also affects Melissa, not merely through romantic tension, but because Lucía’s return rearranges everyone’s understanding of the past.
+
+Lucía functions as the sequel’s embodiment of truth under pressure. She is the character who most directly challenges the show’s assumption that every secret should become content. If Shane Harper represents the hunger to expose, Lucía represents the right to choose when, how, and why revelation happens.
+
+---
+
+## **Mario Stinga**
+
+Mario Stinga remains one of the series’ clearest moral and emotional mirrors. In Book 1, his guilt, fear, and longing to belong made him painfully human. In Book 2, those qualities persist, but they are placed inside an environment that does not reward sincerity. Reality television wants conflict, exaggeration, and sharp edges. Mario is awkward, anxious, earnest, funny, wounded, and often too gentle for the machinery around him.
+
+The cold open captures his position perfectly. Shane initially dismisses him because she does not see immediate television value in him, but Mónika insists that he must be included with the rest of the survivors. This establishes Mario’s tension with the show from the beginning. He is valuable to the people who love him, but not immediately valuable to a producer looking for fireworks. That distinction says everything about the moral universe of Book 2\.
+
+Mario’s role in the sequel is partly comic, partly tragic, and deeply human. He often tries to smooth over conflict, include people, and keep the group from fracturing, but his good intentions can create new problems when he misreads emotional timing. He is the kind of person who wants everyone to bond, even when the room is full of grief, resentment, alcohol, cameras, and fresh trauma. Bless his heart, but sometimes his heart needs a project manager.
+
+Thematically, Mario represents the difficulty of remaining kind in a system designed to punish kindness as weakness. He is not naïve, but he is still emotionally open in ways the others often are not. His arc asks whether gentleness can survive spectacle, and whether a person who has already been damaged by group loyalty can still choose loyalty without losing himself.
+
+---
+
+## **Shane Harper**
+
+Shane Harper is the sequel’s most important human antagonist, even when she is not the killer. She is not frightening because she is physically violent. She is frightening because she understands how to make other people perform violence, humiliation, grief, attraction, rivalry, and breakdown for her benefit. Shane is a producer, but she operates like an interrogator, strategist, talent scout, therapist from hell, and executioner of privacy.
+
+Her genius lies in her ability to identify what each person wants and what each person fears. With Alex, she sees volatility, guilt, charm, and the possibility of a villain edit. With Melissa, she sees prestige survival and romantic tension. With Mónika, she sees glamour, loyalty, and scene-saving instinct. With Lucía, she sees the ultimate ratings engine: a missing girl returned with secrets. With Rafa, Valeria, and Camila, she sees people willing to sell sharpened versions of themselves for opportunity.
+
+Shane’s role is especially effective because the novel does not frame her as an isolated disease. The surrounding culture is already hungry for spectacle. Public discourse condemns the show while consuming it. Parents, journalists, activists, viewers, and institutions all participate in the machinery of attention. Shane may organize the exploitation, but she does not invent the appetite for it. The manuscript explicitly frames the success of *The Real Scholars of Excelsior Academy* as a symptom of a society that demands morality while consuming spectacle.
+
+She also serves as the sequel’s dark mirror of authorship. Shane edits reality into narrative, assigns roles, pressures people into arcs, and turns suffering into structure. In a book obsessed with who controls the story, Shane is dangerous because she believes control belongs to whoever owns the footage.
+
+---
+
+## **Lieutenant Ricardo García**
+
+Lieutenant Ricardo García enters Book 2 as a man whose authority has been hollowed out by grief. In Book 1, he represented adult investigation, law, suspicion, and paternal protection. In the sequel, he carries the emotional aftermath of everything that could not be saved. The reality show’s memorial imagery, especially scenes centered around María’s absence, makes clear that Ricardo is not merely connected to the case professionally. He is one of its casualties.
+
+Ricardo’s grief gives him a different relationship to the survivors than he had before. They are no longer simply students, suspects, witnesses, or people caught in the orbit of his daughter’s life. They are living remnants of a tragedy that continues to expand. His presence helps keep the sequel grounded, because while the reality show turns pain into entertainment, Ricardo embodies the cost that cannot be edited into glamour.
+
+Thematically, Ricardo represents memory without spectacle. His grief does not perform well for television because it is too real, too heavy, and too resistant to easy catharsis. He is also one of the adults through whom the novel examines failure: institutional failure, parental failure, investigative failure, and the brutal impossibility of protecting someone after the danger has already reached them.
+
+---
+
+## **Doña Silvia**
+
+Doña Silvia is one of the sequel’s sharpest tonal weapons because she brings comedy, authority, maternal ferocity, and common sense into a world that desperately lacks all four. Her entrance in the casting sequence immediately clarifies her function. She refuses to let Shane treat Alex as an isolated commodity and insists on her role as mother, manager, and adult supervision. She understands, before many others do, that these young people are being placed inside an emotionally dangerous environment dressed up as opportunity.
+
+What makes Doña Silvia more than comic relief is that her humor is protective. She can be theatrical, blunt, chaotic, and devastatingly funny, but beneath the jokes is a woman who knows her son’s capacity for self-destruction and refuses to let a production company turn that vulnerability into profit without resistance. Her love for Alex is not soft in the sentimental sense. It is practical, loud, invasive, embarrassing, and often exactly what he needs.
+
+In the larger thematic structure, Doña Silvia represents domestic authority pushing back against media authority. Shane has contracts, cameras, edits, and network power. Doña Silvia has maternal instinct, social boldness, and the ability to walk into a room and make everyone remember they are not as powerful as they think. That is not a small thing. That is a corporate governance framework with chanclas.
+
+---
+
+## **Rafa Montero**
+
+Rafa Montero is introduced as a new cast member who understands opportunity before he understands consequence. He arrives wanting to be chosen, seen, and validated, but Shane quickly identifies the insecurity underneath his ambition. His audition sequence shows him learning, almost in real time, that decency is not what the show wants from him. When his initial answer is too sweet, he adjusts by offering a louder, more aggressive, more scandalous version of himself. Shane rewards that version, and Rafa understands that he has just sold something ugly because it was more marketable than sincerity.
+
+Rafa’s role is crucial to the sequel’s critique of masculinity as performance. He is not merely aggressive; he is encouraged to become aggressive because the show frames masculine recklessness as entertaining. His pursuit of Melissa, his willingness to provoke Alex, and his eagerness to participate in romantic and social spectacle make him useful to production. He becomes part of the novel’s larger argument about how media can package toxic behavior as charm, passion, or “good television.”
+
+At his best, Rafa is insecure and hungry for relevance. At his worst, he becomes the kind of man who mistakes attention for power and performance for identity. His arc should be treated as part character study, part social critique, and part warning label with cologne.
+
+---
+
+## **Valeria**
+
+Valeria enters the sequel as part of the new reality-show ecosystem, but she should not be treated as interchangeable with Camila. Her energy is faster, more verbal, more socially adaptive, and more anxious beneath the polish. She knows how to talk her way through a room and understands the language of opportunity, but her bravado contains visible cracks. During the casting negotiation, she presents herself as willing to be a villain, yet her request regarding her mother’s mortgage reveals a more vulnerable motive beneath the performance.
+
+Valeria’s function is to complicate the idea of the “reality TV villain.” She is willing to perform cruelty, but not because she is empty. She is ambitious, yes, but also economically aware. She understands that public humiliation has a price and tries to negotiate that price before the show uses her. In this sense, Valeria is both participant and exploited party. She is morally compromised, but she is not stupid.
+
+Her arc should explore the tension between survival strategy and ethical collapse. Valeria knows the role she is being hired to play, and she accepts it with enough self-awareness to be interesting. The question is whether someone can perform villainy for security without becoming what the audience wants her to be.
+
+---
+
+## **Camila Álvarez**
+
+Camila Álvarez is more controlled, direct, and openly transactional than Valeria. Where Valeria talks quickly and manages tone, Camila cuts through the room with precision. She understands leverage and does not apologize for using it. In the casting sequence, she names what she and Valeria are being asked to do: become troublemakers who take survivors of a massacre down a notch. Rather than pretending the role is innocent, Camila insists on guarantees.
+
+Camila’s strength is that she refuses false innocence. She knows the show is exploitative, she knows Shane wants villains, and she knows that if they are going to absorb public hatred, they should be compensated accordingly. That clarity makes her morally slippery but dramatically useful. She is not seduced by the machine in the same way Rafa is. She negotiates with it.
+
+Thematically, Camila represents the professionalization of cruelty. She treats reality television as labor, image as currency, and backlash as occupational risk. She is dangerous because she is not delusional about what she is doing. She simply believes that awareness absolves her, or at least entitles her to payment.
+
+---
+
+## **Ana Sofía**
+
+Ana Sofía’s role is connected to Melissa’s emotional world and to the sequel’s exploration of chosen family, intimacy, and the private bonds that reality television attempts to invade. Her arrival from Miami matters because she is positioned as someone Melissa deeply values, almost like the sister she never had. That makes Ana Sofía more than a supporting presence. She represents a version of Melissa’s life that exists outside the original Excelsior trauma, or at least tries to.
+
+In a show designed to pull every relationship into the spectacle, Ana Sofía becomes vulnerable by proximity. Her importance to Melissa gives the production another emotional thread to tug. If Melissa’s arc is about protecting her identity from being consumed by public narrative, Ana Sofía helps reveal what Melissa is like when she is not performing survival for an audience.
+
+Ana Sofía’s character should be treated as part of the sequel’s emotional architecture rather than only as cast expansion. She helps show that the survivors’ lives did continue after Book 1, but continuation does not guarantee safety from the past.
+
+---
+
+## **Humberto Salazar**
+
+Humberto Salazar brings the legacy of Profesora Lourdes back into the sequel without reducing that legacy to simple revenge. As Lourdes’s son and Sister María Gracia’s nephew, he is connected to two figures central to Excelsior Academy’s corruption, cruelty, and aftermath. His presence complicates the moral landscape because he is grieving someone who was both a victim and a perpetrator of harm within the broader history of the school.
+
+Humberto’s visit to the former principal in prison positions him as someone who sees through the institution’s self-excusing narratives. He does not accept the idea that the adults’ hands were clean simply because the students committed visible violence. He understands that Excelsior Academy helped create the conditions that turned children into weapons. That makes him one of the sequel’s more morally complex figures: he carries grief for his mother, anger toward the survivors, and clarity about institutional responsibility.
+
+His thematic function is inheritance. Humberto inherits the damage caused by adults, the grief caused by students, and the unresolved moral debts of Excelsior Academy. He is tied to care, medicine, restraint, and emotional control, but also to the possibility that grief can become dangerous when it finds the right justification.
+
+---
+
+## **The Grim Cojuelo**
+
+In Book 2, the Grim Cojuelo returns not only as a killer figure, but as a symbol transformed by the age of cameras. In Book 1, the mask represented guilt, punishment, buried consequence, Dominican folklore, and the theatrical horror of revenge. In the sequel, that symbolism mutates. The Grim Cojuelo now exists in a world where violence is never only violence. It is footage, rumor, teaser, viral clip, ratings spike, conspiracy thread, and public ritual.
+
+The character’s power lies in the way the mask connects old sins to new forms of spectacle. The Grim Cojuelo belongs to Dominican cultural imagery, but Book 2 places that image inside a media environment that can commodify even terror. The result is a horror figure that feels both folkloric and contemporary. The killer does not simply stalk bodies. The killer stalks narratives.
+
+The Grim Cojuelo should continue to be treated as a masked human threat in public-facing materials unless a specific story context requires otherwise. The ambiguity, menace, and symbolic force are more valuable than overexplaining the mechanics. In Book 2, the mask should evoke the idea that the past has learned how to use the present’s technology.
+
+Yes. These characters absolutely need their own section because they are doing real structural work. They are not “side characters” in the cheap sense; they are pressure points. They expand the world beyond the survivor group, expose family damage, sharpen the media satire, and keep the sequel from feeling like eight traumatized hot people trapped in a Bravo terrarium.
+
+I would add the following section after the main character entries and before **Important Canon Facts**.
+
+---
+
+# **Secondary / Supporting Characters**
+
+## **Elías Sarraff**
+
+Elías Sarraff functions as one of Book 2’s most important secondary antagonistic forces because he carries unresolved history into the reality-show present. He is not simply an ex-boyfriend, social irritant, or convenient source of romantic tension. He represents a specific kind of entitled masculinity: wounded, image-conscious, resentful, and convinced that humiliation justifies retaliation.
+
+His role in the sequel is especially valuable because he complicates the easy public narrative surrounding Alex. Elías positions himself as someone wronged by Alex, Melissa, and the social world around them, but the manuscript gradually exposes how much of his grievance is built on entitlement rather than justice. He is bruised by rejection, status loss, and comparison, especially when Melissa and Alex’s relationship becomes impossible to ignore. His instinct is not self-reflection but escalation.
+
+Elías is also tied to the older sins of the series in a way that makes him more dangerous than a simple jealous ex. The revelation that he was connected to the GHB vial reframes his role in the original chain of violence and forces the newer cast members to reassess his victim posture. When he describes GHB as something people use for partying, Valeria and Ana Sofía immediately challenge the ugliness beneath that evasion, making the scene a direct confrontation with rape culture, minimization, and male self-excuse.
+
+In Book 2, Elías works best as a character who believes he is owed sympathy because he has been embarrassed, rejected, or displaced. That makes him thematically connected to the sequel’s critique of performance. He is always aware of how he looks, how others see him, and whether he is being positioned as loser, rival, ex, or fool. His masculinity is theatrical, but not in the flamboyant, self-aware way of reality television. It is defensive theater. He performs pride because shame would destroy him.
+
+His relationship with Melissa is built around resentment disguised as longing. His relationship with Alex is built around rivalry, projection, and the need to turn Alex into the author of every personal failure. His relationship with the new cast, especially Rafa, Valeria, and Camila, helps expose him because they are less emotionally invested in protecting old Excelsior myths. They see the cracks faster.
+
+Elías should be tagged for content involving wounded masculinity, jealousy, reputation, denial, entitlement, media humiliation, and the long tail of Book 1’s consequences.
+
+---
+
+## **Doña Yvelisse**
+
+Doña Yvelisse is Melissa’s mother and one of the most important adult presences in Book 2 because she brings family consequence into a story obsessed with public spectacle. She is not there to decorate Melissa’s domestic life. She is there to remind the reader that every public scandal, pregnancy reveal, relationship crisis, and life-threatening decision has a family system around it.
+
+Her personality is sharp, emotionally expressive, protective, and capable of weaponizing maternal disappointment with Olympic precision. When she appears alongside Doña Silvia, the sequel gains one of its strongest comedic and emotional pairings. Together, they create a matriarchal counterweight to the chaos generated by the young cast, Shane’s cameras, and the men who keep treating consequences like optional accessories.
+
+Doña Yvelisse’s role becomes especially important around Melissa’s pregnancy and engagement. Her reactions combine fury, fear, love, practicality, and social intelligence. She is angry not because she does not love Melissa, but because she understands exactly how quickly a young woman’s future can be reshaped by other people’s choices, especially in a culture that still judges women more harshly than men. When Alex tries to speak to her with romantic grandeur, she cuts through the performance because she is not interested in “epic love” as a substitute for responsibility.
+
+Her dynamic with Doña Silvia is also crucial because it allows the sequel to explore motherhood without making all mothers interchangeable. Doña Silvia protects Alex through control, instinct, and strategic interference. Doña Yvelisse protects Melissa through suspicion, bluntness, and emotional vigilance. Their alliance matters because both women understand that their children are in danger, not only from the killer, but from public exposure, bad choices, and the long-term cost of being young under pressure.
+
+Doña Yvelisse should be treated as a character who grounds Melissa’s story in family, class, gender expectations, Dominican motherhood, and the fear that love alone cannot protect a daughter from spectacle. She is funny, but the humor has teeth because it comes from a woman who has no patience left for foolishness dressed as romance.
+
+---
+
+## **Don Ramón**
+
+Don Ramón is one of the sequel’s most tragic supporting figures because he brings grief, vengeance, and old-world moral injury into the media-saturated present. He is not part of the reality-show machine in the same way the younger cast is. He exists closer to the haunted architecture of Excelsior Academy, the cathedral, and the unresolved spiritual terror that still clings to the series.
+
+His storyline is driven by pain that has hardened into purpose. Don Ramón is not trying to heal, rebuild, or forgive. He is preserving a wound because the wound gives him direction. The manuscript frames him as a man who has chosen not to numb himself, because numbness would mean losing the only thing still keeping him pointed toward vengeance. That makes him deeply sad, but also dangerous.
+
+What gives Don Ramón weight is that his fear is not abstract. He has lived with the sounds, shadows, and horrors connected to the old school environment long enough that he can distinguish ordinary fear from something worse. His recordings of screams from the cathedral and his belief that something evil has moved in make him a bridge between rational investigation, Gothic atmosphere, and Dominican religious dread.
+
+His relationship with Lucía is especially important because she approaches him with guilt, compassion, and a desire to finally support him. Don Ramón’s scenes with Lucía and Mónika allow the sequel to slow down and breathe inside dread rather than spectacle. These moments are not reality-TV fireworks. They are ghost-story oxygen. They remind the reader that beneath the cameras, edits, drones, and confessionals, there is still an old horror beating inside the ruins.
+
+Don Ramón’s death, when it comes, is not simply another kill. It functions as a devastating collision between vengeance and helplessness. He is a man who wants to confront the Cojuelo, but the violence of the myth overtakes him before he can control it. His presence should be tagged for grief, vengeance, haunted spaces, institutional rot, cathedral horror, Lucía’s guilt, and the old wounds beneath the spectacle.
+
+---
+
+## **Don Rolando**
+
+Don Rolando is Mario’s father and one of the sequel’s most volatile supporting figures. He begins as a source of discomfort, generational chaos, and dark comedy, but the deeper function of the character is far more severe. He represents the abusive father whose charm, entitlement, and shamelessness have forced his child to spend years negotiating between love and survival.
+
+His early scenes with Mario establish the central contradiction of their relationship. Mario loves him and wants him in his life, but he is no longer willing to pretend ignorance. He confronts Don Rolando over the violence inflicted on his mother, including the hospital visits and the history of abuse that Mario once tried to rationalize or deny. That conversation is essential because it reveals Mario’s emotional growth. He is still attached to his father, but he is no longer willing to protect him at the expense of truth.
+
+Don Rolando’s reality-show presence weaponizes embarrassment. His behavior at the country club and later at Elías’s villa turns family dysfunction into public spectacle. The jacuzzi incident is grotesquely comic at first, then pivots into sexual harassment, violence, and humiliation. That shift is important because it prevents the character from becoming harmless comic relief. The laughter curdles. The audience is forced to recognize that “funny inappropriate uncle/dad chaos” can cross into real harm with terrifying speed.
+
+Thematically, Don Rolando is tied to machismo, paternal failure, denial, addiction to attention, and the generational transmission of damage. He humiliates Mario, then blames Mario for reacting. He frames accountability as betrayal. He demands loyalty while behaving in ways that make loyalty emotionally impossible. His later violence escalates this pattern to its most extreme form, turning the father-son bond into a weapon.
+
+Don Rolando should be tagged for Mario’s family trauma, abusive fathers, machismo, humiliation, reality-TV exploitation, sexual misconduct, violence, and the painful distinction between loving a parent and being safe around them.
+
+---
+
+## **Profesor Máximo**
+
+Profesor Máximo expands the sequel’s critique of institutions beyond Excelsior Academy and into higher education. His role is important because it shows that Alex has not escaped systems of power simply by leaving high school. He has entered a new institution with more polished language, more legal sophistication, and the same willingness to protect itself through intimidation.
+
+Máximo is the head of the law department and an academic authority figure whose power over Alex is immediate and personal. Because Alex is trying to build a legal career, Máximo does not simply threaten a grade. He threatens Alex’s future identity. That is what makes him dangerous. He understands that institutional power works best when the person being pressured believes resistance will cost them everything.
+
+His connection to Shane Harper and the production company makes him especially important to the sequel’s media-exploitation theme. The manuscript reveals that PUCMM entered into a contract with Little Wizards Production Company, that classroom filming was authorized, and that footage recorded without Alex’s permission was shared with Máximo and used to threaten his academic standing. Alex’s classroom confrontation turns the law-school setting into a legal and ethical battleground, exposing the hypocrisy of an institution teaching accountability while violating privacy and consent.
+
+Máximo’s function is not simply “mean professor.” He represents respectable corruption: the kind that wears a faculty title, speaks in policy language, and assumes students will be too afraid to challenge the paperwork. He is an adult antagonist in a sequel where the young characters are constantly told they are dramatic, unstable, or irresponsible while the adults around them quietly make predatory decisions.
+
+He should be tagged for academic corruption, surveillance, institutional accountability, privacy violations, legal ethics, Alex’s law-school arc, and Shane’s reach beyond the show.
+
+---
+
+## **Shane’s Assistant**
+
+Shane’s assistant is a small but sharp piece of the production machine. She is not as grand or predatory as Shane, but she matters because she shows how exploitation becomes operational. Someone has to bring the coffee, deliver the network’s rage, push the camera operators, intercept crew members, hand off instructions, and keep the machine moving when Shane is busy being a ratings goblin in combat boots.
+
+Her early appearance establishes her as someone who understands Shane’s hunger and even provokes it. When she tells Shane that Lucía refuses to fully open up and that the network is furious, she does more than deliver information. She pokes the beast by asking whether Shane is going to let Lucía ruin the show. That moment reveals her function: she knows exactly how to trigger Shane’s competitive instincts.
+
+Later, her presence in production logistics becomes more ethically troubling. In the raw footage involving Paco and Elías, she gives Paco a bag and tells him to follow Elías because Shane wants it. That places her inside the chain of surveillance and pursuit that turns cast vulnerability into content. She may not be the architect, but she is part of the system that executes the architecture.
+
+The assistant should be treated as an extension of the show’s infrastructure. She represents the banality of exploitation: the people who may not make the cruelest decisions, but carry them out efficiently because the job demands it and the ratings justify it. She also brings dry humor and production-room bite, especially when she recognizes instantly that Alex’s public pregnancy reveal disaster is “ratings.”
+
+She should be tagged for production culture, media exploitation, operational complicity, reality-TV machinery, surveillance, Shane Harper, and dark workplace satire.
+
+---
+
+## **Mary**
+
+Mary is part of the domestic infrastructure of Villa Herrera and serves a very different function from Shane’s assistant. Where Shane’s assistant helps the production machine consume the cast, Mary belongs to the household world the cameras keep invading. She is practical, observant, familiar, and quietly funny, and her scenes give the sequel a grounded Dominican domestic texture that helps balance the heightened reality-TV chaos.
+
+Mary’s importance lies in the way she sees and hears things while moving through spaces others overlook. She answers Mónika’s call when Alex forgets his phone at home, casually providing information that immediately raises concern because Alex had come home, gone into his room, and left quickly. The scene works because Mary is not trying to be dramatic. She is simply reporting what she saw, and that ordinary detail becomes ominous inside the larger plot.
+
+Her later hallway scene, where she offers coffee to the crew while clearly trying to eavesdrop, is a perfect example of how she brings humor and realism into the surveillance environment. The cameras and boom operators may be there to capture drama, but Mary cuts through their artificial seriousness with hospitality, annoyance, and the very Dominican indignation of someone offering cafecito and being met with rudeness. Her line about offering coffee, not poison, is exactly the kind of small human detail that keeps the book from floating away into pure plot machinery.
+
+Mary should be used as a domestic witness, not a major plot engine. She represents the household staff perspective inside a rich-family reality-show environment: close enough to know things, socially peripheral enough to be underestimated, and grounded enough to make the absurdity around her look even more absurd. She should be tagged for Villa Herrera, domestic life, humor, background witness, Dominican household texture, Alex’s family world, and surveillance comedy.
+
+---
+
+## **Father Ángel**
+
+Father Ángel remains one of the series’ clearest embodiments of institutional corruption, spiritual hypocrisy, and predatory survival. In the sequel, he is no longer protected by the full machinery of Excelsior Academy, but his escape from justice allows him to continue haunting the narrative from a distance. The prologue frames him as accused of grooming multiple students and as someone who fled before the graduation arrests, leaving others to absorb consequences he helped create.
+
+His role in Book 2 is not only about whether he is caught. It is about the persistence of evil when institutions fail to fully confront it. Father Ángel’s survival exposes the limits of public reckoning. Excelsior Academy closed, Principal Beltrán was imprisoned, and the scandal became national knowledge, but that does not mean justice was complete.
+
+Thematically, Father Ángel represents the unresolved crime beneath the media circus. While the public obsesses over reality-show drama, romantic scandals, and survivor behavior, the deeper rot that created the original tragedy remains unfinished. His presence reminds the reader that spectacle often distracts from accountability.
+
+---
+
+## **Sister María Gracia**
+
+Sister María Gracia is a figure of silence, retreat, and unresolved institutional guilt. After the collapse of Excelsior Academy, she retreats to a convent in Santo Domingo and refuses visitors, making her absence as meaningful as her presence. Her withdrawal suggests not peace, but containment. She becomes part of the sequel’s meditation on what institutions do when exposure becomes unavoidable: they retreat, deny access, preserve themselves, and wait for public attention to move elsewhere.
+
+Her relationship to Humberto and Lourdes also keeps her connected to the emotional and familial fallout of the original story. She represents the religious institution’s refusal or inability to fully reckon with harm, and her silence functions as a form of narrative pressure. In a sequel obsessed with confession and exposure, Sister María Gracia’s refusal to speak becomes its own kind of statement.
+
+---
+
+## **Principal Davis Beltrán**
+
+Principal Davis Beltrán remains central to the aftermath of Excelsior Academy even from prison. His arrest did not erase the institution’s sins; it merely gave the public a visible person to blame. In Book 2, his imprisonment allows the novel to explore the difference between punishment and accountability. One man is behind bars, but the culture that enabled him continues to consume, excuse, gossip, and profit.
+
+His interaction with Humberto reinforces his moral cowardice. Beltrán continues to minimize responsibility and frame himself as someone unfairly caught in the consequences of others’ actions. He embodies the institutional administrator who mistakes legal survival, social status, and procedural distance for innocence.
+
+Beltrán’s function in the sequel is to keep the original system present. Even after Excelsior Academy closes, its logic remains alive in the way people deny, deflect, monetize, and repackage harm.
+
+---
+
+## **Luis Rocha**
+
+Luis Rocha is important because he expands Melissa’s family context and gives the sequel another way to explore protection, misrecognition, and chaos under pressure. His presence also helps prevent Melissa from being defined only through romance or survivorhood. He belongs to her private world, and therefore his involvement in public spectacle carries emotional risk.
+
+Luis’s function should be understood through his connection to Melissa, the Rocha family, and the moments where confusion, panic, and production chaos collide. In a novel where cameras repeatedly turn private fear into public drama, family members become especially vulnerable because they did not necessarily choose the same level of exposure as the main cast.
+
+---
+
+## **Important Canon Facts**
+
+*Mortal Vengeance II: To Reel or Not Too Real?* takes place approximately three years after the events that destroyed Excelsior Academy and follows the surviving alumni as their lives become entangled with *The Real Scholars of Excelsior Academy*, a reality television series based on their trauma and notoriety. The sequel confirms that Excelsior Academy’s public collapse led to mass withdrawals, zero new admissions, and the school’s permanent closure.
+
+Lucía Salgado returns to Santo Domingo after nearly three years missing, and her reappearance is one of the major public hooks of the new season. Her history with the dead man’s switch, the exposure of Excelsior Academy, and Mónika’s role in bringing evidence to the police makes Lucía central to the sequel’s emotional and narrative structure.
+
+The sequel expands the series’ central concern with power. In *Mortal Vengeance*, power lives inside the school and its social hierarchy. In *Mortal Vengeance: A Grim Tale*, power lives inside the institution and the systems that protect abuse. In Book 2, power lives inside the camera, the edit, the contract, the public narrative, and the audience’s appetite for spectacle.
+
+Shane Harper is the major production force behind the reality show. She is not merely documenting the survivors; she is actively shaping situations to produce conflict, drama, confession, and emotional exposure. The show’s success becomes a social controversy within the novel, with critics describing it as trauma exploitation and a symptom of Dominican society’s appetite for watching privileged survivors fall apart.
+
+The sequel blends psychological thriller, slasher horror, reality television satire, social critique, dark comedy, mystery, and melodrama. It should not be marketed as only a slasher sequel. Its distinctive identity comes from the collision of masked-killer suspense with media exploitation, true-crime culture, celebrity scandal, trauma commodification, class resentment, and Dominican social commentary.
+
+The book’s content warning identifies the story as a dark psychological thriller about media exploitation, unresolved trauma, and vengeance, with graphic violence, discussions of suicide and self-harm, systemic institutional abuse, grooming, sexual harassment, non-consensual drugging, and severe psychological manipulation.
+
+---
+
+## **Thematic Engine**
+
+The central thematic engine of *Mortal Vengeance II* is exploitation. More specifically, the book examines what happens when trauma becomes a commodity and survival becomes a public role.
+
+The original novel asked whether silence makes people complicit in cruelty. The sequel asks what happens after the silence breaks, when the truth is no longer hidden but consumed. Exposure does not automatically create justice. Sometimes exposure becomes another market. Sometimes the same society that ignored suffering later demands access to it, then punishes survivors for how they behave while being watched.
+
+The sequel’s major thematic questions include: Who owns a traumatic story once it becomes public? Can survivors consent freely when their pain is the only thing anyone is willing to pay them for? What is the difference between accountability and spectacle? How does editing reshape truth? Can performance be protective, or does it always become another trap? What happens when audiences condemn exploitation while participating in it?
+
+The novel also expands the series’ interest in class, gender, and institutional hypocrisy. The public’s obsession with the Excelsior survivors is shaped by their privilege, their beauty, their status, and their proximity to scandal. The outrage surrounding the show is sincere in some places and deeply hypocritical in others. The book is especially sharp when it points out that the same society condemning the show is also watching it, clipping it, discussing it, moralizing over it, and helping make it successful.
+
+---
+
+## **Narrative Devices and Structure**
+
+Book 2 uses reality television language as both style and weapon. The story incorporates casting interviews, confessionals, trailer footage, broadcast segments, media commentary, televised interviews, social discourse, and scenes shaped by the presence of cameras. These devices are not decorative. They are part of the horror architecture.
+
+The cameras create pressure. They make characters perform when they should be processing. They turn private relationships into public material. They distort behavior by rewarding the most dramatic version of every emotion. They also create an unstable relationship between what happens, what is filmed, what is edited, what is broadcast, and what the audience believes.
+
+The title *To Reel or Not Too Real?* works because it captures the sequel’s central tension: the film reel, the reality show, the performance of authenticity, and the question of whether anything remains real once everyone knows they are being watched.
+
+---
+
+## **Spoiler-Safe Marketing Angles**
+
+## **Reality TV Horror**
+
+The survivors of a school massacre become the stars of a reality television show, only to discover that the cameras may be almost as dangerous as the killer.
+
+## **Trauma as Content**
+
+A dark psychological thriller about what happens when grief, survival, guilt, and public fascination are turned into entertainment.
+
+## **The Camera Never Blinks**
+
+In Book 1, secrets were buried inside a school. In Book 2, secrets are dragged into the light, edited, packaged, and sold.
+
+## **The Return of Lucía Salgado**
+
+A long-missing figure returns to Santo Domingo with answers, trauma, and the power to destabilize everything the public thinks it knows.
+
+## **Fame Is Another Crime Scene**
+
+The survivors are no longer only haunted by what happened. They are haunted by the way the world wants to watch them remember it.
+
+## **A Slasher Sequel With Satirical Teeth**
+
+The book combines masked-killer suspense with reality-TV satire, social commentary, dark comedy, and psychological horror.
+
+## **Who Controls the Story?**
+
+The sequel asks whether truth still matters when producers, audiences, algorithms, and public opinion all want different versions of it.
+
+## **Dominican Spectacle and Social Hypocrisy**
+
+The novel critiques not only the production company exploiting the survivors, but also the society that condemns the exploitation while consuming every second of it.
+
+## **The Monster Evolves With the Era**
+
+The Grim Cojuelo returns in a world of cameras, confessionals, viral clips, and public performance.
+
+---
+
+## **Spoiler Boundaries**
+
+Do not reveal the identity of the new killer.
+
+Do not reveal if there’s more than one killer. 
+
+Do not reveal if the killers are related to the characters or how. 
+
+Do not reveal whether the killer is acting alone or with help.
+
+Do not reveal the full motive behind the new killings.
+
+Do not reveal Melissa’s pregnancy. 
+
+Do not reveal Melissa’s and Alex relationship. 
+
+Do not reveal the final fate of Alex Herrera, Melissa Rocha, Mónika Torres, Lucía Salgado, Mario Stinga, Shane Harper, Rafa Montero, Valeria, Camila, Humberto Salazar, Father Ángel, Sister María Gracia, Principal Davis Beltrán,  Lieutenant Ricardo García, Elías. 
+
+Do not reveal the final outcome of *The Real Scholars of Excelsior Academy*.
+
+Do not reveal the full truth of Lucía Salgado’s missing years.
+
+Do not reveal the full extent of Shane Harper’s manipulation.
+
+Do not reveal any final twists involving the Grim Cojuelo mask.
+
+Do not reveal the final confrontation.
+
+Do not reveal the final body count.
+
+Do not reveal the gender of the killers. 
+
+Do not reveal which relationships survive, collapse, or transform permanently.
+
+Do not reveal any late-book revelations involving Father Ángel, Humberto, Sister María Gracia, or the remaining institutional fallout from Excelsior Academy.
+
+Do not reveal any twist that reframes the audience’s understanding of Book 1 or *A Grim Tale*.
+
+Do not reveal any ending material that confirms who survives, who dies, who is exposed, who is punished, or who escapes accountability.
+
+---
+
+## **Public-Safe Description**
+
+Three years after the collapse of Excelsior Academy, the survivors of the Grim Cojuelo murders are drawn into *The Real Scholars of Excelsior Academy*, a reality television series built around their trauma, notoriety, and unresolved history.
+
+For producer Shane Harper, the survivors are more than cast members. They are storylines waiting to explode. Every argument can become a promo. Every secret can become a cliffhanger. Every wound can become content.
+
+But when Lucía Salgado returns to Santo Domingo after years of absence, the show gains more than a ratings boost. It gains access to secrets powerful people hoped would stay buried. As cameras invade the survivors’ homes, relationships, memories, and grief, a new threat emerges from the shadows, and the symbol of the Grim Cojuelo returns.
+
+Now the survivors must face a terrifying truth: surviving the past did not free them from it. It only made the world want to watch.
+
+*Mortal Vengeance II: To Reel or Not Too Real?* is a dark psychological thriller, slasher sequel, and reality television satire about fame, trauma, vengeance, and the horror of losing control of your own story.
+
+---
+
+## **Short Marketing Description**
+
+The survivors of *Mortal Vengeance* are back, but this time the nightmare has cameras.
+
+Three years after Excelsior Academy’s collapse, the alumni of the Grim Cojuelo murders become the stars of a reality show built around their trauma. As old secrets resurface and a new killer begins to stalk the people tied to the school’s past, the survivors must fight not only for their lives, but for control of the story being told about them.
+
+Part slasher, part psychological thriller, part media satire, *Mortal Vengeance II: To Reel or Not Too Real?* asks what happens when survival becomes spectacle.
+
+---
+
+## **Tagline Options**
+
+When grief is a commodity, you’re in for a killer season. 
+
+The cameras are rolling. The killer is watching.
+
+Surviving made them famous. Fame may get them killed.
+
+Everyone wants their story. Someone wants revenge.
+
+The edit can lie. The blood cannot.
+
+This season, trauma gets ratings.
+
+They survived the massacre. Now they have to survive the show.
+
+The past is back on camera.
+
+In Book 1, they were hunted by guilt. In Book 2, they are hunted by the audience.
+
+---
+
+## **Content / Quote Tagging Guidance**
+
+Use *Mortal Vengeance II* quote and content tags when the material involves media spectacle, reality television, fame, public reputation, survivor trauma, Shane Harper’s manipulation, Lucía’s return, Mónika’s loyalty, Alex’s public image, Melissa’s survivor identity, Rafa’s performative masculinity, Valeria and Camila’s villain roles, or any scene shaped by cameras, confessionals, interviews, broadcasts, trailers, edits, or audience reaction.
+
+Recommended mood tags for Book 2 content include: media-satire, snarky, funny, villainous, dramatic, emotional, brutal, grief, betrayal, survival, iconic, revenge, justice, scary, and psychological.
+
+Recommended theme tags include: media-exploitation, trauma-as-content, reality-TV, fame, performance, spectacle, narrative-control, survivorhood, public-image, Dominican-society, class-critique, gender-violence, institutional-abuse, complicity, revenge, grief, truth, and the Grim-Cojuelo.
+
+---
+
+## **Approved Excerpts / Style Samples**
+
+Use short excerpts that show the sequel’s distinct identity: the casting-room cold open, Shane’s predatory production style, Mónika protecting Lucía, the prologue’s news-broadcast framing, the reality-show trailer format, Ricardo’s grief at María’s memorial, and the in-world public criticism of *The Real Scholars of Excelsior Academy*.
+
+Strong sample categories include:
+
+Casting-room satire: scenes where Shane evaluates survivors and new cast members as potential content.
+
+Media-exploitation critique: passages describing the public debate around the show, especially when the narrative frames *The Real Scholars* as a symptom of society’s appetite for spectacle.
+
+Lucía’s return: scenes emphasizing her anxiety, her connection to Mónika, and her status as someone whose story the media wants to own.
+
+Alex under surveillance: scenes where Alex recognizes that Shane’s cameras are not passive observers but tools of pressure.
+
+Melissa and public identity: scenes that show the tension between Melissa’s private grief and her public image as survivor, Final Girl, romantic lead, or symbol.
+
+Mónika as protector: scenes where glamour, wit, loyalty, and strategic media awareness collide.
+
+---
+
+## **Internal Positioning Note**
+
+Do not position *Mortal Vengeance II* as simply “Book 1, but with more killings.” That undersells the whole deliciously toxic machine. The sequel is bigger because its villainy is systemic, cultural, and mediated. The killer may wear the mask, but the camera, the edit, the network, the audience, the gossip cycle, and the hunger for spectacle all participate in the violence.
+
+The cleanest positioning is:
+
+*Mortal Vengeance* is about complicity before the bloodshed.
+
+*Mortal Vengeance: A Grim Tale* is about the institutional rot that made the bloodshed possible.
+
+*Mortal Vengeance II: To Reel or Not Too Real?* is about what happens when the bloodshed becomes content.
+

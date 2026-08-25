@@ -216,7 +216,7 @@ def build_visual_prompt(
     return "\n".join(
         part
         for part in [
-            f"Create a brand-new Tell Tales Ink visual asset for: {use_case}.",
+            f"Create a brand-new Mortal Vengeance visual asset for: {use_case}.",
             f"Destination format: {format_label}.",
             f"Visual style: {style or 'Gothic, literary, cinematic, premium'}." ,
             f"Topic/context: {topic}".strip(),
@@ -224,6 +224,7 @@ def build_visual_prompt(
             f"Attribution/character/source: {attribution}".strip(),
             typography_note,
             "Brand direction: dark literary suspense, burgundy, ivory, cinematic contrast, sophisticated horror, no generic stock look.",
+            "Do not invent human faces or unidentified people. If no approved character reference is supplied, use objects, typography, setting, atmosphere, or symbolic imagery instead of a person.",
             "Do not include watermarks, UI chrome, platform logos, or unrelated text.",
         ]
         if part

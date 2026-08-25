@@ -139,6 +139,8 @@ def canonical_character_name(character_name) -> str:
 
 def _is_book2(book) -> bool:
     """True when the selected book/source refers to Mortal Vengeance II."""
+    if isinstance(book, (list, tuple, set)):
+        return any(_is_book2(item) for item in book)
     return "mortal vengeance ii" in normalize_asset_key(book)
 
 

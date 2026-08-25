@@ -5,7 +5,7 @@ import base64
 import mimetypes
 from pathlib import Path
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import AuthenticationError, OpenAI, OpenAIError
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -14,6 +14,14 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 DEFAULT_MODEL = os.getenv("LLM_MODEL", "gpt-5.4-mini")
 EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+
+
+def _format_openai_error(exc: OpenAIError) -> RuntimeError:
+    if isinstance(exc, AuthenticationError):
+        return RuntimeError(
+            "OpenAI API key was rejected. Replace OPENAI_API_KEY in .env with a valid key, then restart the app."
+        )
+    return RuntimeError(f"OpenAI request failed: {exc.__class__.__name__}: {exc}")
 
 
 def embeddings_available() -> bool:
@@ -40,7 +48,10 @@ def embed_texts(texts, model: str = EMBEDDING_MODEL, batch_size: int = 128):
     vectors: list[list[float]] = []
     for start in range(0, len(items), batch_size):
         batch = items[start:start + batch_size]
-        response = client.embeddings.create(model=model, input=batch)
+        try:
+            response = client.embeddings.create(model=model, input=batch)
+        except OpenAIError as exc:
+            raise _format_openai_error(exc) from None
         vectors.extend(item.embedding for item in response.data)
 
     matrix = np.asarray(vectors, dtype=np.float32)
@@ -61,10 +72,13 @@ def generate_text(prompt: str, model: str = DEFAULT_MODEL) -> str:
 
     client = OpenAI()
 
-    response = client.responses.create(
-        model=model,
-        input=prompt
-    )
+    try:
+        response = client.responses.create(
+            model=model,
+            input=prompt
+        )
+    except OpenAIError as exc:
+        raise _format_openai_error(exc) from None
 
     return response.output_text
 
@@ -89,18 +103,21 @@ def generate_text_with_image(prompt: str, image_path: str | Path, model: str = D
 
     client = OpenAI()
 
-    response = client.responses.create(
-        model=model,
-        input=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "input_text", "text": prompt},
-                    {"type": "input_image", "image_url": image_url},
-                ],
-            }
-        ],
-    )
+    try:
+        response = client.responses.create(
+            model=model,
+            input=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "input_text", "text": prompt},
+                        {"type": "input_image", "image_url": image_url},
+                    ],
+                }
+            ],
+        )
+    except OpenAIError as exc:
+        raise _format_openai_error(exc) from None
 
     return response.output_text
 

@@ -14,6 +14,7 @@ SUPPORTED_CONTENT_TYPES = {
     "character_spotlight": "character_spotlight.md",
     "review_pull_quote": "review_pull_quote.md",
     "quote_post": "quote_post.md",
+    "chapter_promos": "chapter_promos.md",
     "podcast": "podcast.md",
     "press_release": "press_release.md",
     # Publishing deliverables (separate from the Press Release companion assets).
@@ -81,7 +82,17 @@ def build_prompt(template_text, topic, knowledge_context):
         "topic": topic,
         "knowledge_context": knowledge_context,
     })
-    return template_text.format_map(values)
+    prompt = template_text.format_map(values)
+    return (
+        f"{prompt}\n\n"
+        "## Hard Constraint\n\n"
+        "\"Tell Tales Ink\" is the internal name of the tool generating this content. "
+        "It is not a publisher, company, or narrator. Never write \"Tell Tales Ink\" "
+        "into the generated content itself (e.g. never write \"Tell Tales Ink is proud "
+        "to announce\" or \"Tell Tales Ink announces\"). If an organization or company "
+        "name is needed and none was supplied, use the author's name (Alejandro Torres "
+        "De la Rocha) or the book/series name instead, or leave a bracketed placeholder."
+    )
 
 
 if __name__ == "__main__":
