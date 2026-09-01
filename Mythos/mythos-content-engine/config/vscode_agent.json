@@ -1,5 +1,5 @@
 {
   "project": "mythos-content-engine",
-  "entrypoint": "src/nicegui_ui.py",
+  "entrypoint": "backend/main.py",
   "outputsDirectory": "outputs"
 }

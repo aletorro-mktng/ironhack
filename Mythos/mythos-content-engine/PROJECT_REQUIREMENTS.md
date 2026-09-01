@@ -22,7 +22,7 @@
 - [x] LLM API integration through `src/llm_integration.py`.
 - [x] Structured Python automation framework under `src/`.
 - [x] Reusable prompt templates under `templates/`.
-- [x] Local NiceGUI UI through `src/nicegui_ui.py`, with podcast generation built into a native tab.
+- [x] Local NiceGUI UI through `src/nicegui_ui.py`, with Podcast Studio migrating first to React + TypeScript + Vite behind FastAPI.
 - [x] Primary and secondary knowledge base separation.
 - [x] Output saving for prompts, filtered context, and generated drafts.
 - [x] Human-in-the-loop revision and approval workflow.
@@ -71,7 +71,7 @@
 | FR-003 | The app can generate brand-aligned content using LLM prompts. | Given parsed context and a user brief, when generation runs, then the output reflects Mortal Vengeance context, brand voice, and selected audience. | KBN-003 |
 | FR-004 | The app uses reusable prompt templates. | Given a selected content type, when generation runs, then the matching template or style variant is applied. | KBN-004 |
 | FR-005 | The app saves traceable artifacts. | Given a generated draft, when the workflow completes, then draft, prompt, and filtered context files are saved in `outputs/`. | KBN-005 |
-| FR-006 | The local UI supports structured content creation. | Given `python src/ui.py`, when the UI opens, then users can enter briefs, configure content, generate drafts, edit, revise, approve, and save. | KBN-006 |
+| FR-006 | The local UI supports structured content creation. | Given the legacy UI or the React/FastAPI Podcast Studio, when the app opens, then users can enter briefs, configure content, generate drafts, edit, revise, approve, and save. | KBN-006 |
 | FR-007 | Campaign Mode supports configurable multi-content campaigns. | Given multiple selected content types, when Campaign Mode opens, then each selected type exposes settings for format, quantity, style, audience, and constraints. | KBN-007 |
 | FR-008 | The app generates content calendars. | Given campaign dates, cadence, channels, content types, audience, and CTA, when calendar generation runs, then an editable calendar artifact is saved. | KBN-008 |
 | FR-009 | The app supports human revision workflow. | Given draft feedback, when revision runs, then a revision candidate is created, reviewed, accepted if approved, and saved as a traceable artifact. | KBN-009 |

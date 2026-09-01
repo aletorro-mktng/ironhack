@@ -433,3 +433,102 @@ User-supplied awards list: `Mortal Vengeance Awards and Recognitions_.md`
 ### Usage Notes
 
 Can be used as editorial recognition. Do not call it an award win.
+
+## AR-009
+
+### Book / Project
+
+Mortal Vengeance: A Grim Tale
+
+### Recognition Name
+
+BookView Review 5-Star Gold Review
+
+### Category
+
+Editorial review recognition
+
+### Year
+
+[Year not specified]
+
+### Result
+
+5-Star Gold Review
+
+### Source / Proof
+
+User-supplied awards list: `Mortal Vengeance Awards and Recognitions_.md`
+
+### Approved Claim
+
+*Mortal Vengeance: A Grim Tale* received a 5-Star Gold Review from BookView Review.
+
+### Usage Notes
+
+Can be used as review-based recognition. Do not call it an award win.
+
+---
+
+## AR-010
+
+### Book / Project
+
+Mortal Vengeance: A Grim Tale
+
+### Recognition Name
+
+CIPA EVVY Awards, Fiction
+
+### Category
+
+Horror
+### Year
+
+2026
+
+### Result
+
+Finalist
+
+### Source / Proof
+
+User-supplied awards list: `Mortal Vengeance Awards and Recognitions_.md`
+
+### Approved Claim
+
+*Mortal Vengeance: A Grim Tale* is a finalist at the CIPA EVVY Awards 2026 in Horror.
+
+### Usage Notes
+
+A winner has not been announced.
+
+## AR-011
+
+### Book / Project
+
+Mortal Vengeance
+
+### Recognition Name
+
+Indie Reader Discovery Awards 2026
+
+### Category
+
+Horror
+### Year
+
+2026
+
+### Result
+
+Winner
+
+### Source / Proof
+
+User-supplied awards list: `Mortal Vengeance Awards and Recognitions_.md`
+
+### Approved Claim
+
+Mortal Vengeance is Indie Reader Discovery Awards 2026 Top Horror Book.
+### Usage Notes

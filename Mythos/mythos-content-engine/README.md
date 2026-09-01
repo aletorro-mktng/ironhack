@@ -57,22 +57,94 @@ Mythos generation prompt, Mythos draft, and final comparison report in
 `outputs/`. The report includes a human assessment scorecard for you to judge
 the comparison yourself.
 
-## Run the Local UI
+## Run the Local App
 
 ```bash
-python src/nicegui_ui.py
+pip install -r requirements.txt
+npm install
+npm run api
+```
+
+In a second terminal:
+
+```bash
+npm run dev
 ```
 
 Then open:
 
 ```text
-http://127.0.0.1:7860
+http://127.0.0.1:5173
 ```
 
-The NiceGUI shell supports structured input, draft generation, editable output, podcast generation, and saving revised drafts into `outputs/`.
-The main Generator tab now includes native panels for blog posts, press releases, newsletters, character spotlights, Instagram, LinkedIn, and YouTube.
+The new frontend is React + TypeScript + Vite. The Python backend is exposed through FastAPI at `http://127.0.0.1:8000`.
 
-The Podcast Studio is built into the NiceGUI app as a native tab, so you do not need to start a separate Gradio interface for the main workflow.
+Migration is intentionally feature-by-feature. Podcast Studio is the first React slice.
+Generator, Campaign Mode, Chapter Promos, Gallery and Library remain in the legacy
+NiceGUI/Gradio interface until their own migration pass. Keep `nicegui` and `gradio`
+installed until the last legacy route is removed.
+
+## Backend Architecture
+
+The FastAPI app is assembled in `backend/main.py`.
+
+```text
+backend/
+├── api/
+├── services/
+├── models/
+├── repositories/
+├── workers/
+└── main.py
+```
+
+Services accept and return ordinary Python/Pydantic data. They do not import React,
+NiceGUI, Gradio, or frontend component objects.
+
+Podcast preview and full-render requests return queued jobs immediately. Progress is
+available through `GET /api/jobs/{job_id}` polling and
+`GET /api/jobs/{job_id}/events` server-sent events. Job status is persisted under
+`outputs/jobs/index.json`. The current worker is an isolated local queue, so it can be
+replaced with Celery or another durable queue without changing the API contract.
+
+## Frontend Architecture
+
+The independent Vite app lives under `frontend/src/`.
+
+```text
+frontend/src/
+├── api/
+├── components/
+├── features/
+├── hooks/
+├── routes/
+├── stores/
+├── styles/
+└── types/
+```
+
+Validation uses TypeScript explicitly:
+
+```bash
+npm run generate:types
+npm run typecheck
+npm run build
+```
+
+`npm run generate:types` exports the FastAPI OpenAPI schema to
+`frontend/src/types/openapi.json` and regenerates
+`frontend/src/types/api.generated.ts`. Frontend API contracts should be imported
+from those generated types instead of being maintained by hand.
+
+To inventory a running legacy Gradio API during migration, run:
+
+```bash
+npm run catalog:legacy
+```
+
+Set `LEGACY_GRADIO_OPENAPI_URL` if the Gradio server is not exposing
+`/openapi.json` at `http://127.0.0.1:7860`. The catalog is documentation only;
+FastAPI remains the permanent product API.
 
 ## VSCode Agent Configuration
 
@@ -87,7 +159,7 @@ Current configuration:
 ```json
 {
   "project": "mythos-content-engine",
-  "entrypoint": "src/nicegui_ui.py",
+  "entrypoint": "backend/main.py",
   "outputsDirectory": "outputs"
 }
 ```
@@ -103,7 +175,7 @@ Recommended VSCode workflow:
 1. Open the `mythos-content-engine` folder as the active project.
 2. Keep `.env` local and never commit API keys.
 3. Run the CLI with `python src/main.py` for terminal-based generation.
-4. Run the NiceGUI app with `python src/nicegui_ui.py` for structured briefs, human review, editing, approval logs, podcast generation, and exports.
+4. Run the FastAPI backend with `npm run api` and the React frontend with `npm run dev`.
 5. Review generated artifacts in `outputs/`, especially:
    - `*_filtered_context_*.md`
    - `*_generation_prompt_*.md`

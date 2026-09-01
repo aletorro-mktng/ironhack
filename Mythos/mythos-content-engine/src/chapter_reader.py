@@ -49,6 +49,8 @@ _CHAPTER_RE = re.compile(
 )
 # A markdown section heading (Epilogue, The B Roll, ...) that isn't a chapter.
 _SECTION_RE = re.compile(r"^##\s+\*{0,2}(?P<title>[^\n{*]+?)\*{0,2}\s*(?:\{#[^}]*\})?\s*$")
+_BOLD_TITLE_RE = re.compile(r"^\*{2}(?P<title>[^*\n]+?)\*{2}\s*$")
+_STANDALONE_SECTION_TITLES = {"prologue", "epilogue"}
 _SKIP_TITLES = {"table of contents", "contents"}
 # A table-of-contents entry is a page reference like ``[11](#chapter-1)`` — a
 # bracketed page NUMBER linking to an anchor. Real headings don't carry one (their
@@ -76,6 +78,24 @@ def _slugify(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
 
 
+def _next_bold_title(lines: list[str], start: int) -> tuple[int, str] | None:
+    for index in range(start, min(start + 5, len(lines))):
+        stripped = lines[index].strip()
+        if not stripped:
+            continue
+        match = _BOLD_TITLE_RE.match(stripped)
+        if match:
+            title = match.group("title").strip()
+            return index, title
+        return None
+    return None
+
+
+def _is_standalone_section_title(title: str) -> bool:
+    normalized = title.lower().strip()
+    return normalized in _STANDALONE_SECTION_TITLES or normalized.startswith("b-roll:")
+
+
 @lru_cache(maxsize=16)
 def parse_chapters(book: str) -> list[dict]:
     """Return ``[{id, label, title, text, char_count}]`` for a book.
@@ -92,30 +112,46 @@ def parse_chapters(book: str) -> list[dict]:
     except OSError:
         return []
 
-    # Collect chapter/section boundaries (line index, label, id), skipping the ToC.
-    boundaries: list[tuple[int, str, str]] = []
+    # Collect chapter/section boundaries (heading index, body start, label, id), skipping the ToC.
+    boundaries: list[tuple[int, int, str, str]] = []
+    title_lines_consumed: set[int] = set()
     for i, line in enumerate(lines):
         if _is_toc_line(line):
+            continue
+        if i in title_lines_consumed:
             continue
         chapter_match = _CHAPTER_RE.match(line)
         if chapter_match:
             number = chapter_match.group("num")
             rest = (chapter_match.group("title") or "").strip().rstrip(".").strip()
+            body_start = i + 1
+            if not rest:
+                title_info = _next_bold_title(lines, i + 1)
+                if title_info:
+                    title_i, rest = title_info
+                    title_lines_consumed.add(title_i)
+                    body_start = title_i + 1
             label = f"Chapter {number}: {rest}" if rest else f"Chapter {number}"
-            boundaries.append((i, label, f"chapter-{number}"))
+            boundaries.append((i, body_start, label, f"chapter-{number}"))
             continue
         section_match = _SECTION_RE.match(line)
         if section_match:
             title = section_match.group("title").strip()
             if not title or title.lower() in _SKIP_TITLES:
                 continue
-            boundaries.append((i, title, _slugify(title) or f"section-{i}"))
+            boundaries.append((i, i + 1, title, _slugify(title) or f"section-{i}"))
+            continue
+        bold_match = _BOLD_TITLE_RE.match(line.strip())
+        if bold_match:
+            title = bold_match.group("title").strip()
+            if _is_standalone_section_title(title):
+                boundaries.append((i, i + 1, title, _slugify(title) or f"section-{i}"))
 
     chapters: list[dict] = []
     used_ids: set[str] = set()
-    for idx, (start_i, label, cid) in enumerate(boundaries):
+    for idx, (start_i, body_start_i, label, cid) in enumerate(boundaries):
         end_i = boundaries[idx + 1][0] if idx + 1 < len(boundaries) else len(lines)
-        body = "\n".join(lines[start_i + 1:end_i]).strip()
+        body = "\n".join(lines[body_start_i:end_i]).strip()
         if len(body) < 120:  # skip empty/stub headings
             continue
         if cid in used_ids:

@@ -93,6 +93,7 @@ The author’s voice is:
 * Theatrical, but character-driven.  
 * Violent in feeling before it is violent in action.
 
+
 The darkness must have teeth.  
 The humor must have a reason.  
 The spectacle must reveal character.

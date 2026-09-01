@@ -5,6 +5,11 @@
 venv/
 .venv/
 
+# Frontend dependencies and build output
+node_modules/
+frontend/dist/
+*.tsbuildinfo
+
 # Python cache files
 __pycache__/
 *.pyc
@@ -21,7 +26,7 @@ __pycache__/
 # Logs
 *.log
 
-# Generated outputs (drafts, images, audio) — runtime artifacts, not source
+# Generated outputs (drafts, images, audio) - runtime artifacts, not source
 outputs/
 
 # Cached quote-bank embeddings (rebuilt on demand)

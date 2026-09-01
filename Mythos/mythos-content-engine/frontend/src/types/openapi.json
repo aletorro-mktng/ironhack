@@ -1,0 +1,2244 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TellTales Ink API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Api Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/options": {
+      "get": {
+        "tags": [
+          "generation"
+        ],
+        "summary": "Options",
+        "operationId": "options_api_options_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Options Api Options Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/content/generate": {
+      "post": {
+        "tags": [
+          "generation"
+        ],
+        "summary": "Content Generate",
+        "operationId": "content_generate_api_content_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentGenerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Content Generate Api Content Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/generate": {
+      "post": {
+        "tags": [
+          "generation"
+        ],
+        "summary": "Legacy Generate",
+        "operationId": "legacy_generate_api_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentGenerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Legacy Generate Api Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/campaigns/generate": {
+      "post": {
+        "tags": [
+          "generation"
+        ],
+        "summary": "Campaign Generate",
+        "operationId": "campaign_generate_api_campaigns_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignGenerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Campaign Generate Api Campaigns Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chapter-promos/generate": {
+      "post": {
+        "tags": [
+          "generation"
+        ],
+        "summary": "Chapter Promos Generate",
+        "operationId": "chapter_promos_generate_api_chapter_promos_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChapterPromoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Chapter Promos Generate Api Chapter Promos Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drafts": {
+      "get": {
+        "tags": [
+          "drafts"
+        ],
+        "summary": "List Drafts",
+        "operationId": "list_drafts_api_drafts_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Draft"
+                  },
+                  "title": "Response List Drafts Api Drafts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "drafts"
+        ],
+        "summary": "Create Draft",
+        "operationId": "create_draft_api_drafts_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Draft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drafts/{draft_id}": {
+      "get": {
+        "tags": [
+          "drafts"
+        ],
+        "summary": "Get Draft",
+        "operationId": "get_draft_api_drafts__draft_id__get",
+        "parameters": [
+          {
+            "name": "draft_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Draft Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Draft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "drafts"
+        ],
+        "summary": "Patch Draft",
+        "operationId": "patch_draft_api_drafts__draft_id__patch",
+        "parameters": [
+          {
+            "name": "draft_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Draft Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Draft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "drafts"
+        ],
+        "summary": "Put Draft",
+        "operationId": "put_draft_api_drafts__draft_id__put",
+        "parameters": [
+          {
+            "name": "draft_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Draft Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Draft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "drafts"
+        ],
+        "summary": "Delete Draft",
+        "operationId": "delete_draft_api_drafts__draft_id__delete",
+        "parameters": [
+          {
+            "name": "draft_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Draft Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "title": "Response Delete Draft Api Drafts  Draft Id  Delete"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/podcasts/scripts": {
+      "post": {
+        "tags": [
+          "podcasts"
+        ],
+        "summary": "Create Script",
+        "operationId": "create_script_api_podcasts_scripts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PodcastGenerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PodcastDraft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/podcasts/generate": {
+      "post": {
+        "tags": [
+          "podcasts"
+        ],
+        "summary": "Legacy Create Script",
+        "operationId": "legacy_create_script_api_podcasts_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PodcastGenerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Legacy Create Script Api Podcasts Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/podcasts/{draft_id}": {
+      "get": {
+        "tags": [
+          "podcasts"
+        ],
+        "summary": "Get Podcast",
+        "operationId": "get_podcast_api_podcasts__draft_id__get",
+        "parameters": [
+          {
+            "name": "draft_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Draft Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PodcastDraft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "podcasts"
+        ],
+        "summary": "Update Podcast",
+        "operationId": "update_podcast_api_podcasts__draft_id__patch",
+        "parameters": [
+          {
+            "name": "draft_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Draft Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PodcastDraft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/podcasts/{draft_id}/preview": {
+      "post": {
+        "tags": [
+          "audio"
+        ],
+        "summary": "Podcast Preview",
+        "operationId": "podcast_preview_api_podcasts__draft_id__preview_post",
+        "parameters": [
+          {
+            "name": "draft_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Draft Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/PodcastRenderRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/podcasts/{draft_id}/render": {
+      "post": {
+        "tags": [
+          "audio"
+        ],
+        "summary": "Podcast Render",
+        "operationId": "podcast_render_api_podcasts__draft_id__render_post",
+        "parameters": [
+          {
+            "name": "draft_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Draft Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/PodcastRenderRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exports": {
+      "post": {
+        "tags": [
+          "exports"
+        ],
+        "summary": "Create Export",
+        "operationId": "create_export_api_exports_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Artifact"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/artifacts/{artifact_id}/download": {
+      "get": {
+        "tags": [
+          "exports"
+        ],
+        "summary": "Download Artifact",
+        "operationId": "download_artifact_api_artifacts__artifact_id__download_get",
+        "parameters": [
+          {
+            "name": "artifact_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Artifact Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/voices": {
+      "get": {
+        "tags": [
+          "voices"
+        ],
+        "summary": "Voices",
+        "operationId": "voices_api_voices_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response Voices Api Voices Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/voices/{voice_id}/preview": {
+      "post": {
+        "tags": [
+          "voices"
+        ],
+        "summary": "Voice Preview",
+        "operationId": "voice_preview_api_voices__voice_id__preview_post",
+        "parameters": [
+          {
+            "name": "voice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Voice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoicePreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Artifact"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Job Status",
+        "operationId": "job_status_api_jobs__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{job_id}/events": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Job Events",
+        "operationId": "job_events_api_jobs__job_id__events_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/gallery/images": {
+      "get": {
+        "tags": [
+          "library"
+        ],
+        "summary": "Gallery Images",
+        "operationId": "gallery_images_api_gallery_images_get",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "All types",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "Newest first",
+              "title": "Sort"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Gallery Images Api Gallery Images Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/library/audio": {
+      "get": {
+        "tags": [
+          "library"
+        ],
+        "summary": "Audio Library",
+        "operationId": "audio_library_api_library_audio_get",
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "Newest first",
+              "title": "Sort"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Audio Library Api Library Audio Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Artifact": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "media_type": {
+            "type": "string",
+            "title": "Media Type",
+            "default": "application/octet-stream"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "path",
+          "filename"
+        ],
+        "title": "Artifact"
+      },
+      "CampaignGenerationRequest": {
+        "properties": {
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "content_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Content Types"
+          },
+          "related_book": {
+            "type": "string",
+            "title": "Related Book",
+            "default": ""
+          },
+          "platform": {
+            "type": "string",
+            "title": "Platform",
+            "default": ""
+          },
+          "audience": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Audience"
+          },
+          "objectives": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Objectives"
+          },
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Constraints"
+          },
+          "cta": {
+            "type": "string",
+            "title": "Cta",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic",
+          "content_types"
+        ],
+        "title": "CampaignGenerationRequest"
+      },
+      "ChapterPromoRequest": {
+        "properties": {
+          "books": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Books"
+          },
+          "chapters": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Chapters"
+          },
+          "platforms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Platforms"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "default": "Tease It"
+          },
+          "genre": {
+            "type": "string",
+            "title": "Genre",
+            "default": "Horror"
+          },
+          "promotional_goal": {
+            "type": "string",
+            "title": "Promotional Goal",
+            "default": "Read the Next Chapter"
+          },
+          "moods": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Moods"
+          },
+          "style_variant": {
+            "type": "string",
+            "title": "Style Variant",
+            "default": "spoiler_safe_teaser"
+          },
+          "spoiler_level": {
+            "type": "string",
+            "title": "Spoiler Level",
+            "default": "Almost Nothing"
+          },
+          "spoiler_notes": {
+            "type": "string",
+            "title": "Spoiler Notes",
+            "default": ""
+          },
+          "cta": {
+            "type": "string",
+            "title": "Cta",
+            "default": ""
+          },
+          "optional_quote": {
+            "type": "string",
+            "title": "Optional Quote",
+            "default": ""
+          },
+          "hooks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Hooks"
+          },
+          "focus_character": {
+            "type": "string",
+            "title": "Focus Character",
+            "default": ""
+          },
+          "teaser_pillar": {
+            "type": "string",
+            "title": "Teaser Pillar",
+            "default": "Choose the Best Structure for Me"
+          },
+          "promo_duration": {
+            "type": "string",
+            "title": "Promo Duration",
+            "default": "30-Second Chapter Promo"
+          },
+          "genre_promo_mode": {
+            "type": "string",
+            "title": "Genre Promo Mode",
+            "default": "Match the Chapter Automatically"
+          },
+          "promo_outputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Promo Outputs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "books",
+          "chapters"
+        ],
+        "title": "ChapterPromoRequest"
+      },
+      "ContentGenerationRequest": {
+        "properties": {
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "related_book": {
+            "type": "string",
+            "title": "Related Book",
+            "default": ""
+          },
+          "related_books": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Related Books"
+          },
+          "platform": {
+            "type": "string",
+            "title": "Platform",
+            "default": ""
+          },
+          "audience": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Audience"
+          },
+          "objectives": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Objectives"
+          },
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Constraints"
+          },
+          "cta": {
+            "type": "string",
+            "title": "Cta",
+            "default": ""
+          },
+          "formats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Formats"
+          },
+          "visual_formats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Visual Formats"
+          },
+          "visual_style": {
+            "type": "string",
+            "title": "Visual Style",
+            "default": ""
+          },
+          "image_source": {
+            "type": "string",
+            "title": "Image Source",
+            "default": ""
+          },
+          "hashtag_mode": {
+            "type": "string",
+            "title": "Hashtag Mode",
+            "default": ""
+          },
+          "blog_length": {
+            "type": "string",
+            "title": "Blog Length",
+            "default": ""
+          },
+          "blog_format": {
+            "type": "string",
+            "title": "Blog Format",
+            "default": ""
+          },
+          "structure": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Structure"
+          },
+          "spoiler_level": {
+            "type": "string",
+            "title": "Spoiler Level",
+            "default": ""
+          },
+          "source_restrictions": {
+            "type": "string",
+            "title": "Source Restrictions",
+            "default": ""
+          },
+          "length_preference": {
+            "type": "string",
+            "title": "Length Preference",
+            "default": ""
+          },
+          "supporting_image": {
+            "type": "string",
+            "title": "Supporting Image",
+            "default": ""
+          },
+          "image_generation": {
+            "type": "string",
+            "title": "Image Generation",
+            "default": ""
+          },
+          "word_count": {
+            "type": "string",
+            "title": "Word Count",
+            "default": ""
+          },
+          "seo_keyword": {
+            "type": "string",
+            "title": "Seo Keyword",
+            "default": ""
+          },
+          "heading_depth": {
+            "type": "string",
+            "title": "Heading Depth",
+            "default": ""
+          },
+          "metadata_controls": {
+            "type": "string",
+            "title": "Metadata Controls",
+            "default": ""
+          },
+          "knowledge_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Knowledge Sources"
+          },
+          "source_focus": {
+            "type": "string",
+            "title": "Source Focus",
+            "default": ""
+          },
+          "press_timing": {
+            "type": "string",
+            "title": "Press Timing",
+            "default": ""
+          },
+          "publication_date": {
+            "type": "string",
+            "title": "Publication Date",
+            "default": ""
+          },
+          "byline_city": {
+            "type": "string",
+            "title": "Byline City",
+            "default": ""
+          },
+          "news_angle": {
+            "type": "string",
+            "title": "News Angle",
+            "default": ""
+          },
+          "auto_news_angle": {
+            "type": "boolean",
+            "title": "Auto News Angle",
+            "default": false
+          },
+          "boilerplate": {
+            "type": "string",
+            "title": "Boilerplate",
+            "default": ""
+          },
+          "auto_boilerplate": {
+            "type": "boolean",
+            "title": "Auto Boilerplate",
+            "default": false
+          },
+          "media_contact": {
+            "type": "string",
+            "title": "Media Contact",
+            "default": ""
+          },
+          "media_contact_name": {
+            "type": "string",
+            "title": "Media Contact Name",
+            "default": ""
+          },
+          "media_contact_email": {
+            "type": "string",
+            "title": "Media Contact Email",
+            "default": ""
+          },
+          "media_contact_phone": {
+            "type": "string",
+            "title": "Media Contact Phone",
+            "default": ""
+          },
+          "media_contact_website": {
+            "type": "string",
+            "title": "Media Contact Website",
+            "default": ""
+          },
+          "companion_assets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Companion Assets"
+          }
+        },
+        "type": "object",
+        "required": [
+          "content_type",
+          "topic"
+        ],
+        "title": "ContentGenerationRequest"
+      },
+      "Draft": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "Draft"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "default": ""
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "default": ""
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "default": ""
+          },
+          "source_path": {
+            "type": "string",
+            "title": "Source Path",
+            "default": ""
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "content_type"
+        ],
+        "title": "Draft"
+      },
+      "DraftCreateRequest": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "Draft"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type",
+            "default": "content"
+          },
+          "source_path": {
+            "type": "string",
+            "title": "Source Path",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "content"
+        ],
+        "title": "DraftCreateRequest"
+      },
+      "DraftUpdateRequest": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "Draft"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "content"
+        ],
+        "title": "DraftUpdateRequest"
+      },
+      "ExportRequest": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "docx",
+              "markdown",
+              "txt"
+            ],
+            "title": "Format",
+            "default": "docx"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "content"
+        ],
+        "title": "ExportRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Job": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "complete",
+              "failed"
+            ],
+            "title": "Status",
+            "default": "queued"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": ""
+          },
+          "progress": {
+            "type": "number",
+            "title": "Progress",
+            "default": 0.0
+          },
+          "result": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "Job"
+      },
+      "PerformanceCue": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "PerformanceCue"
+      },
+      "PodcastDraft": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type",
+            "default": "podcast"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "Draft"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "default": ""
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "default": ""
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "default": ""
+          },
+          "source_path": {
+            "type": "string",
+            "title": "Source Path",
+            "default": ""
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "default": ""
+          },
+          "show_title": {
+            "type": "string",
+            "title": "Show Title",
+            "default": ""
+          },
+          "episode_title": {
+            "type": "string",
+            "title": "Episode Title",
+            "default": ""
+          },
+          "speakers": {
+            "items": {
+              "$ref": "#/components/schemas/PodcastSpeaker"
+            },
+            "type": "array",
+            "title": "Speakers"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/PodcastSegment"
+            },
+            "type": "array",
+            "title": "Segments"
+          },
+          "raw_script": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Script"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "PodcastDraft"
+      },
+      "PodcastGenerationRequest": {
+        "properties": {
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "source_title": {
+            "type": "string",
+            "title": "Source Title",
+            "default": ""
+          },
+          "show_title": {
+            "type": "string",
+            "title": "Show Title",
+            "default": ""
+          },
+          "episode_title": {
+            "type": "string",
+            "title": "Episode Title",
+            "default": ""
+          },
+          "episode_number": {
+            "type": "string",
+            "title": "Episode Number",
+            "default": ""
+          },
+          "destination": {
+            "type": "string",
+            "title": "Destination",
+            "default": "Spotify"
+          },
+          "podcast_format": {
+            "type": "string",
+            "title": "Podcast Format",
+            "default": "roundtable discussion"
+          },
+          "speakers": {
+            "type": "string",
+            "title": "Speakers",
+            "default": "3"
+          },
+          "speaker_roles": {
+            "type": "string",
+            "title": "Speaker Roles",
+            "default": "Host, Co-host, Guest"
+          },
+          "tone": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tone"
+          },
+          "audience": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Audience"
+          },
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Constraints"
+          },
+          "performance_cues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Performance Cues"
+          },
+          "custom_constraints": {
+            "type": "string",
+            "title": "Custom Constraints",
+            "default": ""
+          },
+          "model_id": {
+            "type": "string",
+            "title": "Model Id",
+            "default": "eleven_multilingual_v2"
+          },
+          "target_length": {
+            "type": "string",
+            "title": "Target Length",
+            "default": "5-7 minutes"
+          },
+          "cta": {
+            "type": "string",
+            "title": "Cta",
+            "default": ""
+          },
+          "knowledge_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Knowledge Sources"
+          },
+          "source_focus": {
+            "type": "string",
+            "title": "Source Focus",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic"
+        ],
+        "title": "PodcastGenerationRequest"
+      },
+      "PodcastRenderRequest": {
+        "properties": {
+          "voice_map": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Voice Map"
+          },
+          "host_voice_id": {
+            "type": "string",
+            "title": "Host Voice Id",
+            "default": ""
+          },
+          "guest_voice_id": {
+            "type": "string",
+            "title": "Guest Voice Id",
+            "default": ""
+          },
+          "guest_2_voice_id": {
+            "type": "string",
+            "title": "Guest 2 Voice Id",
+            "default": ""
+          },
+          "model_id": {
+            "type": "string",
+            "title": "Model Id",
+            "default": "eleven_multilingual_v2"
+          },
+          "stability": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stability"
+          },
+          "similarity_boost": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Similarity Boost"
+          },
+          "style": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style"
+          },
+          "speed": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speed"
+          },
+          "use_speaker_boost": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Use Speaker Boost"
+          }
+        },
+        "type": "object",
+        "title": "PodcastRenderRequest"
+      },
+      "PodcastSegment": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "turns": {
+            "items": {
+              "$ref": "#/components/schemas/PodcastTurn"
+            },
+            "type": "array",
+            "title": "Turns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "turns"
+        ],
+        "title": "PodcastSegment"
+      },
+      "PodcastSpeaker": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "default": ""
+          },
+          "voice_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "PodcastSpeaker"
+      },
+      "PodcastTurn": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "speaker_id": {
+            "type": "string",
+            "title": "Speaker Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "cues": {
+            "items": {
+              "$ref": "#/components/schemas/PerformanceCue"
+            },
+            "type": "array",
+            "title": "Cues"
+          },
+          "estimated_duration_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Duration Seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "speaker_id",
+          "text"
+        ],
+        "title": "PodcastTurn"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VoicePreviewRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "default": "This is a TellTales Ink voice preview."
+          }
+        },
+        "type": "object",
+        "title": "VoicePreviewRequest"
+      }
+    }
+  }
+}

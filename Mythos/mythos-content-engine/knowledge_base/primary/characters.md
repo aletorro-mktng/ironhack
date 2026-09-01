@@ -1,6 +1,3 @@
-Absolutely. I’d turn this into a cleaner **internal character spotlight / character bible** document. The uploaded version already has the right voice and strong details, but it needs smoother structure, fewer “notes dump” moments, clearer character-function language, and stronger separation between public-safe character positioning and internal spoiler knowledge. This version keeps the snark, because removing it would be vandalism with a blazer.
-
----
 
 # **Mortal Vengeance Character Spotlights**
 

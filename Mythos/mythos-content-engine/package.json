@@ -1,0 +1,29 @@
+{
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "dev:7861": "VITE_DEV_PORT=7861 vite --host 127.0.0.1",
+    "catalog:legacy": "python scripts/catalog_legacy_openapi.py",
+    "generate:types": "python scripts/export_openapi.py && openapi-typescript frontend/src/types/openapi.json -o frontend/src/types/api.generated.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "build": "npm run generate:types && npm run typecheck && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "api": "uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload",
+    "legacy-ui": "python src/nicegui_ui.py"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.102.8",
+    "@vitejs/plugin-react": "^5.0.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.18.3",
+    "vite": "^6.0.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5.7.0"
+  }
+}
